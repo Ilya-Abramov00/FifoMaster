@@ -13,7 +13,7 @@
 
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
-#define MAXLINE 1024
+#define MAXLINE 15
 
 std::string FiFO1a = "/home/ilya/Загрузки/Pipe/fifo1";
 std::string FiFO2a = "/home/ilya/Загрузки/Pipe/fifo2";
@@ -34,10 +34,9 @@ public:
     int k = 0;
     int i = 0;
 
-    void StartPipe() {
-        server_read_fd = OpenFifoRead(FIFO2);
-//        server_write_fd = OpenFifoWrite(FIFO1);
-        server_count_read_fd = OpenFifoRead(FIFO3);
+    void ServerRead() {
+        server_read_fd = OpenFifoRead(FIFO1);
+        server_count_read_fd = OpenFifoRead(FIFO2);
 
         while (1) {
             ReadFifo(server_count_read_fd, server_buf_count);
@@ -47,10 +46,16 @@ public:
 
                 ReadFifo(server_read_fd, server_buf);
                 std::cout << "прием от клиента  " << server_buf << std::endl;
+
+                if (server_buf[0] == '0') {
+                    break;
+                }
             }
             i = k;
         }
+
     }
+
 
 private:
     void CreatePipe(char const *FIFO) {
@@ -86,23 +91,18 @@ private:
     }
 
     void ReadFifo(int server_fd, char *buffer) {
-        if (server_fd != -1) {
-            memset(buffer, 0, sizeof(buffer));
-            read(server_fd, buffer, MAXLINE);
+        if (server_fd == -1) { std::cout << " ошибка: "; }
+        memset(buffer, 0, sizeof(buffer));
+        read(server_fd, buffer, MAXLINE);
 
-        } else {
-            exit(EXIT_FAILURE);
-        }
     }
 
-    // std::string data0="ответное сообщение";
-    // const char *data = data0.c_str();
     int8_t server_read_fd = -1;
     int8_t server_count_read_fd = -1;
     int8_t server_write_fd = -1;
 
 
-    char server_buf[MAXLINE];
+    char server_buf[MAXLINE] = {0};
     char server_buf_count[1];
     std::string data;
 
@@ -114,7 +114,7 @@ int main() {
 
 
     ServerPipe a;
-    a.StartPipe();
+    a.ServerRead();
 
 
     return 1;

@@ -20,37 +20,36 @@ auto FIFO2 = FiFO2a.c_str();
 auto FIFO3 = FiFO3a.c_str();
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
-#define MAXLINE 1024
+#define MAXLINE 15
 
 
 class ClientPipe {
 public:
-    ClientPipe() {
+    ClientPipe() {}
 
-    }
 
-    void StartPipe() {
-//        client_read_fd = OpenFifoRead(FIFO1);
-
-        client_write_fd = OpenFifoWrite(FIFO2);
-        client_count_write_fd = OpenFifoWrite(FIFO3);
+    void PipeWrite() {
+        client_write_fd = OpenFifoWrite(FIFO1);
+        client_count_write_fd = OpenFifoWrite(FIFO2);
 
         while (std::cin >> client_buf) {
-            if ( client_buf[0] == '0') {break;}
+
             WriteFifo(client_count_write_fd, client_buf_count);
 
             WriteFifo(client_write_fd, client_buf);
             std::cout << "отправка серверу " << client_buf << std::endl;
+
+            if (client_buf[0] == '0') { break; }
         }
-        close( client_write_fd);
-        close( client_count_write_fd);
+        close(client_write_fd);
+        close(client_count_write_fd);
     }
 
-~ClientPipe(){
+/*~ClientPipe(){
     unlink(FIFO1);
     unlink(FIFO2);
     unlink(FIFO3);
-    }
+    }*/
 
 private:
     void CreatePipe(char const *FIFO) {
@@ -77,21 +76,18 @@ private:
     }
 
     void WriteFifo(int client_fd, char const *data) {
-        if (client_fd != -1) {
-            write(client_fd, data, strlen(data));
+        if (client_fd == -1) {{ std::cout << " ошибка: "; }}
+        write(client_fd, data, strlen(data));
 
-        } else {
-            std::cout << " ошибка отправки: ";
-        }
+
     }
 
     void ReadFifo(int client_fd, char *buffer) {
-        if (client_fd != -1) {
+        if (client_fd == -1) {
+            { std::cout << " ошибка: "; }
             memset(buffer, 0, sizeof(buffer));
             read(client_fd, buffer, MAXLINE);
 
-        } else {
-            exit(EXIT_FAILURE);
         }
     }
 
@@ -101,9 +97,9 @@ private:
     int8_t client_write_fd = -1;
     int8_t client_count_write_fd = -1;
 
-    char client_buf[MAXLINE];
+    char client_buf[MAXLINE] = {0};
     char client_buf_count[1] = {1};
-    std::string data_buffer = "rq";
+    std::string data_buffer = "";
 
 };
 
@@ -114,7 +110,7 @@ int main() {
     std::cout << "клиент\n" << std::endl;
 
     ClientPipe a;
-    a.StartPipe();
+    a.PipeWrite();
 
 
 
@@ -144,7 +140,7 @@ std::string data0;
 
         // Третий шаг, клиент отправляет данные на сервер
         if (client_write_fd != -1) {
-           
+
             write(client_write_fd, data, strlen(data) );
             std::cout << "client отправил message: ";
             std::cout << data << '\n';
