@@ -15,13 +15,10 @@
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 #define MAXLINE 15
 
-std::string FiFO1a = "/home/ilya/Загрузки/Pipe/fifo1";
-std::string FiFO2a = "/home/ilya/Загрузки/Pipe/fifo2";
-std::string FiFO3a = "/home/ilya/Загрузки/Pipe/fifo3";
 
-auto FIFO1 = FiFO1a.c_str();
-auto FIFO2 = FiFO2a.c_str();
-auto FIFO3 = FiFO3a.c_str();
+const char* FIFO1 ="/home/ilya/Загрузки/Pipe/fifo1";
+const char* FIFO2 ="/home/ilya/Загрузки/Pipe/fifo2";
+const char* FIFO3 = "/home/ilya/Загрузки/Pipe/fifo3";
 
 class ServerPipe {
 public:
@@ -36,8 +33,8 @@ public:
     void ServerRead() {
         server_read_fd = OpenFifoRead(FIFO1);
         server_count_read_fd = OpenFifoRead(FIFO2);
-        int k = 0;
-        int i = 0;
+        int k=0,i = 0;
+
         while (1) {
             ReadFifo(server_count_read_fd, server_buf_count);
 
@@ -47,10 +44,11 @@ public:
                 ReadFifo(server_read_fd, server_buf);
                 std::cout << "прием от клиента  " << server_buf << std::endl;
 
-                if (server_buf[0] == '0') {
+                if (server_buf[0] == '1') {
                     break;
                 }
             }
+            server_buf_count[0]=0;
             i = k;
         }
 

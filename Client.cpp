@@ -11,14 +11,9 @@
 #include <iostream>
 #include <string>
 
-std::string FiFO1a = "/home/ilya/Загрузки/Pipe/fifo1";
-std::string FiFO2a = "/home/ilya/Загрузки/Pipe/fifo2";
-std::string FiFO3a = "/home/ilya/Загрузки/Pipe/fifo3";
-
-auto FIFO1 = FiFO1a.c_str();
-auto FIFO2 = FiFO2a.c_str();
-auto FIFO3 = FiFO3a.c_str();
-
+const char* FIFO1 ="/home/ilya/Загрузки/Pipe/fifo1";
+const char* FIFO2 ="/home/ilya/Загрузки/Pipe/fifo2";
+const char* FIFO3 = "/home/ilya/Загрузки/Pipe/fifo3";
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 #define MAXLINE 15
 
