@@ -62,16 +62,16 @@ private:
 
     int OpenFifoRead(char const *FIFO) {
         int fd = open(FIFO, O_RDONLY, 0);
-        if (-1 != fd) {
-            std::cout << "Process opening Read\n";
+        if (-1 == fd) {
+            std::cout << "Все плохо Read\n";
         }
         return fd;
     }
 
     int OpenFifoWrite(char const *FIFO) {
         int fd = open(FIFO, O_WRONLY, 0);
-        if (-1 != fd) {
-            std::cout << "Process opening  Write\n";
+        if (-1 == fd) {
+            std::cout << "Все плохо  Write\n";
         }
         return fd;
     }
@@ -97,9 +97,10 @@ private:
 
     // std::string data0="ответное сообщение";
     // const char *data = data0.c_str();
-    int server_read_fd = -1;
-    int server_write_fd = -1;
-    int server_count_read_fd = -1;
+    int8_t server_read_fd = -1;
+    int8_t server_count_read_fd = -1;
+    int8_t server_write_fd = -1;
+
 
     char server_buf[MAXLINE];
     char server_buf_count[1];

@@ -36,13 +36,21 @@ public:
         client_count_write_fd = OpenFifoWrite(FIFO3);
 
         while (std::cin >> client_buf) {
+            if ( client_buf[0] == '0') {break;}
             WriteFifo(client_count_write_fd, client_buf_count);
 
             WriteFifo(client_write_fd, client_buf);
             std::cout << "отправка серверу " << client_buf << std::endl;
         }
+        close( client_write_fd);
+        close( client_count_write_fd);
     }
 
+~ClientPipe(){
+    unlink(FIFO1);
+    unlink(FIFO2);
+    unlink(FIFO3);
+    }
 
 private:
     void CreatePipe(char const *FIFO) {
@@ -54,16 +62,16 @@ private:
 
     int OpenFifoRead(char const *FIFO) {
         int fd = open(FIFO, O_RDONLY, 0);
-        if (-1 != fd) {
-            std::cout << "Process opening Read\n";
+        if (-1 == fd) {
+            std::cout << "Все плохо Read\n";
         }
         return fd;
     }
 
     int OpenFifoWrite(char const *FIFO) {
         int fd = open(FIFO, O_WRONLY, 0);
-        if (-1 != fd) {
-            std::cout << "Process opening  Write\n";
+        if (-1 == fd) {
+            std::cout << "Все плохо  Write\n";
         }
         return fd;
     }
@@ -89,9 +97,9 @@ private:
 
     // std::string data0="ответное сообщение";
     // const char *data = data0.c_str();
-    int client_read_fd = -1;
-    int client_write_fd = -1;
-    int client_count_write_fd = -1;
+    int8_t client_read_fd = -1;
+    int8_t client_write_fd = -1;
+    int8_t client_count_write_fd = -1;
 
     char client_buf[MAXLINE];
     char client_buf_count[1] = {1};
