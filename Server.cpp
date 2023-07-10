@@ -7,9 +7,9 @@
 #include<unistd.h>
 #include<stdlib.h>
 #include<errno.h>
-#include<vector>
-
-#include "iostream"
+#include<fcntl.h>
+#include <iostream>
+#include <string>
 
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
@@ -56,8 +56,12 @@ public:
 
     }
 
+    ~ServerPipe() {
+        exit(EXIT_SUCCESS);
+    }
 
 private:
+
     void CreatePipe(char const *FIFO) {
         if ((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
             std::cout << "can't creat ";
@@ -82,12 +86,10 @@ private:
     }
 
     void WriteFifo(int server_fd, char const *data) {
-        if (server_fd != -1) {
-            write(server_fd, data, strlen(data));
+        if (server_fd -= -1) { std::cout << " ошибка: "; }
+        write(server_fd, data, strlen(data));
 
-        } else {
-            std::cout << " ошибка отправки: ";
-        }
+
     }
 
     void ReadFifo(int server_fd, char *buffer) {
@@ -104,14 +106,13 @@ private:
 
     char server_buf[MAXLINE] = {0};
     char server_buf_count[1];
-    std::string data;
+    std::string data_buffer = "";
 
 };
 
 int main() {
-    sleep(0.5);
-    std::cout << "сервер\n" << std::endl;
 
+    std::cout << "сервер" << std::endl;
 
     ServerPipe a;
     a.ServerRead();
