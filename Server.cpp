@@ -32,22 +32,16 @@ public:
     }
 
     void StartPipe() {
-        server_read_fd = OpenFifo(FIFO1);
-        server_write_fd = OpenFifo(FIFO2);
-        server_count_read_fd = OpenFifo(FIFO3);
+//        server_read_fd = OpenFifoRead(FIFO1);
+//        server_write_fd = OpenFifoWrite(FIFO2);
+        server_count_read_fd = OpenFifoRead(FIFO3);
+        while (1) {
+            ReadFifo(server_count_read_fd, &server_buf_count);
 
-        ReadFifo(server_count_read_fd, server_buf_count);
-        int i=0;
-        while(i!=4)
-        {
-            sleep(0.0005);
-            ReadFifo(server_read_fd, server_buf);
-            data+=server_buf;
-            i++;
+            std::cout<<server_buf_count;
+
         }
-        std::cout<<data;
     }
-
 
 private:
     void CreatePipe(char const *FIFO) {
@@ -57,10 +51,17 @@ private:
         }
     }
 
-    int OpenFifo(char const *FIFO) {
+    int OpenFifoRead(char const *FIFO) {
+        int fd = open(FIFO,  O_RDONLY, 0);
+        if (-1 != fd) {
+            std::cout << "Process  opening Read\n";
+        }
+        return fd;
+    }
+    int OpenFifoWrite(char const *FIFO) {
         int fd = open(FIFO, O_WRONLY, 0);
         if (-1 != fd) {
-            std::cout << "Process  opening FIFO2 O_WDONLY\n";
+            std::cout << "Process  opening  Write\n";
         }
         return fd;
     }
@@ -75,32 +76,34 @@ private:
         }
     }
 
-void ReadFifo(int server_fd, char *buffer) {
-    if (server_fd != -1) {
-        memset(buffer, 0, sizeof(buffer));
-        read(server_fd, buffer, MAXLINE);
-        std::cout <<"server получил message: \n";
-        std::cout <<  buffer<<"\n";
-    } else {
-        exit(EXIT_FAILURE);
+    void ReadFifo(int server_fd, char *buffer) {
+        if (server_fd != -1) {
+            memset(buffer, 0, sizeof(buffer));
+            read(server_fd, buffer, MAXLINE);
+            std::cout << "server получил message: \n";
+            std::cout << buffer << "\n";
+        } else {
+            exit(EXIT_FAILURE);
+        }
     }
-}
+
     // std::string data0="ответное сообщение";
     // const char *data = data0.c_str();
     int server_read_fd = -1;
     int server_write_fd = -1;
     int server_count_read_fd = -1;
 
-    char  server_buf[MAXLINE];
-    char  server_buf_count[MAXLINE];
+    char server_buf[MAXLINE];
+    char server_buf_count;
     std::string data;
 
 };
 
 int main() {
-std::cout<<"сервер\n";
-sleep (5);
-    std::cout<<"сервер\n";
+    sleep(2);
+    std::cout << "сервер\n";
+
+
     ServerPipe a;
     a.StartPipe();
 
