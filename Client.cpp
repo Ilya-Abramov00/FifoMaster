@@ -31,16 +31,15 @@ public:
 
     void StartPipe() {
 //        client_read_fd = OpenFifoRead(FIFO1);
-//        std::cout << "отправка серверу0\n";
-//        client_write_fd = OpenFifoWrite(FIFO2);
-//        std::cout << "отправка серверу1\n";
+
+        client_write_fd = OpenFifoWrite(FIFO2);
         client_count_write_fd = OpenFifoWrite(FIFO3);
 
-
         while (std::cin >> client_buf) {
-            WriteFifo(client_count_write_fd, &(++client_buf_count));
-            std::cout << "отправка серверу\n";
+            WriteFifo(client_count_write_fd, client_buf_count);
 
+            WriteFifo(client_write_fd, client_buf);
+            std::cout << "отправка серверу " << client_buf << std::endl;
         }
     }
 
@@ -54,16 +53,17 @@ private:
     }
 
     int OpenFifoRead(char const *FIFO) {
-        int fd = open(FIFO,  O_RDONLY, 0);
+        int fd = open(FIFO, O_RDONLY, 0);
         if (-1 != fd) {
-            std::cout << "Process  opening Read\n";
+            std::cout << "Process opening Read\n";
         }
         return fd;
     }
+
     int OpenFifoWrite(char const *FIFO) {
         int fd = open(FIFO, O_WRONLY, 0);
         if (-1 != fd) {
-            std::cout << "Process  opening  Write\n";
+            std::cout << "Process opening  Write\n";
         }
         return fd;
     }
@@ -71,8 +71,7 @@ private:
     void WriteFifo(int client_fd, char const *data) {
         if (client_fd != -1) {
             write(client_fd, data, strlen(data));
-            std::cout << "server отправил message: ";
-            std::cout << data << '\n';
+
         } else {
             std::cout << " ошибка отправки: ";
         }
@@ -82,8 +81,7 @@ private:
         if (client_fd != -1) {
             memset(buffer, 0, sizeof(buffer));
             read(client_fd, buffer, MAXLINE);
-            std::cout << "server получил message: \n";
-            std::cout << buffer << "\n";
+
         } else {
             exit(EXIT_FAILURE);
         }
@@ -96,8 +94,8 @@ private:
     int client_count_write_fd = -1;
 
     char client_buf[MAXLINE];
-    char client_buf_count = 0;
-    std::string data;
+    char client_buf_count[1] = {1};
+    std::string data_buffer = "rq";
 
 };
 
@@ -105,7 +103,7 @@ int main() {
 
 
     sleep(0.1);
-    std::cout << "клиент\n";
+    std::cout << "клиент\n" << std::endl;
 
     ClientPipe a;
     a.StartPipe();

@@ -31,15 +31,24 @@ public:
         CreatePipe(FIFO3);
     }
 
+    int k = 0;
+    int i = 0;
+
     void StartPipe() {
-//        server_read_fd = OpenFifoRead(FIFO1);
-//        server_write_fd = OpenFifoWrite(FIFO2);
+        server_read_fd = OpenFifoRead(FIFO2);
+//        server_write_fd = OpenFifoWrite(FIFO1);
         server_count_read_fd = OpenFifoRead(FIFO3);
+
         while (1) {
-            ReadFifo(server_count_read_fd, &server_buf_count);
+            ReadFifo(server_count_read_fd, server_buf_count);
 
-            std::cout<<server_buf_count;
+            k += server_buf_count[0];
+            if ((i + 1) == k) {
 
+                ReadFifo(server_read_fd, server_buf);
+                std::cout << "прием от клиента  " << server_buf << std::endl;
+            }
+            i = k;
         }
     }
 
@@ -52,16 +61,17 @@ private:
     }
 
     int OpenFifoRead(char const *FIFO) {
-        int fd = open(FIFO,  O_RDONLY, 0);
+        int fd = open(FIFO, O_RDONLY, 0);
         if (-1 != fd) {
-            std::cout << "Process  opening Read\n";
+            std::cout << "Process opening Read\n";
         }
         return fd;
     }
+
     int OpenFifoWrite(char const *FIFO) {
         int fd = open(FIFO, O_WRONLY, 0);
         if (-1 != fd) {
-            std::cout << "Process  opening  Write\n";
+            std::cout << "Process opening  Write\n";
         }
         return fd;
     }
@@ -69,8 +79,7 @@ private:
     void WriteFifo(int server_fd, char const *data) {
         if (server_fd != -1) {
             write(server_fd, data, strlen(data));
-            std::cout << "server отправил message: ";
-            std::cout << data << '\n';
+
         } else {
             std::cout << " ошибка отправки: ";
         }
@@ -80,8 +89,7 @@ private:
         if (server_fd != -1) {
             memset(buffer, 0, sizeof(buffer));
             read(server_fd, buffer, MAXLINE);
-            std::cout << "server получил message: \n";
-            std::cout << buffer << "\n";
+
         } else {
             exit(EXIT_FAILURE);
         }
@@ -94,14 +102,14 @@ private:
     int server_count_read_fd = -1;
 
     char server_buf[MAXLINE];
-    char server_buf_count;
+    char server_buf_count[1];
     std::string data;
 
 };
 
 int main() {
-    sleep(2);
-    std::cout << "сервер\n";
+    sleep(0.5);
+    std::cout << "сервер\n" << std::endl;
 
 
     ServerPipe a;
