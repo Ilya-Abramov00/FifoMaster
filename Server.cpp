@@ -86,7 +86,7 @@ private:
     }
 
     void WriteFifo(int server_fd, char const *data) {
-        if (server_fd -= -1) { std::cout << " ошибка: "; }
+        if (server_fd == -1) { std::cout << " ошибка: "; }
         write(server_fd, data, strlen(data));
 
 
