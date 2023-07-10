@@ -31,13 +31,13 @@ public:
         CreatePipe(FIFO3);
     }
 
-    int k = 0;
-    int i = 0;
+
 
     void ServerRead() {
         server_read_fd = OpenFifoRead(FIFO1);
         server_count_read_fd = OpenFifoRead(FIFO2);
-
+        int k = 0;
+        int i = 0;
         while (1) {
             ReadFifo(server_count_read_fd, server_buf_count);
 
@@ -56,9 +56,9 @@ public:
 
     }
 
-    ~ServerPipe() {
-        exit(EXIT_SUCCESS);
-    }
+//    ~ServerPipe() {
+//        exit(EXIT_SUCCESS);
+//    }
 
 private:
 
