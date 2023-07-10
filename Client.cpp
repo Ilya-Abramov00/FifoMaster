@@ -40,8 +40,9 @@ public:
 
             if (client_buf[0] == '0') { break; }
         }
-        close(client_write_fd);
-        close(client_count_write_fd);
+
+      //  close(client_count_write_fd);
+        //close(client_write_fd);
     }
 
 /*~ClientPipe(){
