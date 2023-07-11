@@ -19,106 +19,47 @@
 #define MAXLINE 64*1024
 
 
-class Fifo {
+class FifoRead {
 public:
-    using MsgGetter = std::function<std::string()>;
+    void start_read();
 
-    Fifo() {}
+    void stop_read();
 
-    void setMsgGetter(MsgGetter msgGetter) {
-        getmsg = std::move(msgGetter);
-    }
+    void fifoRead(std::string &Fifo_read_0, size_t N);
 
-    void start_write() {
-        if (!getmsg) {
-            throw std::runtime_error("callback for msg getting not set");
-        }
-        run_write = true;
-    }
-
-    void stop_write() {
-        run_write = false;
-    }
-
-    void fifoWrite(std::string &Fifo_write) {
-        createFifo(Fifo_write.c_str());
-        int8_t fifo_write_fd = openFifoWrite(Fifo_write.c_str());
-        while (run_write) {
-            writeFifo(fifo_write_fd, getmsg().c_str());
-        }
-    }
-
-    void start_read() {
-        run_read = true;
-    }
-
-    void stop_read() {
-        run_read = false;
-    }
-
-    void fifoRead(std::string &Fifo_read, size_t N) {
-        char *read_buffer = new char[N];
-        if (N > 1024 * 64) { std::cout << "ошибка"; }
-        int8_t fifo_read_fd = openFifoRead(Fifo_read.c_str());
-
-        while (run_read) {
-
-            readFifo(fifo_read_fd, read_buffer, N);
-            std::cout << "прием от клиента  " << read_buffer << std::endl;
-            data+=read_buffer;
-        }
-
-        delete read_buffer;
-    }
-
-    std::string getData(){
-        return  data;
-    }
+    std::string getData();
 
 private:
-    void createFifo(char const *FIFO) {
-        if ((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
-            std::cout << "can't creat ";
-            std::cout << FIFO << '\n';
-        }
-    }
+    int openFifoRead(char const *FIFO);
 
-    int openFifoRead(char const *FIFO) {
-        int fd = open(FIFO, O_RDONLY, 0);
-        if (-1 == fd) {
-            std::cout << "Все плохо Read\n";
-        }
-        return fd;
-    }
+    void readFifo(int fifo_fd, char *read_buffer, size_t N);
 
-    int openFifoWrite(char const *FIFO) {
-        int fd = open(FIFO, O_WRONLY, 0);
-        if (-1 == fd) {
-            std::cout << "Все плохо  Write\n";
-        }
-        return fd;
-    }
-
-    void writeFifo(int fifo_fd, char const *data) {
-        if (fifo_fd == -1) { std::cout << " ошибка: "; }
-        write(fifo_fd, data, strlen(data));
-
-    }
-
-    void readFifo(int fifo_fd, char *read_buffer, size_t N) {
-        if (fifo_fd == -1) { std::cout << " ошибка: "; }
-        memset(read_buffer, 0, N);
-        read(fifo_fd, read_buffer, N);
-
-    }
-
-
-
-    bool run_write{false};
     bool run_read{false};
-    MsgGetter getmsg;
     std::string data = "";
 };
 
+
+class FifoWrite {
+public:
+    using MsgGetter = std::function<std::string()>;
+
+    void setMsgGetter(MsgGetter msgGetter);
+
+    void start_write();
+
+    void stop_write();
+
+    void fifoWrite(std::string &Fifo_write_q);
+
+private:
+    int openFifoWrite(char const *FIFO);
+
+    void writeFifo(int fifo_fd, char const *data);
+
+    void createFifo(char const *FIFO);
+
+    bool run_write{false};
+    MsgGetter getmsg;
+};
 
 #endif

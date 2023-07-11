@@ -10,7 +10,7 @@ std::string FIFO2 = "/home/ilya/Загрузки/Pipe/fifo2";
 int main() {
     std::cout << "сервер" << std::endl << std::endl;
 
-    Fifo client2;
+    FifoWrite client1;
 
     auto getter = []() {
         std::string ret;
@@ -19,15 +19,18 @@ int main() {
             return ret;
         }
     };
-    client2.setMsgGetter(getter);
-    client2.start_write();
+
+    client1.setMsgGetter(getter);
+    client1.start_write();
+
+
 
 
     std::thread t1([&]() {
-        client2.fifoWrite(FIFO2);
+        client1.fifoWrite(FIFO2);
     });
 
-
+    FifoRead client2;
     client2.start_read();
 
     std::thread t2([&]() {
@@ -36,8 +39,11 @@ int main() {
 
 
 
+
     t1.join();
     t2.join();
+
+
     std::cout << "сервер окончил прием" << std::endl;
     return 1;
 }

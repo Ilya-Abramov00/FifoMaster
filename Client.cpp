@@ -11,7 +11,7 @@ int main() {
 
     std::cout << "клиент" << std::endl << std::endl;
 
-    Fifo client1;
+    FifoWrite client1;
 
     auto getter = []() {
         std::string ret;
@@ -20,20 +20,24 @@ int main() {
             return ret;
         }
     };
+
     client1.setMsgGetter(getter);
     client1.start_write();
+
+
 
 
     std::thread t1([&]() {
         client1.fifoWrite(FIFO1);
     });
 
-
-    client1.start_read();
+FifoRead client2;
+    client2.start_read();
 
     std::thread t2([&]() {
-        client1.fifoRead(FIFO2, 20);
+        client2.fifoRead(FIFO2, 20);
     });
+
 
 
 
