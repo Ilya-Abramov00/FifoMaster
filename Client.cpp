@@ -10,33 +10,54 @@
 #include<fcntl.h>
 #include <iostream>
 #include <string>
+#include <functional>
 
-const char* FIFO1 ="/home/ilya/Загрузки/Pipe/fifo1";
-const char* FIFO2 ="/home/ilya/Загрузки/Pipe/fifo2";
-const char* FIFO3 = "/home/ilya/Загрузки/Pipe/fifo3";
+const char *FIFO1 = "/home/ilya/Загрузки/Pipe/fifo1";
+const char *FIFO2 = "/home/ilya/Загрузки/Pipe/fifo2";
+const char *FIFO3 = "/home/ilya/Загрузки/Pipe/fifo3";
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
-#define MAXLINE 15
+#define MAXLINE 4
 
 
 class ClientPipe {
 public:
+    using MsgGetter = std::function<std::string()>;
+
     ClientPipe() {}
 
+    void start() {
+        if (!getmsg) {
+            throw std::runtime_error("callback for msg getting not set");
+        }
+        run = true;
+    }
 
-    void PipeWrite() {
+    void stop() {
+        run = false;
+    }
+
+    void setMsgGetter(MsgGetter msgGetter) {
+        getmsg = std::move(msgGetter);
+    }
+
+    void pipeWrite() {
         client_write_fd = OpenFifoWrite(FIFO1);
         client_count_write_fd = OpenFifoWrite(FIFO2);
 
-        while (std::cin >> client_buf) {
-            WriteFifo(client_count_write_fd, client_buf_count);
+        while (run) {
+            auto msg = getmsg();
+            client_buf_count[0] = 1;
+            client_buf_count[1] = 0;
+
+            write(client_count_write_fd, client_buf_count, 2);
 
             WriteFifo(client_write_fd, client_buf);
             std::cout << "отправка серверу " << client_buf << std::endl;
 
-            if (client_buf[0] == '0') { break; }
+            if (client_buf[0] == '1') { break; }
         }
 
-      //  close(client_count_write_fd);
+        //  close(client_count_write_fd);
         //close(client_write_fd);
     }
 
@@ -80,7 +101,7 @@ private:
     void ReadFifo(int client_fd, char *buffer) {
         if (client_fd == -1) { std::cout << " ошибка: "; }
         memset(buffer, 0, sizeof(buffer));
-        read(client_fd, buffer, MAXLINE);
+        read(client_fd, buffer, sizeof(buffer));
 
     }
 
@@ -90,9 +111,10 @@ private:
     int8_t client_count_write_fd = -1;
 
     char client_buf[MAXLINE] = {0};
-    char client_buf_count[1] = {1};
+    char client_buf_count[2] = {0, 0};
     std::string data_buffer = "";
-
+    bool run{false};
+    MsgGetter getmsg;
 };
 
 int main() {
@@ -101,8 +123,19 @@ int main() {
     std::cout << "клиент" << std::endl;
 
     ClientPipe a;
-    a.PipeWrite();
+    auto getter = []() {
+        std::string ret;
+        //ret = " hello! ";
+        std::cin >> ret;
+        return ret;
 
+    };
+    a.setMsgGetter(getter);
+    a.start();
 
-    return 1;
+    a.pipeWrite();
+
+    std::cout << "сервер завершил отправку" << std::endl;
+
+    return 0;
 }

@@ -13,7 +13,7 @@
 
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
-#define MAXLINE 15
+#define MAXLINE 5
 
 
 const char* FIFO1 ="/home/ilya/Загрузки/Pipe/fifo1";
@@ -36,20 +36,20 @@ public:
         int k=0,i = 0;
 
         while (1) {
-            ReadFifo(server_count_read_fd, server_buf_count);
 
-            k += server_buf_count[0];
-            if ((i + 1) == k) {
+            memset(server_buf_count,0,  2);
+            read(server_count_read_fd, server_buf_count, 2);
 
-                ReadFifo(server_read_fd, server_buf);
-                std::cout << "прием от клиента  " << server_buf << std::endl;
+            ReadFifo(server_read_fd, server_buf);
+            std::cout << "прием от клиента  " << server_buf << std::endl;
 
-                if (server_buf[0] == '1') {
+
+                if (server_buf[0] == '1')
+                {
                     break;
                 }
-            }
-            server_buf_count[0]=0;
-            i = k;
+
+
         }
 
     }
@@ -92,7 +92,7 @@ private:
 
     void ReadFifo(int server_fd, char *buffer) {
         if (server_fd == -1) { std::cout << " ошибка: "; }
-        memset(buffer, 0, sizeof(buffer));
+        memset(buffer, 0, MAXLINE);
         read(server_fd, buffer, MAXLINE);
 
     }
@@ -103,7 +103,7 @@ private:
 
 
     char server_buf[MAXLINE] = {0};
-    char server_buf_count[1];
+    char server_buf_count[2]={0,0};
     std::string data_buffer = "";
 
 };
@@ -115,6 +115,6 @@ int main() {
     ServerPipe a;
     a.ServerRead();
 
-
+    std::cout << "сервер окончил прием" << std::endl;
     return 1;
 }
