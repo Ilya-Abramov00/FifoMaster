@@ -1,9 +1,6 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-
-
-
 project(PipeServer LANGUAGES CXX)
 set(UNITTEST ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
