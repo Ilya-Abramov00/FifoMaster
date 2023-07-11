@@ -9,7 +9,7 @@ std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 int main() {
     std::cout << "сервер" << std::endl << std::endl;
 
-    FifoWrite client1;
+    FifoWrite client1(FIFO2);
 
     auto getter = []() {
         std::string ret;
@@ -26,14 +26,15 @@ int main() {
 
 
     std::thread t1([&]() {
-        client1.fifoWrite(FIFO2);
+		client1.writeFifo();
     });
 
-    FifoRead client2;
+    FifoRead client2(FIFO1);
     client2.start_read();
 
+	std::string data="";
     std::thread t2([&]() {
-        client2.fifoRead(FIFO1, 20);
+		client2.readFifo(data, 20);
     });
 
 

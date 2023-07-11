@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -shared -Wl,-soname,libgtest.so -o libgtest.so CMakeFiles/gtest.dir/gmock/src/gmock-all.cc.o CMakeFiles/gtest.dir/gtest/src/gtest-all.cc.o 
