@@ -24,21 +24,18 @@ class ServerPipe {
 public:
     ServerPipe() {
         CreatePipe(FIFO1);
-        CreatePipe(FIFO2);
-        CreatePipe(FIFO3);
+
     }
 
 
 
     void ServerRead() {
         server_read_fd = OpenFifoRead(FIFO1);
-        server_count_read_fd = OpenFifoRead(FIFO2);
+
         int k=0,i = 0;
 
         while (1) {
 
-            memset(server_buf_count,0,  2);
-            read(server_count_read_fd, server_buf_count, 2);
 
             ReadFifo(server_read_fd, server_buf);
             std::cout << "прием от клиента  " << server_buf << std::endl;
@@ -98,19 +95,18 @@ private:
     }
 
     int8_t server_read_fd = -1;
-    int8_t server_count_read_fd = -1;
-    int8_t server_write_fd = -1;
+
+
 
 
     char server_buf[MAXLINE] = {0};
-    char server_buf_count[2]={0,0};
     std::string data_buffer = "";
 
 };
 
 int main() {
 
-    std::cout << "сервер" << std::endl;
+    std::cout << "сервер" << std::endl<< std::endl;
 
     ServerPipe a;
     a.ServerRead();
