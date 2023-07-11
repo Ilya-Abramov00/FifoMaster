@@ -30,10 +30,11 @@ void FifoRead::readFifo(std::string& data, size_t N)
 
 	if(N > 1024 * 64)
 		throw std::runtime_error("fail very big N ");
+	uint8_t fifo_fd=openFifoRead(FIFO);
 
 	while(run_read) {
-		readFifo(FIFO, read_buffer, N);
-		data.append(read_buffer);
+		readFifo(fifo_fd, read_buffer, N);
+		data+=read_buffer;
 	}
 
 	delete read_buffer;
@@ -43,15 +44,14 @@ int FifoRead::openFifoRead(const char* FIFO)
 {
 	int fd = open(FIFO, O_RDONLY, 0);
 	if(-1 == fd) {
-		throw std::runtime_error("fail openFifoWrite");
+		throw std::runtime_error("fail openFifoRead");
 	}
 
 	return fd;
 }
 
-void FifoRead::readFifo(const char* FIFO, char* read_buffer, size_t N)
+void FifoRead::readFifo(uint8_t fifo_fd, char* read_buffer, size_t N)
 {
-	uint8_t fifo_fd = openFifoRead(FIFO);
 	memset(read_buffer, 0, N);
 	read(fifo_fd, read_buffer, N);
 }
@@ -78,7 +78,8 @@ void FifoWrite::writeFifo()
 {
 	int8_t fifo_write_fd = openFifoWrite(FIFO);
 	while(run_write) {
-		writeFifo(fifo_write_fd, getmsg().c_str());
+
+		writeFifo(fifo_write_fd,  getmsg().c_str());
 	}
 	close(fifo_write_fd);
 	unlink(FIFO);

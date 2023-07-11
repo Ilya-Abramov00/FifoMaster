@@ -29,7 +29,7 @@ public:
 private:
 	int openFifoRead(char const* FIFO);
 
-	void readFifo(const char* FIFO, char* read_buffer, size_t N);
+	void readFifo(uint8_t fifo_fd, char* read_buffer, size_t N);
 	void createFifo(char const* FIFO);
 
 	bool run_read{false};
