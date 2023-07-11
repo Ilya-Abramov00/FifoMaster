@@ -11,6 +11,7 @@ void FifoRead::stop_read() {
 
 void FifoRead::fifoRead(std::string &Fifo_read_0, size_t N) {
     auto Fifo_read = Fifo_read_0.c_str();
+	createFifo(Fifo_read);
     char *read_buffer = new char[N];
 
     if (N > 1024 * 64) throw std::runtime_error("fail very big N ");
@@ -90,4 +91,10 @@ void FifoWrite::createFifo(const char *FIFO) {
         std::cout << FIFO << '\n';
         throw std::runtime_error(" fail createFifo ");
     }
+}
+void FifoRead::createFifo(const char *FIFO) {
+	if ((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
+		std::cout << FIFO << '\n';
+		throw std::runtime_error(" fail createFifo ");
+	}
 }

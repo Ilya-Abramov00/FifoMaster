@@ -2,8 +2,8 @@
 #include <thread>
 #include "Fifo/Fifo.h"
 
-std::string FIFO1 = "/home/ilya/Загрузки/Pipe/fifo1";
-std::string FIFO2 = "/home/ilya/Загрузки/Pipe/fifo2";
+std::string FIFO1 = "/home/ilya/Fifo/fifo1";
+std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
 
 int main() {

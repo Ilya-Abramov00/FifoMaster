@@ -33,6 +33,7 @@ private:
     int openFifoRead(char const *FIFO);
 
     void readFifo(int fifo_fd, char *read_buffer, size_t N);
+	void createFifo(char const *FIFO);
 
     bool run_read{false};
     std::string data = "";
