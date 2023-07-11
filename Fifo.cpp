@@ -13,15 +13,17 @@
 #include <functional>
 
 const char *FIFO1 = "/home/ilya/Загрузки/Pipe/fifo1";
+const char *FIFO2 = "/home/ilya/Загрузки/Pipe/fifo2";
+
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 #define MAXLINE 10
 
 
-class ClientPipe {
+class Fifo {
 public:
     using MsgGetter = std::function<std::string()>;
 
-    ClientPipe() { createPipe(FIFO1); }
+    Fifo() {}
 
     void start() {
         if (!getmsg) {
@@ -38,15 +40,26 @@ public:
         getmsg = std::move(msgGetter);
     }
 
-    void pipeWrite() {
-        client_write_fd = openFifoWrite(FIFO1);
+    void fifoWrite(std::string Fifo_write) {
+        createFifo(Fifo_write.c_str());
+        fifo_write_fd = openFifoWrite(Fifo_write.c_str());
         while (run) {
-            writeFifo(client_write_fd, getmsg().c_str());
+            writeFifo(fifo_write_fd, getmsg().c_str());
+        }
+    }
+    void fifoRead(std::string Fifo_write,size_t N) {
+        if (N>1024*64) {std::cout<<"ошибка";}
+        fifo_read_fd = openFifoRead(Fifo_write.c_str());
+
+        while (1) {
+
+            readFifo(fifo_read_fd, read_buffer,N);
+            std::cout << "прием от клиента  " << read_buffer << std::endl;
         }
     }
 
 private:
-    void createPipe(char const *FIFO) {
+    void createFifo(char const *FIFO) {
         if ((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
             std::cout << "can't creat ";
             std::cout << FIFO << '\n';
@@ -69,24 +82,29 @@ private:
         return fd;
     }
 
-    void writeFifo(int client_fd, char const *data) {
-        if (client_fd == -1) { std::cout << " ошибка: "; }
-        write(client_fd, data, strlen(data));
+    void writeFifo(int fifo_fd, char const *data) {
+        if (fifo_fd == -1) { std::cout << " ошибка: "; }
+        write(fifo_fd, data, strlen(data));
 
 
     }
 
-    void readFifo(int client_fd, char *buffer) {
-        if (client_fd == -1) { std::cout << " ошибка: "; }
-        memset(buffer, 0, sizeof(buffer));
-        read(client_fd, buffer, sizeof(buffer));
+    void readFifo(int fifo_fd, char  *buffer, size_t N) {
+        if (fifo_fd == -1) { std::cout << " ошибка: "; }
+        memset(buffer, 0, N);
+        read(fifo_fd, buffer, N);
 
     }
 
-    int8_t client_write_fd = -1;
+    int8_t fifo_write_fd = -1;
+    int8_t fifo_read_fd = -1;
     std::string client_buf = "";
     bool run{false};
     MsgGetter getmsg;
+
+    char *read_buffer = "";
+    std::string data = "";
+
 };
 
 int main() {
@@ -94,7 +112,7 @@ int main() {
 
     std::cout << "клиент" << std::endl << std::endl;
 
-    ClientPipe a;
+    Fifo a;
     auto getter = []() {
         std::string ret;
 
@@ -105,7 +123,7 @@ int main() {
     a.setMsgGetter(getter);
     a.start();
 
-    a.pipeWrite();
+
 
     std::cout << "сервер завершил отправку" << std::endl;
 

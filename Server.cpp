@@ -18,37 +18,26 @@
 
 const char* FIFO1 ="/home/ilya/Загрузки/Pipe/fifo1";
 const char* FIFO2 ="/home/ilya/Загрузки/Pipe/fifo2";
-const char* FIFO3 = "/home/ilya/Загрузки/Pipe/fifo3";
+
 
 class ServerPipe {
 public:
     ServerPipe() {
-        CreatePipe(FIFO1);
+        createPipe(FIFO1);
 
     }
 
 
 
-    void ServerRead() {
-        server_read_fd = OpenFifoRead(FIFO1);
-
-        int k=0,i = 0;
+    void ServerRead(size_t N) {
+        if (N>1024*64) {std::cout<<"ошибка";}
+        server_read_fd = openFifoRead(FIFO1);
 
         while (1) {
 
-
-            ReadFifo(server_read_fd, server_buf);
+            readFifo(server_read_fd, server_buf,N);
             std::cout << "прием от клиента  " << server_buf << std::endl;
-
-
-                if (server_buf[0] == '1')
-                {
-                    break;
-                }
-
-
         }
-
     }
 
 //    ~ServerPipe() {
@@ -57,14 +46,14 @@ public:
 
 private:
 
-    void CreatePipe(char const *FIFO) {
+    void createPipe(char const *FIFO) {
         if ((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
             std::cout << "can't creat ";
             std::cout << FIFO << '\n';
         }
     }
 
-    int OpenFifoRead(char const *FIFO) {
+    int openFifoRead(char const *FIFO) {
         int fd = open(FIFO, O_RDONLY, 0);
         if (-1 == fd) {
             std::cout << "Все плохо Read\n";
@@ -72,7 +61,7 @@ private:
         return fd;
     }
 
-    int OpenFifoWrite(char const *FIFO) {
+    int openFifoWrite(char const *FIFO) {
         int fd = open(FIFO, O_WRONLY, 0);
         if (-1 == fd) {
             std::cout << "Все плохо  Write\n";
@@ -80,25 +69,21 @@ private:
         return fd;
     }
 
-    void WriteFifo(int server_fd, char const *data) {
+    void writeFifo(int server_fd, char const *data) {
         if (server_fd == -1) { std::cout << " ошибка: "; }
         write(server_fd, data, strlen(data));
 
 
     }
 
-    void ReadFifo(int server_fd, char *buffer) {
+    void readFifo(int server_fd, char *buffer,size_t N) {
         if (server_fd == -1) { std::cout << " ошибка: "; }
-        memset(buffer, 0, MAXLINE);
-        read(server_fd, buffer, MAXLINE);
+        memset(buffer, 0, N);
+        read(server_fd, buffer, N);
 
     }
 
     int8_t server_read_fd = -1;
-
-
-
-
     char server_buf[MAXLINE] = {0};
     std::string data_buffer = "";
 
@@ -109,7 +94,7 @@ int main() {
     std::cout << "сервер" << std::endl<< std::endl;
 
     ServerPipe a;
-    a.ServerRead();
+    a.ServerRead(20);
 
     std::cout << "сервер окончил прием" << std::endl;
     return 1;
