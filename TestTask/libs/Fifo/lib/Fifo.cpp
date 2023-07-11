@@ -33,6 +33,7 @@ void FifoRead::readFifo(std::string& data, size_t N)
 	uint8_t fifo_fd=openFifoRead(FIFO);
 
 	while(run_read) {
+		//openFifoRead(FIFO); очень замедляет
 		readFifo(fifo_fd, read_buffer, N);
 		data+=read_buffer;
 	}
@@ -53,7 +54,10 @@ int FifoRead::openFifoRead(const char* FIFO)
 void FifoRead::readFifo(uint8_t fifo_fd, char* read_buffer, size_t N)
 {
 	memset(read_buffer, 0, N);
+
 	read(fifo_fd, read_buffer, N);
+
+	//std::cout<<read_buffer<<"\nfdes";
 }
 
 void FifoWrite::setMsgGetter(FifoWrite::MsgGetter msgGetter)
