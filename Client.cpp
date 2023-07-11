@@ -1,5 +1,5 @@
 
-
+#include <thread>
 #include "Fifo/Fifo.h"
 
 std::string FIFO1 = "/home/ilya/Загрузки/Pipe/fifo1";
@@ -12,6 +12,7 @@ int main() {
     std::cout << "клиент" << std::endl << std::endl;
 
     Fifo client1;
+
     auto getter = []() {
         std::string ret;
 
@@ -22,10 +23,22 @@ int main() {
     client1.setMsgGetter(getter);
     client1.start_write();
 
-    client1.fifoWrite(FIFO1);
 
+    std::thread t1([&]() {
+        client1.fifoWrite(FIFO1);
+    });
+
+
+    client1.start_read();
+
+    std::thread t2([&]() {
+        client1.fifoRead(FIFO2, 20);
+    });
+
+
+
+    t1.join();
+    t2.join();
     std::cout << "сервер завершил отправку" << std::endl;
-
-
     return 0;
 }
