@@ -10,7 +10,7 @@ void FifoRead::createFifo(const char* FIFO)
 FifoRead::FifoRead(std::string& Fifo_write_q)
 {
 	FIFO = Fifo_write_q.c_str();
-	createFifo(FIFO);
+	createFifo(FIFO); // можно попробовать убрать
 }
 
 void FifoRead::start_read()
@@ -23,22 +23,23 @@ void FifoRead::stop_read()
 	run_read = false;
 }
 
-void FifoRead::readFifo(std::string& data, size_t N)
+void FifoRead::read(std::string& data, size_t size_N)
 {
+	std::vector<char> read_buffer(size_N);
 
-	char* read_buffer = new char[N];
-
-	if(N > 1024 * 64)
-		throw std::runtime_error("fail very big N ");
-	uint8_t fifo_fd=openFifoRead(FIFO);
+	if(size_N > 1024 * 64)
+		throw std::runtime_error("fail very big size_N ");
+	uint8_t fifo_fd = openFifoRead(FIFO);
 
 	while(run_read) {
-		//openFifoRead(FIFO); очень замедляет
-		readFifo(fifo_fd, read_buffer, N);
-		data+=read_buffer;
+		auto flag = readFifo(fifo_fd, read_buffer.data(), size_N);
+		if(flag == 0) {
+			break;
+		}
+		data += read_buffer.data(); // надо сделать по-другому наверное
 	}
 
-	delete read_buffer;
+	read_buffer.clear();
 }
 
 int FifoRead::openFifoRead(const char* FIFO)
@@ -51,13 +52,13 @@ int FifoRead::openFifoRead(const char* FIFO)
 	return fd;
 }
 
-void FifoRead::readFifo(uint8_t fifo_fd, char* read_buffer, size_t N)
+long FifoRead::readFifo(uint8_t fifo_fd, char* read_buffer, size_t N)
 {
 	memset(read_buffer, 0, N);
 
-	read(fifo_fd, read_buffer, N);
+	auto flag = read(fifo_fd, read_buffer, N);
 
-	//std::cout<<read_buffer<<"\nfdes";
+	return flag;
 }
 
 void FifoWrite::setMsgGetter(FifoWrite::MsgGetter msgGetter)
@@ -82,8 +83,7 @@ void FifoWrite::writeFifo()
 {
 	int8_t fifo_write_fd = openFifoWrite(FIFO);
 	while(run_write) {
-
-		writeFifo(fifo_write_fd,  getmsg().c_str());
+		writeFifo(fifo_write_fd, getmsg().c_str());
 	}
 	close(fifo_write_fd);
 	unlink(FIFO);
@@ -95,7 +95,6 @@ int FifoWrite::openFifoWrite(const char* FIFO)
 	if(-1 == fd) {
 		throw std::runtime_error("fail openFifoWrite");
 	}
-
 	return fd;
 }
 

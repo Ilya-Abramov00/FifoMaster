@@ -19,17 +19,25 @@
 
 class FifoRead {
 public:
-	FifoRead(std::string &Fifo_write_q);
+	struct Params{
+		std::string fdFileName;
+		size_t dataUnitSize;
+		size_t timeToWaitDataNanoSeconds;//for sleep curr thread
+		std::function<void(const void* data, size_t szInBytes)> msgHandler;
+	};
+	FifoRead(std::string& Fifo_write_q);
+	FifoRead(Params params){}
+
 	void start_read();
 
 	void stop_read();
 
-	void readFifo(std::string& data, size_t N);
+	void read(std::string& data, size_t size_N);
 
 private:
 	int openFifoRead(char const* FIFO);
 
-	void readFifo(uint8_t fifo_fd, char* read_buffer, size_t N);
+	long readFifo(uint8_t fifo_fd, char* read_buffer, size_t N);
 	void createFifo(char const* FIFO);
 
 	bool run_read{false};
@@ -38,7 +46,7 @@ private:
 
 class FifoWrite {
 public:
-	FifoWrite(std::string &Fifo_write);
+	FifoWrite(std::string& Fifo_write);
 	using MsgGetter = std::function<std::string()>;
 
 	void setMsgGetter(MsgGetter msgGetter);

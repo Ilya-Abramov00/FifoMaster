@@ -17,7 +17,7 @@ using namespace std;
 //
 //	client2.readFifo(data, 20);
 // }
-// TEST(FifoWrite, wride)
+// TEST(FifoWrite, write)
 //{
 //	std::string FIFO1 = "fifo1";
 //	std::string FIFO2 = "fifo2";
@@ -37,19 +37,17 @@ using namespace std;
 //	client2.writeFifo();
 // }
 
-
 TEST(Fifo, 1)
 {
-
 	std::string FIFO2 = "fifo2";
 
 	FifoWrite client2(FIFO2);
 	FifoRead client1(FIFO2);
 
-int i=0;
-	auto getter           = [&]() {
-	++i;
-		return  std::string(100, '*');
+	int i       = 0;
+	auto getter = [&i]() {
+		++i;
+		return std::string(100, '*');
 	};
 
 	client2.setMsgGetter(getter);
@@ -66,14 +64,52 @@ int i=0;
 		client1.readFifo(data, 128);
 	});
 
-
 	sleep(2.5);
 	client2.stop_write();
 	sleep(0.5);
 	client1.stop_read();
-	std::cout<<data.size()/100<<endl;
-	std::cout<<i<<endl;
-	ASSERT_TRUE(data.size()/100==i);
+	std::cout << data.size() / 100 << endl;
+	std::cout << i << endl;
+	ASSERT_TRUE(data.size() / 100 == i);
+
+	t1.join();
+	t2.join();
+}
+
+TEST(Fifo, 2)
+{
+	std::string FIFO2 = "fifo2";
+
+	FifoWrite client2(FIFO2);
+	FifoRead client1(FIFO2);
+
+	int i       = 0;
+	auto getter = [&]() {
+		++i;
+		return std::string(100, '*');
+	};
+
+	client2.setMsgGetter(getter);
+	client2.start_write();
+
+	std::thread t1([&]() {
+		client2.writeFifo();
+	});
+
+	client1.start_read();
+
+	std::string data = "";
+	std::thread t2([&]() {
+		client1.readFifo(data, 16); // лучше использовать кратные 8
+	});
+
+	sleep(2.5);
+	client2.stop_write();
+	sleep(2);
+	client1.stop_read();
+	std::cout << data.size() / 100 << endl;
+	std::cout << i << endl;
+	ASSERT_TRUE(data.size() / 100 == i);
 
 	t1.join();
 	t2.join();
