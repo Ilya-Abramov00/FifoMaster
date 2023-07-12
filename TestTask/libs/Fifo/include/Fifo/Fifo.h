@@ -95,7 +95,7 @@ private:
 	MsgGetter getmsg;
 	std::mutex& mtx;
 	char const* FIFO;
-
+	std::queue queue;
 };
 
 #endif

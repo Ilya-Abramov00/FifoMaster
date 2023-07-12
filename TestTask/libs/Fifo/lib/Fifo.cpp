@@ -33,7 +33,6 @@ void FifoRead::readFifo()
 {
 	std::vector<char> read_buffer(params.dataUnitSize);
 
-
 	uint8_t fifo_fd = openFifoRead(FIFO);
 
 	std::string buf = "";
@@ -44,7 +43,7 @@ void FifoRead::readFifo()
 			break;
 		}
 		if(flag == params.dataUnitSize) {
-			params.msgHandler(read_buffer.data(),params.dataUnitSize);
+			params.msgHandler(read_buffer.data(), params.dataUnitSize);
 			flag = 0;
 			read_buffer.clear();
 		}
@@ -132,20 +131,16 @@ void FifoWrite::createFifo(const char* FIFO)
 		throw std::runtime_error(" fail createFifo ");
 	}
 }
-FifoWrite::FifoWrite(std::string& fdFileName,std::mutex& mtx):FIFO(fdFileName.c_str()) ,mtx(mtx)
+FifoWrite::FifoWrite(std::string& fdFileName, std::mutex& mtx) : FIFO(fdFileName.c_str()), mtx(mtx)
 {
 	createFifo(FIFO);
 }
 
-void FifoWrite::writeUser(){
-
-
-	auto e   = getmsg;
+void FifoWrite::writeUser()
+{
+	auto e = getmsg();
 
 	auto ptr = reinterpret_cast<uint8_t*>(&e);
 
-	auto buffer=std::vector<uint8_t> (ptr,ptr+ sizeof(e));
-
-
-
+	auto buffer = std::vector<uint8_t>(ptr, ptr + size(e));
 }
