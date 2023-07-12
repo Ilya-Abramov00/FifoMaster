@@ -13,51 +13,78 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include <chrono>
+#include <thread>
+#include <list>
+#include <mutex>
+#include <queue>
+class FifoException : public std::runtime_error {
+public:
+	FifoException(std::string const& msg);
+};
+
+class FifoWriteException : FifoException {
+public:
+	FifoWriteException(std::string const& msg);
+};
+
+class FifoReadException : FifoException {
+public:
+	FifoReadException(std::string const& msg);
+};
+class FifoAniException : FifoException {
+public:
+	FifoAniException(std::string const& msg);
+};
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 #define MAXLINE 64 * 1024
 
+struct Params {
+	std::string fdFileName;
+	size_t dataUnitSize;
+	size_t timeToWaitDataNanoSeconds; // for sleep curr thread
+	std::function<void(const char* data, size_t szInBytes)> msgHandler;
+};
 class FifoRead {
 public:
-	struct Params{
-		std::string fdFileName;
-		size_t dataUnitSize;
-		size_t timeToWaitDataNanoSeconds;//for sleep curr thread
-		std::function<void(const void* data, size_t szInBytes)> msgHandler;
-	};
-	FifoRead(std::string& Fifo_write_q);
-	FifoRead(Params params){}
+	FifoRead(Params& params);
 
-	void start_read();
+	void startRead();
 
-	void stop_read();
-
-	void read(std::string& data, size_t size_N);
+	void stopRead();
 
 private:
+	void readFifo();
+
 	int openFifoRead(char const* FIFO);
 
 	long readFifo(uint8_t fifo_fd, char* read_buffer, size_t N);
+
 	void createFifo(char const* FIFO);
 
+	Params params;
 	bool run_read{false};
 	char const* FIFO;
 };
 
 class FifoWrite {
 public:
-	FifoWrite(std::string& Fifo_write);
+	FifoWrite(std::string& fdFileName, std::mutex& mtx);
+
 	using MsgGetter = std::function<std::string()>;
 
 	void setMsgGetter(MsgGetter msgGetter);
 
-	void start_write();
+	void startWrite();
 
-	void stop_write();
+	void stopWrite();
 
-	void writeFifo();
+	void writeUser();
 
 private:
+	void writeFifo();
+
 	int openFifoWrite(char const* FIFO);
 
 	void writeFifo(int fifo_fd, char const* data);
@@ -66,7 +93,9 @@ private:
 
 	bool run_write{false};
 	MsgGetter getmsg;
+	std::mutex& mtx;
 	char const* FIFO;
+
 };
 
 #endif

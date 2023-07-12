@@ -1,5 +1,15 @@
 #include "Fifo/Fifo.h"
 
+FifoException::FifoException(std::string const& msg) : runtime_error(msg.c_str())
+{}
+
+FifoWriteException::FifoWriteException(const std::string& msg) : FifoException(msg)
+{}
+FifoReadException::FifoReadException(const std::string& msg) : FifoException(msg)
+{}
+FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
+{}
+
 void FifoRead::createFifo(const char* FIFO)
 {
 	if((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
@@ -7,39 +17,39 @@ void FifoRead::createFifo(const char* FIFO)
 		throw std::runtime_error(" fail createFifo ");
 	}
 }
-FifoRead::FifoRead(std::string& Fifo_write_q)
-{
-	FIFO = Fifo_write_q.c_str();
-	createFifo(FIFO); // можно попробовать убрать
-}
 
-void FifoRead::start_read()
+void FifoRead::startRead()
 {
 	run_read = true;
+	readFifo();
 }
 
-void FifoRead::stop_read()
+void FifoRead::stopRead()
 {
 	run_read = false;
 }
 
-void FifoRead::read(std::string& data, size_t size_N)
+void FifoRead::readFifo()
 {
-	std::vector<char> read_buffer(size_N);
+	std::vector<char> read_buffer(params.dataUnitSize);
 
-	if(size_N > 1024 * 64)
-		throw std::runtime_error("fail very big size_N ");
+
 	uint8_t fifo_fd = openFifoRead(FIFO);
 
+	std::string buf = "";
+	long flag       = 0;
 	while(run_read) {
-		auto flag = readFifo(fifo_fd, read_buffer.data(), size_N);
+		flag += readFifo(fifo_fd, read_buffer.data() + flag, params.dataUnitSize - flag);
 		if(flag == 0) {
 			break;
 		}
-		data += read_buffer.data(); // надо сделать по-другому наверное
+		if(flag == params.dataUnitSize) {
+			params.msgHandler(read_buffer.data(),params.dataUnitSize);
+			flag = 0;
+			read_buffer.clear();
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
 	}
-
-	read_buffer.clear();
 }
 
 int FifoRead::openFifoRead(const char* FIFO)
@@ -60,21 +70,30 @@ long FifoRead::readFifo(uint8_t fifo_fd, char* read_buffer, size_t N)
 
 	return flag;
 }
+FifoRead::FifoRead(Params& params) : params(params)
+{
+	if(params.dataUnitSize > 1024 * 64)
+		throw std::runtime_error("fail very big size_N ");
+	FIFO = params.fdFileName.c_str();
+	createFifo(FIFO);
+	// можно попробовать убрать}
+}
 
 void FifoWrite::setMsgGetter(FifoWrite::MsgGetter msgGetter)
 {
 	getmsg = std::move(msgGetter);
 }
 
-void FifoWrite::start_write()
+void FifoWrite::startWrite()
 {
 	if(!getmsg) {
 		throw std::runtime_error("callback for msg getting not set");
 	}
 	run_write = true;
+	writeUser();
 }
 
-void FifoWrite::stop_write()
+void FifoWrite::stopWrite()
 {
 	run_write = false;
 }
@@ -113,8 +132,20 @@ void FifoWrite::createFifo(const char* FIFO)
 		throw std::runtime_error(" fail createFifo ");
 	}
 }
-FifoWrite::FifoWrite(std::string& Fifo_write)
+FifoWrite::FifoWrite(std::string& fdFileName,std::mutex& mtx):FIFO(fdFileName.c_str()) ,mtx(mtx)
 {
-	FIFO = Fifo_write.c_str();
 	createFifo(FIFO);
+}
+
+void FifoWrite::writeUser(){
+
+
+	auto e   = getmsg;
+
+	auto ptr = reinterpret_cast<uint8_t*>(&e);
+
+	auto buffer=std::vector<uint8_t> (ptr,ptr+ sizeof(e));
+
+
+
 }

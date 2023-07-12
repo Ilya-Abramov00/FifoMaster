@@ -20,7 +20,7 @@ int main() {
     };
 
     client1.setMsgGetter(getter);
-    client1.start_write();
+	client1.startWrite();
 
 
 
@@ -30,7 +30,7 @@ int main() {
     });
 
     FifoRead client2(FIFO1);
-    client2.start_read();
+	client2.startRead();
 
 	std::string data="";
     std::thread t2([&]() {

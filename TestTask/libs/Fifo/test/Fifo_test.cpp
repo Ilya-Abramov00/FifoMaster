@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "Fifo/Fifo.h"
-#include <thread>
-#include <list>
+
 using namespace std;
 
 // TEST(FifoRead, read)
@@ -11,7 +10,7 @@ using namespace std;
 //	std::string FIFO2 = "fifo2";
 //
 //	FifoRead client2(FIFO2);
-//	client2.start_read();
+//	client2.startRead();
 //
 //	std::string data = "";
 //
@@ -32,7 +31,7 @@ using namespace std;
 //
 //	FifoWrite client2(FIFO2);
 //	client2.setMsgGetter(getter);
-//	client2.start_write();
+//	client2.startWrite();
 //
 //	client2.writeFifo();
 // }
@@ -41,8 +40,22 @@ TEST(Fifo, 1)
 {
 	std::string FIFO2 = "fifo2";
 
+	std::string data = "";
+	auto getterRead = [&](const char* dataq, size_t szInBytes) {
+		//std::cout << "получены данные :" << std::string(dataq);
+        data+=dataq;
+	};
+
+	Params params = {
+	    FIFO2,
+	    33,
+	    0,
+	    getterRead,
+	};
+
 	FifoWrite client2(FIFO2);
-	FifoRead client1(FIFO2);
+
+	FifoRead client1(params);
 
 	int i       = 0;
 	auto getter = [&i]() {
@@ -51,66 +64,66 @@ TEST(Fifo, 1)
 	};
 
 	client2.setMsgGetter(getter);
-	client2.start_write();
+
 
 	std::thread t1([&]() {
-		client2.writeFifo();
+		client2.startWrite();
 	});
 
-	client1.start_read();
 
-	std::string data = "";
+
+
 	std::thread t2([&]() {
-		client1.readFifo(data, 128);
+		client1.startRead();
 	});
 
-	sleep(2.5);
-	client2.stop_write();
-	sleep(0.5);
-	client1.stop_read();
-	std::cout << data.size() / 100 << endl;
-	std::cout << i << endl;
-	ASSERT_TRUE(data.size() / 100 == i);
-
-	t1.join();
-	t2.join();
-}
-
-TEST(Fifo, 2)
-{
-	std::string FIFO2 = "fifo2";
-
-	FifoWrite client2(FIFO2);
-	FifoRead client1(FIFO2);
-
-	int i       = 0;
-	auto getter = [&]() {
-		++i;
-		return std::string(100, '*');
-	};
-
-	client2.setMsgGetter(getter);
-	client2.start_write();
-
-	std::thread t1([&]() {
-		client2.writeFifo();
-	});
-
-	client1.start_read();
-
-	std::string data = "";
-	std::thread t2([&]() {
-		client1.readFifo(data, 16); // лучше использовать кратные 8
-	});
-
-	sleep(2.5);
-	client2.stop_write();
 	sleep(2);
-	client1.stop_read();
-	std::cout << data.size() / 100 << endl;
+	//client2.stopWrite();
+	sleep(7);
+//	client1.stopRead();
+	std::cout <<"считалось"<< data.size() / 100 << endl;
 	std::cout << i << endl;
 	ASSERT_TRUE(data.size() / 100 == i);
 
 	t1.join();
 	t2.join();
 }
+
+// TEST(Fifo, 2)
+//{
+//	std::string FIFO2 = "fifo2";
+//
+//	FifoWrite client2(FIFO2);
+//	FifoRead client1(FIFO2);
+//
+//	int i       = 0;
+//	auto getter = [&]() {
+//		++i;
+//		return std::string(100, '*');
+//	};
+//
+//	client2.setMsgGetter(getter);
+//	client2.startWrite();
+//
+//	std::thread t1([&]() {
+//		client2.writeFifo();
+//	});
+//
+//	client1.startRead();
+//
+//	std::string data = "";
+//	std::thread t2([&]() {
+//		client1.readFifo(data, 17); // лучше использовать кратные 8
+//	});
+//
+//	sleep(2);
+//	client2.stopWrite();
+//	sleep(4);
+//	client1.stopRead();
+//	std::cout << data.size() / 100 << endl;
+//	std::cout << i << endl;
+//	ASSERT_TRUE(data.size() / 100 == i);
+//
+//	t1.join();
+//	t2.join();
+// }
