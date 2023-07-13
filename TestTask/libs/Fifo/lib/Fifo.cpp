@@ -135,6 +135,7 @@ void FifoWrite::writeFifo()
 	unlink(FIFO);
 }
 
+
 void FifoWrite::writeUser()
 {
 	// threadUserWrite = std::thread([this]() {
