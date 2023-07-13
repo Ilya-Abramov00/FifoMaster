@@ -32,9 +32,11 @@ int main() {
 
 
     FifoWrite client1(FIFO2);
-
-    auto getter = []() {
+int i=0;
+    auto getter = [&]() {
         std::string ret;
+i++;
+if (i==3){client1.stopWrite();}
 
         while (std::cin >> ret) {
             return std::pair(ret,ret.size());

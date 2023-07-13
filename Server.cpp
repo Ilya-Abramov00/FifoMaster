@@ -9,46 +9,39 @@ std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 int main()
 {
 	std::cout << "сервер" << std::endl << std::endl;
-/*
-	FifoWrite client1(FIFO1);
+	/*
+	    FifoWrite client1(FIFO1);
 
-	auto getter = []() {
-		std::string ret;
+	    auto getter = []() {
+	        std::string ret;
 
-		while (std::cin >> ret) {
-			return std::pair(ret,ret.size());
-		}
-	};*/
+	        while (std::cin >> ret) {
+	            return std::pair(ret,ret.size());
+	        }
+	    };*/
 
-//	client1.setMsgGetter(getter);
-	//client1.startWrite();
-//	client1.writeUser();
+	//	client1.setMsgGetter(getter);
+	// client1.startWrite();
+	//	client1.writeUser();
+std::string a="";
+	auto getterRead = [& a](std::string data, size_t szInBytes) {
 
-
-
-
-
-	auto getterRead  = [](char* data, size_t szInBytes) {
-		//      std::cout << std::string(dataq);
-
-		for(int i=0;i!=szInBytes+1;i++){
-			std::cout<<data[i];
-		}
-
+		std::cout << std::endl;
+		if(data.size()!=szInBytes){throw ;}
+		a=a+ data;
 	};
 	Params params = {
 	    FIFO2,
-	    6,
+	    2,
 	    0,
 	    getterRead,
 	};
 
 	FifoRead client2(params);
 
-
 	client2.startRead();
 
-
-	std::cout << "сервер окончил прием" << std::endl;
+	std::cout<<a;
+	std::cout << "\nсервер окончил прием" << std::endl;
 	return 1;
 }

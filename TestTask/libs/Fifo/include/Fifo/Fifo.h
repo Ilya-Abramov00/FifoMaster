@@ -44,7 +44,7 @@ struct Params {
 	std::string fdFileName;
 	size_t dataUnitSize;
 	size_t timeToWaitDataNanoSeconds; // for sleep curr thread
-	std::function<void(char*  data, size_t szInBytes)> msgHandler;
+	std::function<void(std::string data, size_t szInBytes)> msgHandler;
 };
 class FifoRead {
 public:
