@@ -28,6 +28,7 @@ std::string a="";
 
 		std::cout << std::endl;
 		if(data.size()!=szInBytes){throw ;}
+		std::cout<<data;
 		a=a+ data;
 	};
 	Params params = {
@@ -40,8 +41,8 @@ std::string a="";
 	FifoRead client2(params);
 
 	client2.startRead();
-
+	std::cout << "\nсервер окончил прием\n" << std::endl;
 	std::cout<<a;
-	std::cout << "\nсервер окончил прием" << std::endl;
+
 	return 1;
 }

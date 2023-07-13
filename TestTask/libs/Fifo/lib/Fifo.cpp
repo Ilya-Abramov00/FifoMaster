@@ -10,6 +10,17 @@
 // FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
 //{}
 
+// flag += readFifo(fifoFd, read_buffer.data() + flag, params.dataUnitSize - flag);
+// if(flag == 0) {
+//	break;
+// }
+// if(flag == params.dataUnitSize) {
+//	params.msgHandler(read_buffer.data(), params.dataUnitSize);
+//	flag = 0;
+//	read_buffer.clear();
+// }
+// std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
+// }
 FifoRead::FifoRead(Params& params) : params(params)
 {
 	if(params.dataUnitSize > 1024 * 64)
@@ -47,6 +58,24 @@ void FifoRead::stopRead()
 {
 	run_read = false;
 	// threadReadFifo.join();
+}
+
+void FifoRead::readFifo()
+{
+	uint8_t fifoFd    = openFifoRead(FIFO);
+	char* read_buffer = new char[params.dataUnitSize];
+	long flag         = 0;
+	int x = 0;
+	while(run_read) {
+		flag = read(fifoFd, read_buffer, params.dataUnitSize - x);
+		if(flag == 0) {
+			break;
+		}
+		params.msgHandler(read_buffer, flag);
+		memset(read_buffer, 0, flag);
+		std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
+	}
+	delete[] read_buffer;
 }
 
 FifoWrite::FifoWrite(std::string& fdFileName) : FIFO(fdFileName.c_str())
@@ -114,19 +143,14 @@ void FifoWrite::writeUser()
 	while(run_write) {
 		std::pair<std::string, size_t> temporaryBuffer = getmsg();
 
-		auto ptr = (temporaryBuffer.first.c_str());
+		// ptr = reinterpret_cast<char*>(&temporaryBuffer.first);
 
-		auto buffer = std::vector<char>(ptr, ptr + temporaryBuffer.second);
+		// auto buffer = std::vector<char>(ptr, ptr + temporaryBuffer.second);
 
-		for(int i = 0; i != buffer.size(); i++) {
-			if(temporaryBuffer.first[i] != buffer[i]) {
-				throw 3;
-			}
-		}
 		// std::unique_lock<std::mutex> mtx_0(mtx);
 		//	mtx_0.lock();
 		if(queue.empty()) {
-			write(fifoFd, buffer.data(), buffer.size());
+			write(fifoFd, temporaryBuffer.first.c_str(), temporaryBuffer.first.size());
 		}
 		else {
 			// queue.push(std::move(buffer));
@@ -134,30 +158,4 @@ void FifoWrite::writeUser()
 		//	mtx_0.unlock();
 	}
 	//});
-}
-void FifoRead::readFifo()
-{
-	uint8_t fifoFd = openFifoRead(FIFO);
-
-	char* read_buffer = new char[params.dataUnitSize];
-	long flag         = 0;
-	std::string bufBuf = "";
-	while(run_read) {
-		flag += read(fifoFd, read_buffer, params.dataUnitSize - flag);
-		if(flag == 0) {
-			break;
-		}
-		bufBuf += read_buffer;
-		if(flag == params.dataUnitSize) {
-			params.msgHandler(bufBuf, params.dataUnitSize);
-			flag = 0;
-			memset(read_buffer, 0, params.dataUnitSize);
-
-			bufBuf.clear();
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
-	}
-	if(!bufBuf.empty()){params.msgHandler(bufBuf, params.dataUnitSize);}
-
-	delete[] read_buffer;
 }

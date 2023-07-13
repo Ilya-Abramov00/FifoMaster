@@ -38,7 +38,6 @@ using namespace std;
 
 TEST(Fifo, 1)
 {
-/*
 	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
 	std::string data = "";
@@ -88,7 +87,6 @@ sleep(0.1);
 	std::cout << "\n\nсчиталось  " << data.size()  << endl;
 	std::cout << i << endl;
 	ASSERT_TRUE(data.size()  == i);
-*/
 
 }
 
