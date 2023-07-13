@@ -60,23 +60,7 @@ void FifoRead::stopRead()
 	// threadReadFifo.join();
 }
 
-void FifoRead::readFifo()
-{
-	uint8_t fifoFd    = openFifoRead(FIFO);
-	char* read_buffer = new char[params.dataUnitSize];
-	long flag         = 0;
-	int x = 0;
-	while(run_read) {
-		flag = read(fifoFd, read_buffer, params.dataUnitSize - x);
-		if(flag == 0) {
-			break;
-		}
-		params.msgHandler(read_buffer, flag);
-		memset(read_buffer, 0, flag);
-		std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
-	}
-	delete[] read_buffer;
-}
+
 
 FifoWrite::FifoWrite(std::string& fdFileName) : FIFO(fdFileName.c_str())
 {
@@ -157,5 +141,24 @@ void FifoWrite::writeUser()
 		}
 		//	mtx_0.unlock();
 	}
+	close(fifoFd);
 	//});
+}
+
+void FifoRead::readFifo()
+{
+	uint8_t fifoFd    = openFifoRead(FIFO);
+	char* read_buffer = new char[params.dataUnitSize];
+	long flag         = 0;
+	int x = 0;
+	while(run_read) {
+		flag = read(fifoFd, read_buffer, params.dataUnitSize - x);
+		if(flag == 0) {
+			break;
+		}
+		params.msgHandler(read_buffer, flag);
+		memset(read_buffer, 0, flag);
+		std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
+	}
+	delete[] read_buffer;
 }

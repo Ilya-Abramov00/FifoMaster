@@ -42,8 +42,8 @@ TEST(Fifo, 1)
 
 	std::string data = "";
 
-	auto getterRead  = [&](const char* dataq, size_t szInBytes) {
- //      std::cout << std::string(dataq);
+	auto getterRead  = [&](std::string  dataq, size_t szInBytes) {
+     std::cout << std::string(dataq);
         data += dataq;
 	};
 
@@ -58,35 +58,40 @@ TEST(Fifo, 1)
 
 	FifoRead client1(params);
 
-	FifoWrite client2(FIFO2, mtx);
+	FifoWrite client2(FIFO2);
 
 	int i       = 0;
-	int Nq=56;
-	auto getter = [&i,&Nq]() {
-		i+=Nq;
-		return std::pair(std::string(Nq, '*'), Nq);
+	auto getter = [&]() {
+		i++;
+		if(i==10){client2.stopWrite();}
+		return std::pair(std::string(10, '*'), 10);
 	};
 
 	client2.setMsgGetter(getter);
 sleep(0.1);
-	client1.startRead(data);
+
+
+
 	sleep(0.1);
 	client2.startWrite();
 
 	sleep(0.1);
-	client2.writeUser();
+	std::thread t1([&]() {
+		client2.writeUser();
+	});
 
+	std::thread t2([&]() {
+		client1.startRead();
+	});
 
-	sleep(3);
-
-	client2.stopWrite();
-
-	sleep(2);
-	client1.stopRead();
-
+	sleep(9);
+	          client1.stopRead();
+	          client2.stopWrite();
 	std::cout << "\n\nсчиталось  " << data.size()  << endl;
-	std::cout << i << endl;
-	ASSERT_TRUE(data.size()  == i);
+	std::cout << i*10 << endl;
+	t1.join();
+	t2.join();
+	ASSERT_TRUE(data.size()  == 10*i);
 
 }
 
