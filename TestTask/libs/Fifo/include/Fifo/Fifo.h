@@ -97,7 +97,7 @@ private:
 	std::queue<std::vector<char>> queue;
 	int fifoFd;
 	std::thread threadWriteFifo;
-	std::thread threadUserWrite;
+	std::thread threadUserWrite;//указатель на поток
 };
 
 #endif
