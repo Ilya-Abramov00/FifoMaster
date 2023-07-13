@@ -6,44 +6,49 @@
 std::string FIFO1 = "/home/ilya/Fifo/fifo1";
 std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
-int main() {
-    std::cout << "сервер" << std::endl << std::endl;
+int main()
+{
+	std::cout << "сервер" << std::endl << std::endl;
+/*
+	FifoWrite client1(FIFO1);
 
-    FifoWrite client1(FIFO2);
+	auto getter = []() {
+		std::string ret;
 
-    auto getter = []() {
-        std::string ret;
+		while (std::cin >> ret) {
+			return std::pair(ret,ret.size());
+		}
+	};*/
 
-        while (std::cin >> ret) {
-            return ret;
-        }
-    };
-
-    client1.setMsgGetter(getter);
-	client1.startWrite();
-
+//	client1.setMsgGetter(getter);
+	//client1.startWrite();
+//	client1.writeUser();
 
 
 
-    std::thread t1([&]() {
-		client1.writeFifo();
-    });
 
-    FifoRead client2(FIFO1);
+
+	auto getterRead  = [](char* data, size_t szInBytes) {
+		//      std::cout << std::string(dataq);
+
+		for(int i=0;i!=szInBytes+1;i++){
+			std::cout<<data[i];
+		}
+
+	};
+	Params params = {
+	    FIFO2,
+	    6,
+	    0,
+	    getterRead,
+	};
+
+	FifoRead client2(params);
+
+
 	client2.startRead();
 
-	std::string data="";
-    std::thread t2([&]() {
-		client2.readFifo(data, 20);
-    });
 
-
-
-
-    t1.join();
-    t2.join();
-
-
-    std::cout << "сервер окончил прием" << std::endl;
-    return 1;
+	std::cout << "сервер окончил прием" << std::endl;
+	return 1;
 }

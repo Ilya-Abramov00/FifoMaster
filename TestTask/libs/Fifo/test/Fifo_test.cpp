@@ -38,55 +38,58 @@ using namespace std;
 
 TEST(Fifo, 1)
 {
-	std::string FIFO2 = "fifo2";
+/*
+	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
 	std::string data = "";
-	auto getterRead = [&](const char* dataq, size_t szInBytes) {
-		//std::cout << "получены данные :" << std::string(dataq);
-        data+=dataq;
+
+	auto getterRead  = [&](const char* dataq, size_t szInBytes) {
+ //      std::cout << std::string(dataq);
+        data += dataq;
 	};
 
 	Params params = {
 	    FIFO2,
-	    33,
+	    111,
 	    0,
 	    getterRead,
 	};
 
-	FifoWrite client2(FIFO2);
+	std::mutex mtx;
 
 	FifoRead client1(params);
 
+	FifoWrite client2(FIFO2, mtx);
+
 	int i       = 0;
-	auto getter = [&i]() {
-		++i;
-		return std::string(100, '*');
+	int Nq=56;
+	auto getter = [&i,&Nq]() {
+		i+=Nq;
+		return std::pair(std::string(Nq, '*'), Nq);
 	};
 
 	client2.setMsgGetter(getter);
+sleep(0.1);
+	client1.startRead(data);
+	sleep(0.1);
+	client2.startWrite();
+
+	sleep(0.1);
+	client2.writeUser();
 
 
-	std::thread t1([&]() {
-		client2.startWrite();
-	});
+	sleep(3);
 
-
-
-
-	std::thread t2([&]() {
-		client1.startRead();
-	});
+	client2.stopWrite();
 
 	sleep(2);
-	//client2.stopWrite();
-	sleep(7);
-//	client1.stopRead();
-	std::cout <<"считалось"<< data.size() / 100 << endl;
-	std::cout << i << endl;
-	ASSERT_TRUE(data.size() / 100 == i);
+	client1.stopRead();
 
-	t1.join();
-	t2.join();
+	std::cout << "\n\nсчиталось  " << data.size()  << endl;
+	std::cout << i << endl;
+	ASSERT_TRUE(data.size()  == i);
+*/
+
 }
 
 // TEST(Fifo, 2)

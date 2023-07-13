@@ -11,50 +11,44 @@ int main() {
 
     std::cout << "клиент" << std::endl << std::endl;
 
+//	auto getterRead  = [&](const char* dataq, size_t szInBytes) {
+//		//      std::cout << std::string(dataq);
+//		std::cout<<"данные пришли"<< dataq;
+//	};
+//	Params params = {
+//	    FIFO2,
+//	    111,
+//	    0,
+//	    getterRead,
+//	};
+//
+//	FifoRead client2(params);
+//	client2.startRead();
+//
+//	std::string data="";
+//
+//
+//
 
 
-
-	FifoRead client2(FIFO2);
-	client2.startRead();
-
-	std::string data="";
-	std::thread t2([&]() {
-		client2.readFifo(data, 20);
-	});
-
-
-
-
-
-
-    FifoWrite client1(FIFO1);
+    FifoWrite client1(FIFO2);
 
     auto getter = []() {
         std::string ret;
 
         while (std::cin >> ret) {
-            return ret;
+            return std::pair(ret,ret.size());
         }
     };
 
     client1.setMsgGetter(getter);
+
+
 	client1.startWrite();
+	client1.writeUser();
 
 
 
-
-    std::thread t1([&]() {
-		client1.writeFifo();
-    });
-
-
-
-
-
-
-
-    t1.join();
-    t2.join();
-    std::cout << "сервер завершил отправку" << std::endl;
+    std::cout << "клиент завершил отправку" << std::endl;
     return 0;
 }
