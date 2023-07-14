@@ -48,9 +48,9 @@ int FifoRead::openFifoRead(const char* FIFO)
 void FifoRead::startRead()
 {
 	run_read       = true;
-	threadReadFifo = new std::thread([this]() {
+	threadReadFifo = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
 		readFifo();
-	});
+	})));
 }
 
 void FifoRead::stopRead()
@@ -91,9 +91,9 @@ void FifoWrite::startWrite()
 		throw std::runtime_error("callback for msg getting not set");
 	}
 	run_write       = true;
-	threadUserWrite = new std::thread([this]() {
+	threadUserWrite = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
 		writeUser();
-	});
+	})));
 }
 
 void FifoWrite::stopWrite()
@@ -142,18 +142,17 @@ void FifoWrite::writeUser()
 
 void FifoRead::readFifo()
 {
-	uint8_t fifoFd    = openFifoRead(FIFO);
-	char* read_buffer = new char[params.dataUnitSize];
-	long flag         = 0;
-	int x             = 0;
+	uint8_t fifoFd = openFifoRead(FIFO);
+	std::vector<uint8_t> read_buffer(params.dataUnitSize);
+	long flag = 0;
+
 	while(run_read) {
-		flag = read(fifoFd, read_buffer, params.dataUnitSize - x);
+		flag = read(fifoFd, read_buffer.data(), params.dataUnitSize);
 		if(flag == 0) {
 			break;
 		}
-		params.msgHandler(read_buffer, flag);
-		memset(read_buffer, 0, flag);
+		params.msgHandler(read_buffer.data(), flag);
+		read_buffer.clear();
 		std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
 	}
-	delete[] read_buffer;
 }

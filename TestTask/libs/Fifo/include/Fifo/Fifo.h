@@ -65,7 +65,7 @@ private:
 
 	bool run_read{false};
 	char const* FIFO;
-	std::thread* threadReadFifo;
+	std::unique_ptr<std::thread> threadReadFifo;
 };
 
 class FifoWrite {
@@ -94,8 +94,8 @@ private:
 	char const* FIFO;
 	std::queue<std::vector<char>> queue;
 	int fifoFd;
-	std::thread* threadWriteFifo;
-	std::thread* threadUserWrite; // указатель на поток
+	std::unique_ptr <std::thread> threadWriteFifo;
+	std::unique_ptr <std::thread> threadUserWrite; // указатель на поток
 };
 
 #endif
