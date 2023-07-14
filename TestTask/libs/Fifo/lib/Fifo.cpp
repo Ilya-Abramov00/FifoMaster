@@ -118,7 +118,6 @@ void FifoRead::readFifo()
 {
 	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
 		fifoFd       = openFifoRead(); // должны находиться здесь
-		auto Maxline = 64 * 1024;
 		std::vector<uint8_t> read_buffer(params.dataUnitSize);
 		long flagN = 0;
 		while(runRead) {
