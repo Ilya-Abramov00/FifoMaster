@@ -65,7 +65,7 @@ private:
 
 	bool run_read{false};
 	char const* FIFO;
-	std::thread threadReadFifo;
+	std::thread* threadReadFifo;
 };
 
 class FifoWrite {
@@ -80,11 +80,11 @@ public:
 
 	void stopWrite();
 
-	void writeUser();
 
 private:
 	void writeFifo();
 
+	void writeUser();
 	int openFifoWrite(char const* FIFO);
 
 	void createFifo(char const* FIFO);
@@ -94,8 +94,8 @@ private:
 	char const* FIFO;
 	std::queue<std::vector<char>> queue;
 	int fifoFd;
-	std::thread threadWriteFifo;
-	std::thread threadUserWrite; // указатель на поток
+	std::thread* threadWriteFifo;
+	std::thread* threadUserWrite; // указатель на поток
 };
 
 #endif

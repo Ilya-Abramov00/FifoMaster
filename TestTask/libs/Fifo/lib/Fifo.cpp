@@ -47,17 +47,16 @@ int FifoRead::openFifoRead(const char* FIFO)
 
 void FifoRead::startRead()
 {
-	run_read = true;
-
-	// threadReadFifo = std::thread([this]() {
-	readFifo();
-	//	});
+	run_read       = true;
+	threadReadFifo = new std::thread([this]() {
+		readFifo();
+	});
 }
 
 void FifoRead::stopRead()
 {
 	run_read = false;
-	// threadReadFifo.join();
+	threadReadFifo->join();
 }
 
 FifoWrite::FifoWrite(std::string& fdFileName) : FIFO(fdFileName.c_str())
@@ -91,17 +90,17 @@ void FifoWrite::startWrite()
 	if(!getmsg) {
 		throw std::runtime_error("callback for msg getting not set");
 	}
-	run_write = true;
-	// threadWriteFifo = std::thread([this]() {
-	//	writeFifo();
-	// });
+	run_write       = true;
+	threadUserWrite = new std::thread([this]() {
+		writeUser();
+	});
 }
 
 void FifoWrite::stopWrite()
 {
 	run_write = false;
 	// threadWriteFifo.join();
-	// threadUserWrite.join();
+	threadUserWrite->join();
 }
 
 void FifoWrite::writeFifo()
@@ -120,7 +119,6 @@ void FifoWrite::writeFifo()
 
 void FifoWrite::writeUser()
 {
-	// threadUserWrite = std::thread([this]() {
 	fifoFd = openFifoWrite(FIFO);
 	while(run_write) {
 		std::pair<void*, size_t> temporaryBuffer = getmsg();
@@ -140,7 +138,6 @@ void FifoWrite::writeUser()
 		//	mtx_0.unlock();
 	}
 	close(fifoFd);
-	//});
 }
 
 void FifoRead::readFifo()
