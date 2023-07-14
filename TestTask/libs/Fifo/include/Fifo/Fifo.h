@@ -72,7 +72,7 @@ class FifoWrite {
 public:
 	FifoWrite(std::string& fdFileName);
 
-	using MsgGetter = std::function<std::pair<void *, size_t>()>;
+	using MsgGetter = std::function<std::pair<void*, size_t>()>;
 
 	void setMsgGetter(MsgGetter msgGetter);
 
@@ -95,7 +95,7 @@ private:
 	std::queue<std::vector<char>> queue;
 	int fifoFd;
 	std::thread threadWriteFifo;
-	std::thread threadUserWrite;//указатель на поток
+	std::thread threadUserWrite; // указатель на поток
 };
 
 #endif

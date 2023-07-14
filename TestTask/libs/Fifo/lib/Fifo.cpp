@@ -60,8 +60,6 @@ void FifoRead::stopRead()
 	// threadReadFifo.join();
 }
 
-
-
 FifoWrite::FifoWrite(std::string& fdFileName) : FIFO(fdFileName.c_str())
 {
 	createFifo(FIFO);
@@ -150,7 +148,7 @@ void FifoRead::readFifo()
 	uint8_t fifoFd    = openFifoRead(FIFO);
 	char* read_buffer = new char[params.dataUnitSize];
 	long flag         = 0;
-	int x = 0;
+	int x             = 0;
 	while(run_read) {
 		flag = read(fifoFd, read_buffer, params.dataUnitSize - x);
 		if(flag == 0) {

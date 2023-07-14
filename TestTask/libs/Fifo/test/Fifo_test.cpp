@@ -42,7 +42,7 @@ TEST(Fifo, 3)
 
 	std::string ret = "0123456";
 	auto getter     = [&ret]() {
-        return std::pair((void *)ret.data(), ret.size());
+        return std::pair((void*)ret.data(), ret.size());
 	};
 
 	std::pair<void*, size_t> temporaryBuffer = getter();
@@ -133,8 +133,7 @@ TEST(Fifo, 1)
 	std::string data = "";
 
 	auto getterRead = [&](void* dataq, size_t szInBytes) {
-
-		data += std::string((char*)dataq ,(char*)dataq +szInBytes);
+		data += std::string((char*)dataq, (char*)dataq + szInBytes);
 	};
 
 	Params params = {
@@ -156,7 +155,7 @@ TEST(Fifo, 1)
 		if(i == 10) {
 			client2.stopWrite();
 		}
-		return std::pair( (void*)(std::string(10, '*').data()), 10);
+		return std::pair((void*)(std::string(10, '*').data()), 10);
 	};
 
 	client2.setMsgGetter(getter);
