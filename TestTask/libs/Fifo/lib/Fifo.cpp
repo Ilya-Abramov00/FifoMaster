@@ -10,17 +10,6 @@
 // FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
 //{}
 
-// flag += readFifo(fifoFd, read_buffer.data() + flag, params.dataUnitSize - flag);
-// if(flag == 0) {
-//	break;
-// }
-// if(flag == params.dataUnitSize) {
-//	params.msgHandler(read_buffer.data(), params.dataUnitSize);
-//	flag = 0;
-//	read_buffer.clear();
-// }
-// std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
-// }
 FifoRead::FifoRead(Params& params) : params(params)
 {
 	if(params.dataUnitSize > 1024 * 64)
@@ -142,17 +131,40 @@ void FifoWrite::writeUser()
 
 void FifoRead::readFifo()
 {
-	 fifoFd = openFifoRead(FIFO);
+	fifoFd = openFifoRead(FIFO);
 	std::vector<uint8_t> read_buffer(params.dataUnitSize);
-	long flag = 0;
 
+	long flag  = 0;
+	long flagN = 0;
 	while(run_read) {
-		flag = read(fifoFd, read_buffer.data(), params.dataUnitSize);
+		std::vector<uint8_t> timeRead_buffer(params.dataUnitSize - flagN);
+
+		flag = read(fifoFd, timeRead_buffer.data(), params.dataUnitSize - flagN);
 		if(flag == 0) {
 			break;
 		}
-		params.msgHandler(read_buffer.data(), flag);
-		read_buffer.clear();
-		std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
+		flagN += flag;
+		read_buffer.insert(read_buffer.begin(), timeRead_buffer.begin(), timeRead_buffer.end());
+		if(flagN == params.dataUnitSize) {
+			params.msgHandler(read_buffer.data(), params.dataUnitSize);
+			flagN = 0;
+			read_buffer.clear();
+		}
+		std::this_thread::sleep_for(std::chrono::nanoseconds(params.timeToWaitDataNanoSeconds));
+	}
+	if(read_buffer.size()) {
+		params.msgHandler(read_buffer.data(), flagN);
 	}
 }
+
+// flag += readFifo(fifoFd, read_buffer.data() + flag, params.dataUnitSize - flag);
+// if(flag == 0) {
+//	break;
+// }
+// if(flag == params.dataUnitSize) {
+//	params.msgHandler(read_buffer.data(), params.dataUnitSize);
+//	flag = 0;
+//	read_buffer.clear();
+// }
+// std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
+// }
