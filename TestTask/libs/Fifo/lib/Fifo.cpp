@@ -69,33 +69,32 @@ void FifoWrite::createFifo(const char* FIFO)
 	}
 }
 
-void FifoWrite::setMsgGetter(FifoWrite::MsgGetter msgGetter)
-{
-	getmsg = std::move(msgGetter);
-}
-
 void FifoWrite::startWrite()
 {
-	if(!getmsg) {
-		throw std::runtime_error("callback for msg getting not set");
-	}
-	run_write       = true;
-	threadUserWrite = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
-		writeUser();
+	runWriteUser = true;
+	runWrite     = true;
+
+	threadWriteFifo = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
+		writeFifo();
 	})));
 }
 
 void FifoWrite::stopWrite()
 {
-	run_write = false;
-	// threadWriteFifo.join();
+
+	threadWriteFifo->join();
+
+}
+void FifoWrite::stopWriteUser()
+{
+	runWriteUser = false;
 	threadUserWrite->join();
 }
 
 void FifoWrite::writeFifo()
 {
-	while(run_write) {
-		std::unique_lock<std::mutex> mtx_0(mtx);
+	std::unique_lock<std::mutex> mtx_0(mtx);
+	while(runWrite) {
 		// if(!queue.empty()) {
 		// std::cout << "данные записались" << queue.front().data();
 		write(fifoFd, queue.front().data(), queue.front().size());
@@ -106,25 +105,20 @@ void FifoWrite::writeFifo()
 	unlink(FIFO);
 }
 
-void FifoWrite::writeUser()
+void FifoWrite::writeUser(MsgGetter getmsg)
 {
-	fifoFd = openFifoWrite(FIFO);
-	while(run_write) {
-		std::pair<void*, size_t> temporaryBuffer = getmsg();
+	threadUserWrite = std::move(std::unique_ptr<std::thread>(new std::thread([this,&getmsg]() {
+		fifoFd = openFifoWrite(FIFO);
+		while(runWriteUser) {
+			std::pair<void*, size_t> temporaryBuffer = getmsg();
+			auto ptr                                 = reinterpret_cast<uint8_t*>(temporaryBuffer.first);
+			std::vector<uint8_t> buffer(ptr, ptr + temporaryBuffer.second);
 
-		auto ptr = reinterpret_cast<uint8_t*>(temporaryBuffer.first);
-
-		std::vector<uint8_t> buffer(ptr, ptr + temporaryBuffer.second);
-
-		std::unique_lock<std::mutex> mtx_0(mtx);
-
-		queue.push(std::move(buffer));
-		write(fifoFd, queue.front().data(), queue.front().size());
-		queue.pop();
-
-		mtx_0.unlock();
-	}
-	close(fifoFd);
+			std::unique_lock<std::mutex> mtx_0(mtx);
+			queue.push(std::move(buffer));
+			mtx_0.unlock();
+		}
+	})));
 }
 
 void FifoRead::readFifo()

@@ -75,23 +75,22 @@ public:
 
 	using MsgGetter = std::function<std::pair<void*, size_t>()>;
 
-	void setMsgGetter(MsgGetter msgGetter);
 
+	void writeUser(MsgGetter getmsg);
 	void startWrite();
 
 	void stopWrite();
-
+	void stopWriteUser();
 
 private:
 	void writeFifo();
 
-	void writeUser();
 	uint8_t openFifoWrite(char const* FIFO);
 
 	void createFifo(char const* FIFO);
 
-	bool run_write{false};
-	MsgGetter getmsg;
+	bool runWriteUser{false};
+	bool runWrite{false};
 	char const* FIFO;
 	std::queue<std::vector<uint8_t>> queue;
 	uint8_t fifoFd;
