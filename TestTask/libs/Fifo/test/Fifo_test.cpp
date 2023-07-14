@@ -136,6 +136,13 @@ TEST(Fifo, 1)
 		data += std::string((char*)dataq, (char*)dataq + szInBytes);
 	};
 
+	int i = 0;
+	std::string a(10, '*');
+	auto getter = [&i, &a]() {
+		i++;
+		return std::pair((void*)a.data(), 10);
+	};
+
 	Params params = {
 	    FIFO2,
 	    10,
@@ -149,15 +156,6 @@ TEST(Fifo, 1)
 
 	FifoWrite client2(FIFO2);
 
-	int i       = 0;
-	auto getter = [&]() {
-		i++;
-		if(i == 10) {
-			// client2.stopWrite();
-		}
-		return std::pair((void*)(std::string(10, '*').data()), 10);
-	};
-
 	client2.setMsgGetter(getter);
 
 	client2.startWrite();
@@ -165,15 +163,17 @@ TEST(Fifo, 1)
 
 	sleep(1);
 	client2.stopWrite();
-	sleep(7);
+	sleep(3);
 	client1.stopRead();
 	std::cout << "\n\nсчиталось  " << data.size() << endl;
 	std::cout << i * 10 << endl;
 
 	ASSERT_TRUE(data.size() == 10 * i);
-	ASSERT_TRUE(data == std::string('*', 10 * i));
+	std::string b(10*i, '*');
+	for(int i = 0; i != data.size(); i++) {
+		ASSERT_TRUE(data[i] == b[i]);
+	}
 }
-
 TEST(Fifo, 2)
 {
 	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
@@ -184,55 +184,16 @@ TEST(Fifo, 2)
 		data += std::string((char*)dataq, (char*)dataq + szInBytes);
 	};
 
-	Params params = {
-	    FIFO2,
-	    3,
-	    3,
-	    getterRead,
-	};
-
-	std::mutex mtx;
-
-	FifoRead client1(params);
-
-	FifoWrite client2(FIFO2);
-
-	int i       = 0;
-	auto getter = [&]() {
+	int i = 0;
+	std::string a(10, '*');
+	auto getter = [&i, &a]() {
 		i++;
-		return std::pair((void*)(std::string(10, '*').data()), 10);
-	};
-
-	client2.setMsgGetter(getter);
-
-	client2.startWrite();
-	client1.startRead();
-	sleep(1);
-	client2.stopWrite();
-	sleep(5);
-	client1.stopRead();
-	std::cout << "\n\nсчиталось  " << data.size() << endl;
-	std::cout << i * 10 << endl;
-
-	ASSERT_TRUE(data.size() == 10 * i);
-	auto a=std::string(10*i, '*');
-	auto e=a.size();
-	ASSERT_TRUE(data ==a);
-}
-
-TEST(Fifo, 3)
-{
-	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
-
-	std::string data = "";
-
-	auto getterRead = [&](void* dataq, size_t szInBytes) {
-		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+		return std::pair((void*)a.data(), 10);
 	};
 
 	Params params = {
 	    FIFO2,
-	    9,
+	    4,
 	    10,
 	    getterRead,
 	};
@@ -243,27 +204,26 @@ TEST(Fifo, 3)
 
 	FifoWrite client2(FIFO2);
 
-	int i       = 0;
-	auto getter = [&]() {
-		i++;
-		return std::pair((void*)(std::string(10, '*').data()), 10);
-	};
-
 	client2.setMsgGetter(getter);
 
 	client2.startWrite();
 	client1.startRead();
+
 	sleep(1);
 	client2.stopWrite();
-	sleep(5);
+	sleep(3);
 	client1.stopRead();
 	std::cout << "\n\nсчиталось  " << data.size() << endl;
 	std::cout << i * 10 << endl;
 
 	ASSERT_TRUE(data.size() == 10 * i);
-	ASSERT_TRUE(data == std::string('*', 10 * i));
+	std::string b(10*i, '*');
+	for(int i = 0; i != data.size(); i++) {
+		ASSERT_TRUE(data[i] == b[i]);
+	}
 }
-TEST(Fifo, 4)
+
+TEST(Fifo,3)
 {
 	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
@@ -273,10 +233,17 @@ TEST(Fifo, 4)
 		data += std::string((char*)dataq, (char*)dataq + szInBytes);
 	};
 
+	int i = 0;
+	std::string a(10, '*');
+	auto getter = [&i, &a]() {
+		i++;
+		return std::pair((void*)a.data(), 10);
+	};
+
 	Params params = {
 	    FIFO2,
-	    16,
-	    5,
+	    11,
+	    10,
 	    getterRead,
 	};
 
@@ -286,23 +253,21 @@ TEST(Fifo, 4)
 
 	FifoWrite client2(FIFO2);
 
-	int i       = 0;
-	auto getter = [&]() {
-		i++;
-		return std::pair((void*)(std::string(10, '*').data()), 10);
-	};
-
 	client2.setMsgGetter(getter);
 
 	client2.startWrite();
 	client1.startRead();
+
 	sleep(1);
 	client2.stopWrite();
-	sleep(5);
+	sleep(3);
 	client1.stopRead();
 	std::cout << "\n\nсчиталось  " << data.size() << endl;
 	std::cout << i * 10 << endl;
 
 	ASSERT_TRUE(data.size() == 10 * i);
-	ASSERT_TRUE(data == std::string('*', 10 * i));
+	std::string b(10*i, '*');
+	for(int i = 0; i != data.size(); i++) {
+		ASSERT_TRUE(data[i] == b[i]);
+	}
 }
