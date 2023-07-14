@@ -48,7 +48,7 @@ void FifoRead::stopRead()
 	threadReadFifo->join();
 }
 
-FifoWrite::FifoWrite(std::string& fdFileName,std::mutex& mtx ) : FIFO(fdFileName.c_str()), mtx(mtx)
+FifoWrite::FifoWrite(std::string& fdFileName, std::mutex& mtx) : FIFO(fdFileName.c_str()), mtx(mtx)
 {
 	createFifo(FIFO);
 }
@@ -114,17 +114,15 @@ void FifoWrite::writeUser()
 
 		auto ptr = reinterpret_cast<uint8_t*>(temporaryBuffer.first);
 
-		auto buffer = std::vector<uint8_t>(ptr, ptr + temporaryBuffer.second);
+		std::vector<uint8_t> buffer(ptr, ptr + temporaryBuffer.second);
 
-		 std::unique_lock<std::mutex> mtx_0(mtx);
+		std::unique_lock<std::mutex> mtx_0(mtx);
 
-		if(queue.empty()) {
-			write(fifoFd, buffer.data(), temporaryBuffer.second);
-		}
-		else {
-			// queue.push(std::move(buffer));
-		}
-			mtx_0.unlock();
+		queue.push(std::move(buffer));
+		write(fifoFd, queue.front().data(), queue.front().size());
+		queue.pop();
+
+		mtx_0.unlock();
 	}
 	close(fifoFd);
 }
@@ -156,15 +154,3 @@ void FifoRead::readFifo()
 		params.msgHandler(read_buffer.data(), flagN);
 	}
 }
-
-// flag += readFifo(fifoFd, read_buffer.data() + flag, params.dataUnitSize - flag);
-// if(flag == 0) {
-//	break;
-// }
-// if(flag == params.dataUnitSize) {
-//	params.msgHandler(read_buffer.data(), params.dataUnitSize);
-//	flag = 0;
-//	read_buffer.clear();
-// }
-// std::this_thread::sleep_for(std::chrono::milliseconds(params.timeToWaitDataNanoSeconds));
-// }

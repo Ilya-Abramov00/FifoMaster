@@ -93,7 +93,7 @@ private:
 	bool run_write{false};
 	MsgGetter getmsg;
 	char const* FIFO;
-	std::queue<std::vector<char>> queue;
+	std::queue<std::vector<uint8_t>> queue;
 	uint8_t fifoFd;
 	std::mutex& mtx;
 	std::unique_ptr <std::thread> threadWriteFifo;
