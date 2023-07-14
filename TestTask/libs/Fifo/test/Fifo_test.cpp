@@ -35,16 +35,59 @@ using namespace std;
 //
 //	client2.writeFifo();
 // }
+using namespace std;
+TEST(Fifo, 2)
+{
+	const char* FIFO = "/home/ilya/Fifo/fifo";
+	std::string ret  = "0123456";
+	auto getter      = [&ret]() {
+        return std::pair(ret, ret.size());
+	};
 
+	std::pair<std::string, size_t> temporaryBuffer = getter();
+
+	auto ptr = reinterpret_cast<uint8_t*>(&temporaryBuffer.first);
+
+	auto buffer = std::vector<uint8_t>(ptr, ptr + temporaryBuffer.second);
+
+	mkfifo(FIFO, FILE_MODE);
+
+	std::thread t2([&]() {
+		int fd = open(FIFO, O_WRONLY, 0);
+		write(fd, buffer.data(), temporaryBuffer.second);
+		sleep(2);
+		close(fd);
+	});
+
+	uint8_t* read_buffer = new uint8_t[temporaryBuffer.second];
+	std::thread t1([&]() {
+		int fd1 = open(FIFO, O_RDONLY, 0);
+		read(fd1, read_buffer, temporaryBuffer.second);
+	});
+
+	sleep(2);
+	vector<uint8_t> a(read_buffer, read_buffer + temporaryBuffer.second);
+
+	string b;
+	for(int i = 0; i != temporaryBuffer.second; i++) {
+		b.push_back((char)read_buffer[i]);
+	}
+	ASSERT_TRUE(buffer == a);
+
+	ASSERT_TRUE(ret == b);
+
+	t1.join();
+	t2.join();
+}
 TEST(Fifo, 1)
 {
 	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
 	std::string data = "";
 
-	auto getterRead  = [&](std::string  dataq, size_t szInBytes) {
-     std::cout << std::string(dataq);
-        data += dataq;
+	auto getterRead = [&](std::string dataq, size_t szInBytes) {
+		std::cout << std::string(dataq);
+		data += dataq;
 	};
 
 	Params params = {
@@ -63,14 +106,14 @@ TEST(Fifo, 1)
 	int i       = 0;
 	auto getter = [&]() {
 		i++;
-		if(i==10){client2.stopWrite();}
+		if(i == 10) {
+			client2.stopWrite();
+		}
 		return std::pair(std::string(10, '*'), 10);
 	};
 
 	client2.setMsgGetter(getter);
-sleep(0.1);
-
-
+	sleep(0.1);
 
 	sleep(0.1);
 	client2.startWrite();
@@ -85,14 +128,14 @@ sleep(0.1);
 	});
 
 	sleep(9);
-	          client1.stopRead();
-	          client2.stopWrite();
-	std::cout << "\n\nсчиталось  " << data.size()  << endl;
-	std::cout << i*10 << endl;
+
+	client1.stopRead();
+	client2.stopWrite();
+	std::cout << "\n\nсчиталось  " << data.size() << endl;
+	std::cout << i * 10 << endl;
 	t1.join();
 	t2.join();
-	ASSERT_TRUE(data.size()  == 10*i);
-
+	ASSERT_TRUE(data.size() == 10 * i);
 }
 
 // TEST(Fifo, 2)

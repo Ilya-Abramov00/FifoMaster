@@ -59,8 +59,6 @@ private:
 
 	int openFifoRead(char const* FIFO);
 
-
-
 	void createFifo(char const* FIFO);
 
 	Params params;
