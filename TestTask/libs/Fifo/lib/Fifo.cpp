@@ -125,16 +125,16 @@ void FifoWrite::writeUser()
 	// threadUserWrite = std::thread([this]() {
 	fifoFd = openFifoWrite(FIFO);
 	while(run_write) {
-		std::pair<std::string, size_t> temporaryBuffer = getmsg();
+		std::pair<void*, size_t> temporaryBuffer = getmsg();
 
-		// ptr = reinterpret_cast<char*>(&temporaryBuffer.first);
+		auto ptr = reinterpret_cast<uint8_t*>(temporaryBuffer.first);
 
-		// auto buffer = std::vector<char>(ptr, ptr + temporaryBuffer.second);
+		auto buffer = std::vector<uint8_t>(ptr, ptr + temporaryBuffer.second);
 
 		// std::unique_lock<std::mutex> mtx_0(mtx);
 		//	mtx_0.lock();
 		if(queue.empty()) {
-			write(fifoFd, temporaryBuffer.first.c_str(), temporaryBuffer.first.size());
+			write(fifoFd, buffer.data(), temporaryBuffer.second);
 		}
 		else {
 			// queue.push(std::move(buffer));

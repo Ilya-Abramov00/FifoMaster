@@ -44,7 +44,7 @@ struct Params {
 	std::string fdFileName;
 	size_t dataUnitSize;
 	size_t timeToWaitDataNanoSeconds; // for sleep curr thread
-	std::function<void(std::string data, size_t szInBytes)> msgHandler;
+	std::function<void(void* data, size_t szInBytes)> msgHandler;
 };
 class FifoRead {
 public:
@@ -72,7 +72,7 @@ class FifoWrite {
 public:
 	FifoWrite(std::string& fdFileName);
 
-	using MsgGetter = std::function<std::pair<std::string, size_t>()>;
+	using MsgGetter = std::function<std::pair<void *, size_t>()>;
 
 	void setMsgGetter(MsgGetter msgGetter);
 
