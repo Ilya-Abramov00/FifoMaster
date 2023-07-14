@@ -174,7 +174,7 @@ TEST(Fifo, 1)
 	sleep(1);
 
 	client2.stopWrite();
-	sleep(3);
+	sleep(1);
 	client1.stopRead();
 	a += b;
 	a += c;
@@ -231,7 +231,7 @@ TEST(Fifo, 2)
 	sleep(1);
 
 	client2.stopWrite();
-	sleep(3);
+	sleep(1);
 	client1.stopRead();
 	a += b;
 	a += c;
@@ -287,7 +287,7 @@ TEST(Fifo, 3)
 	sleep(1);
 
 	client2.stopWrite();
-	sleep(3);
+	sleep(1);
 	client1.stopRead();
 	a += b;
 	a += c;
@@ -300,4 +300,47 @@ TEST(Fifo, 3)
 	t1.join();
 	t2.join();
 	t3.join();
+}
+TEST(Fifo, 4)
+{
+	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
+
+	float data = 0;
+
+	auto getterRead = [&](void* dataq, size_t szInBytes) {
+		data +=  szInBytes;//эта функция замедляет работу
+	};
+
+	Params params = {
+	    FIFO2,
+	    1024*1024,
+	    0,
+	    getterRead,
+	};
+
+	FifoRead client1(params);
+
+	FifoWrite client2(FIFO2);
+
+	int n=1024*1024*1024;
+	std::string a(n, '*');
+	std::thread t1([&client2, &a,&n]() {
+		client2.writeUser((void*)a.data(), n);
+	});
+
+
+	client1.startRead();
+
+	client2.startWrite();
+	sleep(1);
+
+	client2.stopWrite();
+	sleep(1);
+	client1.stopRead();
+
+	ASSERT_TRUE(data == n);
+
+
+	t1.join();
+
 }
