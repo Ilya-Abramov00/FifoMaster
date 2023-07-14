@@ -57,9 +57,7 @@ public:
 
 private:
 	void readFifo();
-
 	uint8_t openFifoRead();
-
 	void createFifo();
 
 	Params params;
@@ -81,9 +79,7 @@ public:
 
 private:
 	void writeFifo();
-
 	uint8_t openFifoWrite();
-
 	void createFifo();
 
 	bool runWrite{false};

@@ -37,7 +37,6 @@ uint8_t FifoRead::openFifoRead()
 void FifoRead::startRead()
 {
 	runRead = true;
-
 	readFifo();
 }
 
@@ -101,17 +100,17 @@ void FifoWrite::writeFifo()
 void FifoWrite::writeUser(void* data, size_t sizeN)
 {
 	if(!data) {
-		std::cerr << " null ptr is writeUser ";
-		return;
+		std::cerr << "\n null ptr is writeUser \n";
 	}
+else {
+		auto ptr    = reinterpret_cast<uint8_t*>(data);
+		int Maxline = 1024 * 64;
 
-	auto ptr    = reinterpret_cast<uint8_t*>(data);
-	int Maxline = 1024 * 64;
-
-	for(size_t i = 0; sizeN > Maxline * i; i++) {
-		std::vector<uint8_t> buffer(ptr, ptr + sizeN - i * Maxline);
-		std::lock_guard<std::mutex> mtx_0(mtx);
-		queue.push(std::move(buffer)); // это работать не будет, переделать(цикл)
+		for(size_t i = 0; sizeN > Maxline * i; i++) {
+			std::vector<uint8_t> buffer(ptr, ptr + sizeN - i * Maxline);
+			std::lock_guard<std::mutex> mtx_0(mtx);
+			queue.push(std::move(buffer)); // это работать не будет, переделать(цикл)
+		}
 	}
 }
 

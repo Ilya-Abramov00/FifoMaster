@@ -165,6 +165,12 @@ TEST(Fifo, 1)
 		 client2.writeUser((void*)c.data(), 10);
 	 });
 
+	void* z= nullptr;
+
+	sleep(0.1);
+	std::thread t4([&client2,&z]() {
+		client2.writeUser(z, 0);
+	});
 	client1.startRead();
 
 	client2.startWrite();
@@ -183,6 +189,7 @@ TEST(Fifo, 1)
 	t1.join();
 	t2.join();
 	t3.join();
+	t4.join();
 }
 
 TEST(Fifo, 2)
