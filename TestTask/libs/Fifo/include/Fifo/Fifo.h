@@ -46,6 +46,7 @@ struct Params {
 	size_t timeToWaitDataNanoSeconds; // for sleep curr thread
 	std::function<void(void* data, size_t szInBytes)> msgHandler;
 };
+
 class FifoRead {
 public:
 	FifoRead(Params& params);
@@ -63,7 +64,7 @@ private:
 
 	Params params;
 
-	bool run_read{false};
+	bool runRead{false};
 	char const* FIFO;
 	uint8_t fifoFd;
 	std::unique_ptr<std::thread> threadReadFifo;
@@ -71,16 +72,13 @@ private:
 
 class FifoWrite {
 public:
-	FifoWrite(std::string& fdFileName,std::mutex& mtx);
+	FifoWrite(std::string& fdFileName, std::mutex& mtx);
 
-	using MsgGetter = std::function<std::pair<void*, size_t>()>;
+	void writeUser(std::pair<void*, size_t> temporaryBuffer);
 
-
-	void writeUser(MsgGetter getmsg);
 	void startWrite();
 
 	void stopWrite();
-	void stopWriteUser();
 
 private:
 	void writeFifo();
@@ -89,14 +87,12 @@ private:
 
 	void createFifo(char const* FIFO);
 
-	bool runWriteUser{false};
 	bool runWrite{false};
 	char const* FIFO;
 	std::queue<std::vector<uint8_t>> queue;
 	uint8_t fifoFd;
 	std::mutex& mtx;
-	std::unique_ptr <std::thread> threadWriteFifo;
-	std::unique_ptr <std::thread> threadUserWrite; // указатель на поток
+	std::unique_ptr<std::thread> threadWriteFifo;
 };
 
 #endif

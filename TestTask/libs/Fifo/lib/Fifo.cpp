@@ -36,7 +36,7 @@ uint8_t FifoRead::openFifoRead(const char* FIFO)
 
 void FifoRead::startRead()
 {
-	run_read       = true;
+	runRead        = true;
 	threadReadFifo = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
 		readFifo();
 	})));
@@ -44,7 +44,7 @@ void FifoRead::startRead()
 
 void FifoRead::stopRead()
 {
-	run_read = false;
+	runRead = false;
 	threadReadFifo->join();
 }
 
@@ -71,8 +71,7 @@ void FifoWrite::createFifo(const char* FIFO)
 
 void FifoWrite::startWrite()
 {
-	runWriteUser = true;
-	runWrite     = true;
+	runWrite = true;
 
 	threadWriteFifo = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
 		writeFifo();
@@ -84,40 +83,30 @@ void FifoWrite::stopWrite()
 	runWrite = false;
 	threadWriteFifo->join();
 }
-void FifoWrite::stopWriteUser()
-{
-	runWriteUser = false;
-	threadUserWrite->join();
-}
 
 void FifoWrite::writeFifo()
 {
+	fifoFd = openFifoWrite(FIFO);
 	while(runWrite) {
 		std::unique_lock<std::mutex> mtx_0(mtx);
-
 		if(!queue.empty()) {
 			write(fifoFd, queue.front().data(), queue.front().size());
 			queue.pop();
 		}
+		mtx_0.unlock();
 	}
 	close(fifoFd);
 	unlink(FIFO);
 }
 
-void FifoWrite::writeUser(MsgGetter getmsg)
+void FifoWrite::writeUser(std::pair<void*, size_t> temporaryBuffer)
 {
-	threadUserWrite = std::move(std::unique_ptr<std::thread>(new std::thread([this, &getmsg]() {
-		fifoFd = openFifoWrite(FIFO);
-		while(runWriteUser) {
-			std::pair<void*, size_t> temporaryBuffer = getmsg();
-			auto ptr                                 = reinterpret_cast<uint8_t*>(temporaryBuffer.first);
-			std::vector<uint8_t> buffer(ptr, ptr + temporaryBuffer.second);
+	auto ptr = reinterpret_cast<uint8_t*>(temporaryBuffer.first);
+	std::vector<uint8_t> buffer(ptr, ptr + temporaryBuffer.second);
 
-			std::unique_lock<std::mutex> mtx_0(mtx);
-			queue.push(std::move(buffer));
-			mtx_0.unlock();
-		}
-	})));
+	std::unique_lock<std::mutex> mtx_0(mtx);
+	queue.push(std::move(buffer));
+	mtx_0.unlock();
 }
 
 void FifoRead::readFifo()
@@ -127,7 +116,7 @@ void FifoRead::readFifo()
 
 	long flag  = 0;
 	long flagN = 0;
-	while(run_read) {
+	while(runRead) {
 		std::vector<uint8_t> timeRead_buffer(params.dataUnitSize - flagN);
 
 		flag = read(fifoFd, timeRead_buffer.data(), params.dataUnitSize - flagN);

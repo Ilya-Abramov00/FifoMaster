@@ -28,25 +28,27 @@ int main()
 	//
 	//
 
-	FifoWrite client1(FIFO2);
-	int i       = 0;
-	auto getter = [&]() {
-		std::string ret;
-		i++;
-		if(i == 3) {
-			client1.stopWrite();
-		}
+//	FifoWrite client1(FIFO2);
+//	int i       = 0;
+//	auto getter = [&]() {
+//		std::string ret;
+//		i++;
+//		if(i == 3) {
+//			client1.stopWrite();
+//		}
+//
+//		while(std::cin >> ret) {
+//			return std::pair(ret, ret.size());
+//		}
+//	};
+//
+//	client1.setMsgGetter(getter);
+//
+//	client1.startWrite();
+//	client1.writeUser();
+//
+//	std::cout << "клиент завершил отправку" << std::endl;
 
-		while(std::cin >> ret) {
-			return std::pair(ret, ret.size());
-		}
-	};
 
-	client1.setMsgGetter(getter);
-
-	client1.startWrite();
-	client1.writeUser();
-
-	std::cout << "клиент завершил отправку" << std::endl;
 	return 0;
 }

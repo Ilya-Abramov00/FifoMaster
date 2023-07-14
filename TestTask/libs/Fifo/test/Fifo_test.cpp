@@ -136,12 +136,8 @@ TEST(Fifo, 1)
 		data += std::string((char*)dataq, (char*)dataq + szInBytes);
 	};
 
-	int i = 0;
-	std::string a(10, '*');
-	auto getter = [&i, &a]() {
-		i++;
-		return std::pair((void*)a.data(), 10);
-	};
+
+
 
 	Params params = {
 	    FIFO2,
@@ -156,24 +152,42 @@ TEST(Fifo, 1)
 
 	FifoWrite client2(FIFO2,mtx);
 
-	client2.startWrite();
-	client2.writeUser(getter);
+	std::string a(10, '*');
+	 std::thread t1([&client2,&a]() {
+		client2.writeUser(std::pair((void*)a.data(), 10));
+	});
+
+sleep(0.03);
+	 std::string b(10, '*');
+	 std::thread t2([&client2,&b]() {
+	 client2.writeUser(std::pair((void*)b.data(), 10));
+	 });
+
+
+	 sleep(0.03);
+	 std::string c(10, '!');
+	 std::thread t3([&client2,&c]() {
+		 client2.writeUser(std::pair((void*)c.data(), 10));
+	 });
+
 	client1.startRead();
 
+	client2.startWrite();
 	sleep(1);
-	client2.stopWriteUser();
-	sleep(1);
+
 	client2.stopWrite();
 	sleep(3);
 	client1.stopRead();
-	std::cout << "\n\nсчиталось  " << data.size() << endl;
-	std::cout << i * 10 << endl;
+	a+=a;
+	a+=c;
+	ASSERT_TRUE(data.size() == 30);
 
-	ASSERT_TRUE(data.size() == 10 * i);
-	std::string b(10*i, '*');
 	for(int i = 0; i != data.size(); i++) {
-		ASSERT_TRUE(data[i] == b[i]);
+		ASSERT_TRUE(data[i] == a[i]);
 	}
+	t1.join();
+	t2.join();
+	t3.join();
 }
 
 //TEST(Fifo, 2)
