@@ -198,9 +198,6 @@ TEST(Fifo, 2)
 	int i       = 0;
 	auto getter = [&]() {
 		i++;
-		if(i == 10) {
-			// client2.stopWrite();
-		}
 		return std::pair((void*)(std::string(10, '*').data()), 10);
 	};
 
