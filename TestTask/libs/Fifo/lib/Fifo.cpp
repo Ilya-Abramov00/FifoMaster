@@ -132,7 +132,7 @@ void FifoWrite::writeUser()
 void FifoRead::readFifo()
 {
 	fifoFd = openFifoRead(FIFO);
-	std::vector<uint8_t> read_buffer(params.dataUnitSize);
+	std::vector<uint8_t> read_buffer;
 
 	long flag  = 0;
 	long flagN = 0;
