@@ -81,9 +81,8 @@ void FifoWrite::startWrite()
 
 void FifoWrite::stopWrite()
 {
-
+	runWrite = false;
 	threadWriteFifo->join();
-
 }
 void FifoWrite::stopWriteUser()
 {
@@ -93,13 +92,13 @@ void FifoWrite::stopWriteUser()
 
 void FifoWrite::writeFifo()
 {
-	std::unique_lock<std::mutex> mtx_0(mtx);
 	while(runWrite) {
-		// if(!queue.empty()) {
-		// std::cout << "данные записались" << queue.front().data();
-		write(fifoFd, queue.front().data(), queue.front().size());
-		queue.pop();
-		//}
+		std::unique_lock<std::mutex> mtx_0(mtx);
+
+		if(!queue.empty()) {
+			write(fifoFd, queue.front().data(), queue.front().size());
+			queue.pop();
+		}
 	}
 	close(fifoFd);
 	unlink(FIFO);
@@ -107,7 +106,7 @@ void FifoWrite::writeFifo()
 
 void FifoWrite::writeUser(MsgGetter getmsg)
 {
-	threadUserWrite = std::move(std::unique_ptr<std::thread>(new std::thread([this,&getmsg]() {
+	threadUserWrite = std::move(std::unique_ptr<std::thread>(new std::thread([this, &getmsg]() {
 		fifoFd = openFifoWrite(FIFO);
 		while(runWriteUser) {
 			std::pair<void*, size_t> temporaryBuffer = getmsg();
