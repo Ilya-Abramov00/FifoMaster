@@ -15,9 +15,9 @@ FifoRead::FifoRead(const Params& params) : params(params)
 	if(params.dataUnitSize > 1024 * 64)
 		throw std::runtime_error("fail very big size_N ");
 	FIFO = params.fdFileName.c_str();
-	createFifo(FIFO);
+	createFifo();
 }
-void FifoRead::createFifo(const char* FIFO)
+void FifoRead::createFifo()
 {
 	if((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
 		std::cout << FIFO << '\n';
@@ -25,7 +25,7 @@ void FifoRead::createFifo(const char* FIFO)
 	}
 }
 
-uint8_t FifoRead::openFifoRead(const char* FIFO)
+uint8_t FifoRead::openFifoRead()
 {
 	uint8_t fd = open(FIFO, O_RDONLY, 0);
 	if(-1 == fd) {
@@ -52,9 +52,9 @@ void FifoRead::stopRead()
 
 FifoWrite::FifoWrite(const std::string& fdFileName) : FIFO(fdFileName.c_str())
 {
-	createFifo(FIFO);
+	createFifo();
 }
-uint8_t FifoWrite::openFifoWrite(const char* FIFO)
+uint8_t FifoWrite::openFifoWrite()
 {
 	uint8_t fd = open(FIFO, O_WRONLY, 0);
 	if(-1 == fd) {
@@ -63,7 +63,7 @@ uint8_t FifoWrite::openFifoWrite(const char* FIFO)
 	return fd;
 }
 
-void FifoWrite::createFifo(const char* FIFO)
+void FifoWrite::createFifo()
 {
 	if((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
 		std::cout << FIFO << '\n';
@@ -90,7 +90,7 @@ void FifoWrite::stopWrite()
 
 void FifoWrite::writeFifo()
 {
-	fifoFd = openFifoWrite(FIFO); // должны находиться здесь
+	fifoFd = openFifoWrite(); // должны находиться здесь
 	while(runWrite) {
 		std::lock_guard<std::mutex> mtx_0(mtx);
 		if(!queue.empty()) {
@@ -111,7 +111,7 @@ void FifoWrite::writeUser(void* data, size_t sizeN)
 
 void FifoRead::readFifo()
 {
-	fifoFd       = openFifoRead(FIFO); // должны находиться здесь
+	fifoFd       = openFifoRead(); // должны находиться здесь
 	auto Maxline = 64 * 1024;
 	std::vector<uint8_t> read_buffer(Maxline);
 

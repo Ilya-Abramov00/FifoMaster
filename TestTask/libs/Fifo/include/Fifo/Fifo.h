@@ -58,12 +58,11 @@ public:
 private:
 	void readFifo();
 
-	uint8_t openFifoRead(char const* FIFO);
+	uint8_t openFifoRead();
 
-	void createFifo(char const* FIFO);
+	void createFifo();
 
 	Params params;
-
 	bool runRead{false};
 	char const* FIFO;
 	uint8_t fifoFd=-1;
@@ -83,9 +82,9 @@ public:
 private:
 	void writeFifo();
 
-	uint8_t openFifoWrite(char const* FIFO);
+	uint8_t openFifoWrite();
 
-	void createFifo(char const* FIFO);
+	void createFifo();
 
 	bool runWrite{false};
 	char const* FIFO;
