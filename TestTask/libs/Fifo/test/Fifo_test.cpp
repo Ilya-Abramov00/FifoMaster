@@ -154,7 +154,7 @@ TEST(Fifo, 1)
 
 	FifoRead client1(params);
 
-	FifoWrite client2(FIFO2);
+	FifoWrite client2(FIFO2,mtx);
 
 	client2.setMsgGetter(getter);
 
@@ -202,7 +202,7 @@ TEST(Fifo, 2)
 
 	FifoRead client1(params);
 
-	FifoWrite client2(FIFO2);
+	FifoWrite client2(FIFO2,mtx);
 
 	client2.setMsgGetter(getter);
 
@@ -251,7 +251,7 @@ TEST(Fifo,3)
 
 	FifoRead client1(params);
 
-	FifoWrite client2(FIFO2);
+	FifoWrite client2(FIFO2,mtx);
 
 	client2.setMsgGetter(getter);
 

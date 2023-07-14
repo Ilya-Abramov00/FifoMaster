@@ -48,7 +48,7 @@ void FifoRead::stopRead()
 	threadReadFifo->join();
 }
 
-FifoWrite::FifoWrite(std::string& fdFileName) : FIFO(fdFileName.c_str())
+FifoWrite::FifoWrite(std::string& fdFileName,std::mutex& mtx ) : FIFO(fdFileName.c_str()), mtx(mtx)
 {
 	createFifo(FIFO);
 }
@@ -95,7 +95,7 @@ void FifoWrite::stopWrite()
 void FifoWrite::writeFifo()
 {
 	while(run_write) {
-		// std::unique_lock<std::mutex> mtx_0(mtx);
+		std::unique_lock<std::mutex> mtx_0(mtx);
 		// if(!queue.empty()) {
 		// std::cout << "данные записались" << queue.front().data();
 		write(fifoFd, queue.front().data(), queue.front().size());
@@ -116,15 +116,15 @@ void FifoWrite::writeUser()
 
 		auto buffer = std::vector<uint8_t>(ptr, ptr + temporaryBuffer.second);
 
-		// std::unique_lock<std::mutex> mtx_0(mtx);
-		//	mtx_0.lock();
+		 std::unique_lock<std::mutex> mtx_0(mtx);
+
 		if(queue.empty()) {
 			write(fifoFd, buffer.data(), temporaryBuffer.second);
 		}
 		else {
 			// queue.push(std::move(buffer));
 		}
-		//	mtx_0.unlock();
+			mtx_0.unlock();
 	}
 	close(fifoFd);
 }

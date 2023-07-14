@@ -71,7 +71,7 @@ private:
 
 class FifoWrite {
 public:
-	FifoWrite(std::string& fdFileName);
+	FifoWrite(std::string& fdFileName,std::mutex& mtx);
 
 	using MsgGetter = std::function<std::pair<void*, size_t>()>;
 
@@ -95,6 +95,7 @@ private:
 	char const* FIFO;
 	std::queue<std::vector<char>> queue;
 	uint8_t fifoFd;
+	std::mutex& mtx;
 	std::unique_ptr <std::thread> threadWriteFifo;
 	std::unique_ptr <std::thread> threadUserWrite; // указатель на поток
 };
