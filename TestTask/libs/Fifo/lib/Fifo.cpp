@@ -12,8 +12,6 @@
 
 FifoRead::FifoRead(const Params& params) : params(params)
 {
-	// if(params.dataUnitSize > 1024 * 64)
-	// throw std::runtime_error("fail very big size_N ");
 	FIFO = params.fdFileName.c_str();
 	createFifo();
 }

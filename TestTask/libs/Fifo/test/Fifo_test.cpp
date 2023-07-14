@@ -308,12 +308,12 @@ TEST(Fifo, 4)
 	float data = 0;
 
 	auto getterRead = [&](void* dataq, size_t szInBytes) {
-		data +=  szInBytes;//эта функция замедляет работу
+		data += szInBytes; // эта функция замедляет работу
 	};
 
 	Params params = {
 	    FIFO2,
-	    1024*1024,
+	    1024 * 1024,
 	    0,
 	    getterRead,
 	};
@@ -322,12 +322,11 @@ TEST(Fifo, 4)
 
 	FifoWrite client2(FIFO2);
 
-	int n=1024*1024*1024;
+	int n = 1024 * 1024 * 1024;
 	std::string a(n, '*');
-	std::thread t1([&client2, &a,&n]() {
+	std::thread t1([&client2, &a, &n]() {
 		client2.writeUser((void*)a.data(), n);
 	});
-
 
 	client1.startRead();
 
@@ -340,7 +339,5 @@ TEST(Fifo, 4)
 
 	ASSERT_TRUE(data == n);
 
-
 	t1.join();
-
 }

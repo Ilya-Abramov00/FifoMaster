@@ -9,16 +9,16 @@ int main()
 {
 	std::cout << "клиент" << std::endl << std::endl;
 
-	std::string a="";
+	std::string a = "";
 
 	FifoWrite client1(FIFO2);
 
-	std::string rf(31,'*');
+	std::string rf(31, '*');
 
-	client1.writeUser((void*)rf.data(),31);
+	client1.writeUser((void*)rf.data(), 31);
 	client1.startWrite();
-sleep(10);
-client1.stopWrite();
+	sleep(10);
+	client1.stopWrite();
 
 	std::cout << "клиент завершил отправку" << std::endl;
 
