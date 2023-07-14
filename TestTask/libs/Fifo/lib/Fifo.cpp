@@ -36,9 +36,9 @@ void FifoRead::createFifo(const char* FIFO)
 	}
 }
 
-int FifoRead::openFifoRead(const char* FIFO)
+uint8_t FifoRead::openFifoRead(const char* FIFO)
 {
-	int fd = open(FIFO, O_RDONLY, 0);
+	uint8_t fd = open(FIFO, O_RDONLY, 0);
 	if(-1 == fd) {
 		throw std::runtime_error("fail openFifoRead");
 	}
@@ -63,9 +63,9 @@ FifoWrite::FifoWrite(std::string& fdFileName) : FIFO(fdFileName.c_str())
 {
 	createFifo(FIFO);
 }
-int FifoWrite::openFifoWrite(const char* FIFO)
+uint8_t FifoWrite::openFifoWrite(const char* FIFO)
 {
-	int fd = open(FIFO, O_WRONLY, 0);
+	uint8_t fd = open(FIFO, O_WRONLY, 0);
 	if(-1 == fd) {
 		throw std::runtime_error("fail openFifoWrite");
 	}
@@ -142,7 +142,7 @@ void FifoWrite::writeUser()
 
 void FifoRead::readFifo()
 {
-	uint8_t fifoFd = openFifoRead(FIFO);
+	 fifoFd = openFifoRead(FIFO);
 	std::vector<uint8_t> read_buffer(params.dataUnitSize);
 	long flag = 0;
 

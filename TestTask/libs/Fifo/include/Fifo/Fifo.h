@@ -57,7 +57,7 @@ public:
 private:
 	void readFifo();
 
-	int openFifoRead(char const* FIFO);
+	uint8_t openFifoRead(char const* FIFO);
 
 	void createFifo(char const* FIFO);
 
@@ -65,6 +65,7 @@ private:
 
 	bool run_read{false};
 	char const* FIFO;
+	uint8_t fifoFd;
 	std::unique_ptr<std::thread> threadReadFifo;
 };
 
@@ -85,7 +86,7 @@ private:
 	void writeFifo();
 
 	void writeUser();
-	int openFifoWrite(char const* FIFO);
+	uint8_t openFifoWrite(char const* FIFO);
 
 	void createFifo(char const* FIFO);
 
@@ -93,7 +94,7 @@ private:
 	MsgGetter getmsg;
 	char const* FIFO;
 	std::queue<std::vector<char>> queue;
-	int fifoFd;
+	uint8_t fifoFd;
 	std::unique_ptr <std::thread> threadWriteFifo;
 	std::unique_ptr <std::thread> threadUserWrite; // указатель на поток
 };
