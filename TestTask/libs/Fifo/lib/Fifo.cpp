@@ -102,7 +102,7 @@ void FifoWrite::writeUser(void* data, size_t sizeN)
 	if(!data) {
 		std::cerr << "\n null ptr is writeUser \n";
 	}
-else {
+	else {
 		auto ptr    = reinterpret_cast<uint8_t*>(data);
 		int Maxline = 1024 * 64;
 
@@ -119,15 +119,22 @@ void FifoRead::readFifo()
 	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
 		fifoFd       = openFifoRead(); // должны находиться здесь
 		auto Maxline = 64 * 1024;
-		std::vector<uint8_t> read_buffer(Maxline);
-
+		std::vector<uint8_t> read_buffer(params.dataUnitSize);
+		long flagN = 0;
 		while(runRead) {
-			auto flag = read(fifoFd, read_buffer.data(), Maxline);
+			auto flag = read(fifoFd, read_buffer.data() + flagN, params.dataUnitSize - flagN);
 			if(flag == 0) {
 				break;
 			}
-			params.msgHandler(read_buffer.data(), flag);
-			read_buffer.clear();
+			flagN += flag;
+			if(flagN == params.dataUnitSize) {
+				params.msgHandler(read_buffer.data(), flagN);
+				flagN = 0;
+				read_buffer.clear();
+			}
+		}
+		if(!read_buffer.size()) {
+			params.msgHandler(read_buffer.data(), flagN);
 		}
 	}));
 }

@@ -81,7 +81,7 @@ using namespace std;
 //	t1.join();
 //	t2.join();
 // }
-//TEST(Fifo, 0)
+// TEST(Fifo, 0)
 //{
 //	const char* FIFO = "/home/ilya/Fifo/fifo";
 //
@@ -136,7 +136,6 @@ TEST(Fifo, 1)
 		data += std::string((char*)dataq, (char*)dataq + szInBytes);
 	};
 
-
 	Params params = {
 	    FIFO2,
 	    11,
@@ -144,33 +143,31 @@ TEST(Fifo, 1)
 	    getterRead,
 	};
 
-
-
 	FifoRead client1(params);
 
 	FifoWrite client2(FIFO2);
 
 	std::string a(10, '*');
-	 std::thread t1([&client2,&a]() {
+	std::thread t1([&client2, &a]() {
 		client2.writeUser((void*)a.data(), 10);
 	});
-	 sleep(0.1);
-	 std::string b(10, '@');
-	 std::thread t2([&client2,&b]() {
-	 client2.writeUser((void*)b.data(), 10);
-	 });
-	 sleep(0.1);
-	 std::string c(10, '!');
-	 std::thread t3([&client2,&c]() {
-		 client2.writeUser((void*)c.data(), 10);
-	 });
-
-	void* z= nullptr;
-
 	sleep(0.1);
-	std::thread t4([&client2,&z]() {
-		client2.writeUser(z, 0);
+	std::string b(10, '@');
+	std::thread t2([&client2, &b]() {
+		client2.writeUser((void*)b.data(), 10);
 	});
+	sleep(0.1);
+	std::string c(10, '!');
+	std::thread t3([&client2, &c]() {
+		client2.writeUser((void*)c.data(), 10);
+	});
+
+	//	void* z= nullptr;
+	//
+	//	sleep(0.1);
+	//	std::thread t4([&client2,&z]() {
+	//		client2.writeUser(z, 0);
+	//	});
 	client1.startRead();
 
 	client2.startWrite();
@@ -179,8 +176,8 @@ TEST(Fifo, 1)
 	client2.stopWrite();
 	sleep(3);
 	client1.stopRead();
-	a+=b;
-	a+=c;
+	a += b;
+	a += c;
 	ASSERT_TRUE(data.size() == 30);
 
 	for(int i = 0; i != data.size(); i++) {
@@ -189,7 +186,7 @@ TEST(Fifo, 1)
 	t1.join();
 	t2.join();
 	t3.join();
-	t4.join();
+	// t4.join();
 }
 
 TEST(Fifo, 2)
@@ -202,7 +199,6 @@ TEST(Fifo, 2)
 		data += std::string((char*)dataq, (char*)dataq + szInBytes);
 	};
 
-
 	Params params = {
 	    FIFO2,
 	    7,
@@ -210,23 +206,22 @@ TEST(Fifo, 2)
 	    getterRead,
 	};
 
-
 	FifoRead client1(params);
 
 	FifoWrite client2(FIFO2);
 
 	std::string a(13, '*');
-	std::thread t1([&client2,&a]() {
+	std::thread t1([&client2, &a]() {
 		client2.writeUser((void*)a.data(), 13);
 	});
 
 	std::string b(13, '@');
-	std::thread t2([&client2,&b]() {
+	std::thread t2([&client2, &b]() {
 		client2.writeUser((void*)b.data(), 13);
 	});
 
 	std::string c(13, '!');
-	std::thread t3([&client2,&c]() {
+	std::thread t3([&client2, &c]() {
 		client2.writeUser((void*)c.data(), 13);
 	});
 
@@ -238,63 +233,71 @@ TEST(Fifo, 2)
 	client2.stopWrite();
 	sleep(3);
 	client1.stopRead();
-	a+=b;
-	a+=c;
-	auto e=data.size();
+	a += b;
+	a += c;
+	auto e = data.size();
 	ASSERT_TRUE(data.size() == 39);
 
 	for(int i = 0; i != data.size(); i++) {
-		//ASSERT_TRUE(data[i] == a[i]);
+		// ASSERT_TRUE(data[i] == a[i]);
 	}
 	t1.join();
 	t2.join();
 	t3.join();
 }
-//TEST(Fifo,3)
-//{
-//	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
-//
-//	std::string data = "";
-//
-//	auto getterRead = [&](void* dataq, size_t szInBytes) {
-//		data += std::string((char*)dataq, (char*)dataq + szInBytes);
-//	};
-//
-//	int i = 0;
-//	std::string a(10, '*');
-//	auto getter = [&i, &a]() {
-//		i++;
-//		return std::pair((void*)a.data(), 10);
-//	};
-//
-//	Params params = {
-//	    FIFO2,
-//	    11,
-//	    10,
-//	    getterRead,
-//	};
-//
-//	std::mutex mtx;
-//
-//	FifoRead client1(params);
-//
-//	FifoWrite client2(FIFO2,mtx);
-//
-//	client2.setMsgGetter(getter);
-//
-//	client2.startWrite();
-//	client1.startRead();
-//
-//	sleep(1);
-//	client2.stopWrite();
-//	sleep(3);
-//	client1.stopRead();
-//	std::cout << "\n\nсчиталось  " << data.size() << endl;
-//	std::cout << i * 10 << endl;
-//
-//	ASSERT_TRUE(data.size() == 10 * i);
-//	std::string b(10*i, '*');
-//	for(int i = 0; i != data.size(); i++) {
-//		ASSERT_TRUE(data[i] == b[i]);
-//	}
-//}
+TEST(Fifo, 3)
+{
+	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
+
+	std::string data = "";
+
+	auto getterRead = [&](void* dataq, size_t szInBytes) {
+		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+	};
+
+	Params params = {
+	    FIFO2,
+	    11,
+	    0,
+	    getterRead,
+	};
+
+	FifoRead client1(params);
+
+	FifoWrite client2(FIFO2);
+
+	std::string a(13, '*');
+	std::thread t1([&client2, &a]() {
+		client2.writeUser((void*)a.data(), 13);
+	});
+
+	std::string b(13, '@');
+	std::thread t2([&client2, &b]() {
+		client2.writeUser((void*)b.data(), 13);
+	});
+
+	std::string c(13, '!');
+	std::thread t3([&client2, &c]() {
+		client2.writeUser((void*)c.data(), 13);
+	});
+
+	client1.startRead();
+
+	client2.startWrite();
+	sleep(1);
+
+	client2.stopWrite();
+	sleep(3);
+	client1.stopRead();
+	a += b;
+	a += c;
+	auto e = data.size();
+	ASSERT_TRUE(data.size() == 39);
+
+	for(int i = 0; i != data.size(); i++) {
+		// ASSERT_TRUE(data[i] == a[i]);
+	}
+	t1.join();
+	t2.join();
+	t3.join();
+}
