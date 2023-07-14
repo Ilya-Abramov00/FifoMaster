@@ -36,10 +36,9 @@ uint8_t FifoRead::openFifoRead()
 
 void FifoRead::startRead()
 {
-	runRead        = true;
-	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
-		readFifo();
-	}));
+	runRead = true;
+
+	readFifo();
 }
 
 void FifoRead::stopRead()
@@ -74,10 +73,7 @@ void FifoWrite::createFifo()
 void FifoWrite::startWrite()
 {
 	runWrite = true;
-
-	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
-		writeFifo();
-	}));
+	writeFifo();
 }
 
 void FifoWrite::stopWrite()
@@ -90,37 +86,49 @@ void FifoWrite::stopWrite()
 
 void FifoWrite::writeFifo()
 {
-	fifoFd = openFifoWrite(); // должны находиться здесь
-	while(runWrite) {
-		std::lock_guard<std::mutex> mtx_0(mtx);
-		if(!queue.empty()) {
-			write(fifoFd, queue.front().data(), queue.front().size());
-			queue.pop();
+	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
+		fifoFd = openFifoWrite(); // должны находиться здесь
+		while(runWrite) {
+			std::lock_guard<std::mutex> mtx_0(mtx);
+			if(!queue.empty()) {
+				write(fifoFd, queue.front().data(), queue.front().size());
+				queue.pop();
+			}
 		}
-	}
+	}));
 }
 
 void FifoWrite::writeUser(void* data, size_t sizeN)
 {
-	auto ptr = reinterpret_cast<uint8_t*>(data);
-	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
+	if(!data) {
+		std::cerr << " null ptr is writeUser ";
+		return;
+	}
 
-	std::lock_guard<std::mutex> mtx_0(mtx);
-	queue.push(std::move(buffer));
+	auto ptr    = reinterpret_cast<uint8_t*>(data);
+	int Maxline = 1024 * 64;
+
+	for(size_t i = 0; sizeN > Maxline * i; i++) {
+		std::vector<uint8_t> buffer(ptr, ptr + sizeN - i * Maxline);
+		std::lock_guard<std::mutex> mtx_0(mtx);
+		queue.push(std::move(buffer)); // это работать не будет, переделать(цикл)
+	}
 }
 
 void FifoRead::readFifo()
 {
-	fifoFd       = openFifoRead(); // должны находиться здесь
-	auto Maxline = 64 * 1024;
-	std::vector<uint8_t> read_buffer(Maxline);
+	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
+		fifoFd       = openFifoRead(); // должны находиться здесь
+		auto Maxline = 64 * 1024;
+		std::vector<uint8_t> read_buffer(Maxline);
 
-	while(runRead) {
-		auto flag = read(fifoFd, read_buffer.data(), Maxline);
-		if(flag == 0) {
-			break;
+		while(runRead) {
+			auto flag = read(fifoFd, read_buffer.data(), Maxline);
+			if(flag == 0) {
+				break;
+			}
+			params.msgHandler(read_buffer.data(), flag);
+			read_buffer.clear();
 		}
-		params.msgHandler(read_buffer.data(), flag);
-		read_buffer.clear();
-	}
+	}));
 }
