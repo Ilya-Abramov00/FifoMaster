@@ -49,6 +49,5 @@ int main()
 //
 //	std::cout << "клиент завершил отправку" << std::endl;
 
-
 	return 0;
 }

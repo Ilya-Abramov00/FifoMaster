@@ -10,7 +10,7 @@
 // FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
 //{}
 
-FifoRead::FifoRead(Params& params) : params(params)
+FifoRead::FifoRead(const Params& params) : params(params)
 {
 	if(params.dataUnitSize > 1024 * 64)
 		throw std::runtime_error("fail very big size_N ");
@@ -37,18 +37,20 @@ uint8_t FifoRead::openFifoRead(const char* FIFO)
 void FifoRead::startRead()
 {
 	runRead        = true;
-	threadReadFifo = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
+	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
 		readFifo();
-	})));
+	}));
 }
 
 void FifoRead::stopRead()
 {
 	runRead = false;
 	threadReadFifo->join();
+	close(fifoFd);
+	unlink(FIFO);
 }
 
-FifoWrite::FifoWrite(std::string& fdFileName, std::mutex& mtx) : FIFO(fdFileName.c_str()), mtx(mtx)
+FifoWrite::FifoWrite(const std::string& fdFileName) : FIFO(fdFileName.c_str())
 {
 	createFifo(FIFO);
 }
@@ -73,66 +75,52 @@ void FifoWrite::startWrite()
 {
 	runWrite = true;
 
-	threadWriteFifo = std::move(std::unique_ptr<std::thread>(new std::thread([this]() {
+	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
-	})));
+	}));
 }
 
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
 	threadWriteFifo->join();
-}
-
-void FifoWrite::writeFifo()
-{
-	fifoFd = openFifoWrite(FIFO);
-	while(runWrite) {
-		std::unique_lock<std::mutex> mtx_0(mtx);
-		if(!queue.empty()) {
-			write(fifoFd, queue.front().data(), queue.front().size());
-			queue.pop();
-		}
-		mtx_0.unlock();
-	}
 	close(fifoFd);
 	unlink(FIFO);
 }
 
-void FifoWrite::writeUser(std::pair<void*, size_t> temporaryBuffer)
+void FifoWrite::writeFifo()
 {
-	auto ptr = reinterpret_cast<uint8_t*>(temporaryBuffer.first);
-	std::vector<uint8_t> buffer(ptr, ptr + temporaryBuffer.second);
+	fifoFd = openFifoWrite(FIFO); // должны находиться здесь
+	while(runWrite) {
+		std::lock_guard<std::mutex> mtx_0(mtx);
+		if(!queue.empty()) {
+			write(fifoFd, queue.front().data(), queue.front().size());
+			queue.pop();
+		}
+	}
+}
 
-	std::unique_lock<std::mutex> mtx_0(mtx);
+void FifoWrite::writeUser(void* data, size_t sizeN)
+{
+	auto ptr = reinterpret_cast<uint8_t*>(data);
+	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
+
+	std::lock_guard<std::mutex> mtx_0(mtx);
 	queue.push(std::move(buffer));
-	mtx_0.unlock();
 }
 
 void FifoRead::readFifo()
 {
-	fifoFd = openFifoRead(FIFO);
-	std::vector<uint8_t> read_buffer;
+	fifoFd       = openFifoRead(FIFO); // должны находиться здесь
+	auto Maxline = 64 * 1024;
+	std::vector<uint8_t> read_buffer(Maxline);
 
-	long flag  = 0;
-	long flagN = 0;
 	while(runRead) {
-		std::vector<uint8_t> timeRead_buffer(params.dataUnitSize - flagN);
-
-		flag = read(fifoFd, timeRead_buffer.data(), params.dataUnitSize - flagN);
+		auto flag = read(fifoFd, read_buffer.data(), Maxline);
 		if(flag == 0) {
 			break;
 		}
-		flagN += flag;
-		read_buffer.insert(read_buffer.begin(), timeRead_buffer.begin(), timeRead_buffer.end());
-		if(flagN == params.dataUnitSize) {
-			params.msgHandler(read_buffer.data(), params.dataUnitSize);
-			flagN = 0;
-			read_buffer.clear();
-		}
-		std::this_thread::sleep_for(std::chrono::nanoseconds(params.timeToWaitDataNanoSeconds));
-	}
-	if(read_buffer.size()) {
-		params.msgHandler(read_buffer.data(), flagN);
+		params.msgHandler(read_buffer.data(), flag);
+		read_buffer.clear();
 	}
 }
