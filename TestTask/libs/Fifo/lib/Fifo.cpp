@@ -89,10 +89,12 @@ void FifoWrite::writeFifo()
 {
 	fifoFd = openFifoWrite(); // должны находиться здесь
 	while(runWrite) {
-		std::lock_guard<std::mutex> mtx_0(mtx);
-		if(!queue.empty()) {
-			write(fifoFd, queue.front().data(), queue.front().size());
-			queue.pop();
+		{
+			std::lock_guard<std::mutex> mtx_0(mtx);
+			if(!queue.empty()) {
+				write(fifoFd, queue.front().data(), queue.front().size());
+				queue.pop();
+			}
 		}
 	}
 }
@@ -103,12 +105,12 @@ void FifoWrite::writeUser(void* data, size_t sizeN)
 		std::cerr << "\n null ptr is writeUser \n";
 		return;
 	}
-
 	auto ptr = reinterpret_cast<uint8_t*>(data);
-
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
-	std::lock_guard<std::mutex> mtx_0(mtx);
-	queue.push(std::move(buffer));
+	{
+		std::lock_guard<std::mutex> mtx_0(mtx);
+		queue.push(std::move(buffer));
+	}
 }
 
 void FifoRead::readFifo()
@@ -127,6 +129,7 @@ void FifoRead::readFifo()
 			flagN = 0;
 			read_buffer.clear();
 		}
+		std::this_thread::sleep_for(std::chrono::nanoseconds(params.timeToWaitDataNanoSeconds));
 	}
 	if(read_buffer.empty()) {
 		params.msgHandler(read_buffer.data(), flagN);
