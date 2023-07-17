@@ -43,7 +43,7 @@ void FifoRead::startRead()
 void FifoRead::stopRead()
 {
 	runRead = false;
-	threadReadFifo->join();
+
 	close(fifoFd);
 	unlink(FIFO);
 }
@@ -75,17 +75,21 @@ void FifoWrite::startWrite()
 	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
 	}));
+	close(fifoFd);
 }
 
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
+	close(fifoFd);
 	threadWriteFifo->join();
 }
 
 void FifoWrite::writeFifo()
 {
 	fifoFd = openFifoWrite(); // должны находиться здесь
+	std::cout << "\n Произошел коннект \n";
+
 	while(runWrite) {
 		{
 			std::lock_guard<std::mutex> mtx_0(mtx);
@@ -129,7 +133,7 @@ void FifoRead::readFifo()
 		}
 		std::this_thread::sleep_for(std::chrono::nanoseconds(params.timeToWaitDataNanoSeconds));
 	}
-	if(!read_buffer.empty()) {
+	if(read_buffer.empty()) {
 		params.msgHandler(read_buffer.data(), flagN);
 	}
 }

@@ -54,6 +54,10 @@ public:
 	void startRead();
 
 	void stopRead();
+	~FifoRead()
+	{
+		threadReadFifo->join();
+	}
 
 private:
 	void readFifo();
@@ -63,7 +67,7 @@ private:
 	Params params;
 	bool runRead{false};
 	char const* FIFO;
-	uint8_t fifoFd=-1;
+	uint8_t fifoFd = -1;
 	std::unique_ptr<std::thread> threadReadFifo;
 };
 
@@ -77,6 +81,7 @@ public:
 
 	void stopWrite();
 
+
 private:
 	void writeFifo();
 	uint8_t openFifoWrite();
@@ -85,7 +90,7 @@ private:
 	bool runWrite{false};
 	char const* FIFO;
 	std::queue<std::vector<uint8_t>> queue;
-	uint8_t fifoFd=-1;
+	uint8_t fifoFd = -1;
 	std::mutex mtx;
 	std::unique_ptr<std::thread> threadWriteFifo;
 };
