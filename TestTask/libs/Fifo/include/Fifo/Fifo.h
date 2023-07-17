@@ -75,7 +75,7 @@ class FifoWrite {
 public:
 	FifoWrite(const std::string& fdFileName);
 
-	void writeUser(void* data, size_t sizeN);
+	void pushData(void* data, size_t sizeN);
 
 	void startWrite();
 

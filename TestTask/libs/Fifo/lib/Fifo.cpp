@@ -101,10 +101,10 @@ void FifoWrite::writeFifo()
 	}
 }
 
-void FifoWrite::writeUser(void* data, size_t sizeN)
+void FifoWrite::pushData(void* data, size_t sizeN)
 {
 	if(!data) {
-		std::cerr << "\n null ptr is writeUser \n";
+		std::cerr << "\n null ptr is pushData \n";
 		return;
 	}
 	auto ptr = reinterpret_cast<uint8_t*>(data);
