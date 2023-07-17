@@ -47,6 +47,7 @@ struct Params {
 	std::function<void(void* data, size_t szInBytes)> msgHandler;
 };
 
+
 class FifoRead {
 public:
 	FifoRead(const Params& params);
@@ -93,4 +94,9 @@ private:
 	std::unique_ptr<std::thread> threadWriteFifo;
 };
 
+class Server{
+public:
+
+private:
+};
 #endif

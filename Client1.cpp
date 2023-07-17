@@ -79,7 +79,7 @@ int main()
 	});
 	t111.join();
 
-	std::this_thread::sleep_for(std::chrono::seconds(9));
+	std::this_thread::sleep_for(std::chrono::seconds(24));
 
 	client2.stopWrite();
 

@@ -29,7 +29,7 @@ int main()
 
 	client1.startRead();
 
-	std::this_thread::sleep_for(std::chrono::seconds(3));
+	std::this_thread::sleep_for(std::chrono::seconds(100));
 
 	client1.stopRead();
 	std::cout << "\nсервер окончил прием\n" << std::endl;
