@@ -2,7 +2,6 @@
 #include <thread>
 #include "Fifo/Fifo.h"
 
-
 std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
 int main()
@@ -80,9 +79,7 @@ int main()
 	});
 	t111.join();
 
-
 	std::this_thread::sleep_for(std::chrono::seconds(9));
-
 
 	client2.stopWrite();
 
@@ -95,8 +92,6 @@ int main()
 	a += t7;
 	a += t8;
 	a += t9;
-
-
 
 	std::cout << "клиент завершил отправку" << std::endl;
 
