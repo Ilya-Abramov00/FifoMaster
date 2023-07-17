@@ -57,6 +57,7 @@ public:
 	~FifoRead()
 	{
 		threadReadFifo->join();
+		unlink(FIFO);
 	}
 
 private:
@@ -80,7 +81,10 @@ public:
 	void startWrite();
 
 	void stopWrite();
-
+	~FifoWrite()
+	{
+		threadWriteFifo->join();
+	}
 
 private:
 	void writeFifo();

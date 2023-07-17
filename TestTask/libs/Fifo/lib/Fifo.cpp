@@ -43,9 +43,8 @@ void FifoRead::startRead()
 void FifoRead::stopRead()
 {
 	runRead = false;
-
 	close(fifoFd);
-	unlink(FIFO);
+
 }
 
 FifoWrite::FifoWrite(const std::string& fdFileName) : FIFO(fdFileName.c_str())
@@ -75,14 +74,12 @@ void FifoWrite::startWrite()
 	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
 	}));
-	close(fifoFd);
 }
 
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
 	close(fifoFd);
-	threadWriteFifo->join();
 }
 
 void FifoWrite::writeFifo()
