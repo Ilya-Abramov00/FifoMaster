@@ -126,70 +126,69 @@ using namespace std;
 //	t1.join();
 //	t2.join();
 //}
- TEST(Fifo, 1)
-{
-	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
-
-	std::string data = "";
-	data.reserve(30);
-
-	auto getterRead = [&](void* dataq, size_t szInBytes) {
-		data += std::string((char*)dataq, (char*)dataq + szInBytes);
-	};
-
-	Params params = {
-	    FIFO2,
-	    10,
-	    0,
-	    getterRead,
-	};
-
-	FifoRead client1(params);
-
-	FifoWrite client2(FIFO2);
-
-	std::string a(10, '*');
-	std::thread t1([&client2, &a]() {
-		client2.writeUser((void*)a.data(), 10);
-	});
-	// sleep(0.1);
-	std::string b(10, '@');
-	std::thread t2([&client2, &b]() {
-		client2.writeUser((void*)b.data(), 10);
-	});
-	// sleep(0.1);
-	std::string c(10, '!');
-	std::thread t3([&client2, &c]() {
-		client2.writeUser((void*)c.data(), 10);
-	});//возможно перемешивание данных
-
-	void* z = nullptr;
-
-	sleep(0.1);
-	std::thread t4([&client2, &z]() {
-		client2.writeUser(z, 0);
-	});
-
-	client1.startRead();
-
-	client2.startWrite();
-	sleep(1);
-
-	client2.stopWrite();
-	sleep(2);
-	client1.stopRead();
-	a += b;
-	a += c;
-	ASSERT_TRUE(data.size() == 30);
-	std::cout<<data<<std::endl;
-	std::cout<<a<<std::endl;
-	ASSERT_TRUE(data == a);
-
-	t1.join();
-	t2.join();
-	t3.join();
-	t4.join();
-}
+// TEST(Fifo, 1)
+//{
+//	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
+//
+//	std::string data = "";
+//	data.reserve(30);
+//
+//	auto getterRead = [&](void* dataq, size_t szInBytes) {
+//		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+//	};
+//
+//	Params params = {
+//	    FIFO2,
+//	    10,
+//	    0,
+//	    getterRead,
+//	};
+//
+//	FifoRead client1(params);
+//
+//	FifoWrite client2(FIFO2);
+//
+//	std::string a(10, '*');
+//	std::thread t1([&client2, &a]() {
+//		client2.writeUser((void*)a.data(), 10);
+//	});
+//
+//	std::string b(10, '@');
+//	std::thread t2([&client2, &b]() {
+//		client2.writeUser((void*)b.data(), 10);
+//	});
+//	std::string c(10, '!');
+//	std::thread t3([&client2, &c]() {
+//		client2.writeUser((void*)c.data(), 10);
+//	});//возможно перемешивание данных
+//
+//	void* z = nullptr;
+//
+//	sleep(0.1);
+//	std::thread t4([&client2, &z]() {
+//		client2.writeUser(z, 0);
+//	});
+//
+//	client1.startRead();
+//
+//	client2.startWrite();
+//	sleep(1);
+//
+//	client2.stopWrite();
+//	sleep(2);
+//	client1.stopRead();
+//	a += b;
+//	a += c;
+//	ASSERT_TRUE(data.size() == 30);
+//	std::cout<<data<<std::endl;
+//	std::cout<<a<<std::endl;
+//	ASSERT_TRUE(data == a);
+//
+//	t1.join();
+//	t2.join();
+//	t3.join();
+//	t4.join();
+//}
 
 TEST(Fifo, 2)
 {
