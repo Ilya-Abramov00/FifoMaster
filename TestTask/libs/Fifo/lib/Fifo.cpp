@@ -131,7 +131,7 @@ void FifoRead::readFifo()
 		}
 		std::this_thread::sleep_for(std::chrono::nanoseconds(params.timeToWaitDataNanoSeconds));
 	}
-	if(read_buffer.empty()) {
+	if(!read_buffer.empty()) {
 		params.msgHandler(read_buffer.data(), flagN);
 	}
 }

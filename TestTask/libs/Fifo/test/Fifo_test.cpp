@@ -192,25 +192,30 @@ using namespace std;
 
 TEST(Fifo, 2)
 {
+
 	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
-	int n =15;
-	std::string data = "";
-	data.reserve(n*6);
+	int n             = 10;
+	std::string data  = "";
+	data.reserve(n * 10);
 	auto getterRead = [&](void* dataq, size_t szInBytes) {
 		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+		if(szInBytes!=200) {std::cout<<"\nне совпадает размер данных отправки и ожид приема\n";}
 	};
 
 	Params params = {
 	    FIFO2,
-	    7,
+	    200,
 	    0,
 	    getterRead,
 	};
 
 	FifoRead client1(params);
-
 	FifoWrite client2(FIFO2);
 
+	std::string a0(n, '0');
+	std::thread t([&client2, &a0, &n]() {
+		client2.writeUser((void*)a0.data(), n);
+	});
 
 	std::string a(n, '1');
 	std::thread t1([&client2, &a, &n]() {
@@ -226,17 +231,35 @@ TEST(Fifo, 2)
 	std::thread t3([&client2, &c, &n]() {
 		client2.writeUser((void*)c.data(), n);
 	});
+
 	std::string d(n, '4');
 	std::thread t4([&client2, &d, &n]() {
 		client2.writeUser((void*)d.data(), n);
 	});
+
 	std::string e(n, '5');
 	std::thread t5([&client2, &e, &n]() {
 		client2.writeUser((void*)e.data(), n);
 	});
+
 	std::string f(n, '6');
 	std::thread t6([&client2, &f, &n]() {
 		client2.writeUser((void*)f.data(), n);
+	});
+
+	std::string t7(n, '7');
+	std::thread t71([&client2, &t7, &n]() {
+		client2.writeUser((void*)t7.data(), n);
+	});
+
+	std::string t8(n, '8');
+	std::thread t81([&client2, &t8, &n]() {
+		client2.writeUser((void*)t8.data(), n);
+	});
+
+	std::string t9(n, '9');
+	std::thread t91([&client2, &t9, &n]() {
+		client2.writeUser((void*)t9.data(), n);
 	});
 
 	client1.startRead();
@@ -245,23 +268,36 @@ TEST(Fifo, 2)
 	sleep(1);
 
 	client2.stopWrite();
-	sleep(3);
+	sleep(1);
 	client1.stopRead();
+
+	a += a0;
 	a += b;
 	a += c;
 	a += d;
 	a += e;
 	a += f;
-	ASSERT_TRUE(data.size() == n * 6);
-	std::cout << data << std::endl;
-	std::cout << a << std::endl;
+	a += t7;
+	a += t8;
+	a += t9;
+
+	sleep(1);
+
+	std::cout<<"отправилось  "<<  a << std::endl;
+	std::cout<<"получили     "<< data << std::endl;
+
+	ASSERT_TRUE(data.size() == n * 10);
 	ASSERT_TRUE(data == a);
+	t.join();
 	t1.join();
 	t2.join();
 	t3.join();
 	t4.join();
 	t5.join();
 	t6.join();
+	t71.join();
+	t81.join();
+	t91.join();
 }
 TEST(Fifo, 3)
 {
