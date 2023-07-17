@@ -10,26 +10,33 @@ int main()
 {
 	std::cout << "сервер" << std::endl << std::endl;
 
-
-	std::string a   = "";
-	auto getterRead = [&a](void* data, size_t szInBytes) {
-		std::cout << std::endl;
-
-		std::cout << std::string((char*)data, (char*)data + szInBytes);
-		a = a + std::string((char*)data, (char*)data + szInBytes);
+	int n            = 1024 * 10;
+	std::string data = "";
+	data.reserve(n * 10);
+	auto getterRead = [&](void* dataq, size_t szInBytes) {
+		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+		std::cout<<"получил данные\n";
+		if(szInBytes != 1024) {
+			std::cout << "\nне совпадает размер данных отправки и ожид приема\n";
+		}
 	};
+
 	Params params = {
 	    FIFO2,
-	    3,
+	    1024,
 	    0,
 	    getterRead,
 	};
 
-	FifoRead client2(params);
+	FifoRead client1(params);
 
-	client2.startRead();
-	sleep(10);
-	client2.stopRead();
+	client1.startRead();
+
+	sleep(20);
+
+	client1.stopRead();
+
+	std::cout << "получили     " << data << std::endl;
 
 	std::cout << "\nсервер окончил прием\n" << std::endl;
 	return 1;

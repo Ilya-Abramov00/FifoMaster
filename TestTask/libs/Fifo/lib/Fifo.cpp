@@ -81,8 +81,6 @@ void FifoWrite::stopWrite()
 {
 	runWrite = false;
 	threadWriteFifo->join();
-	close(fifoFd);
-	unlink(FIFO);
 }
 
 void FifoWrite::writeFifo()
