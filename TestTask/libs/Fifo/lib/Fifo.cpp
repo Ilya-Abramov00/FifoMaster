@@ -44,7 +44,6 @@ void FifoRead::stopRead()
 {
 	runRead = false;
 	close(fifoFd);
-
 }
 
 FifoWrite::FifoWrite(const std::string& fdFileName) : FIFO(fdFileName.c_str())
@@ -111,6 +110,10 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 		queue.push(std::move(buffer));
 	}
 }
+FifoWrite::~FifoWrite()
+{
+	threadWriteFifo->join();
+}
 
 void FifoRead::readFifo()
 {
@@ -133,4 +136,9 @@ void FifoRead::readFifo()
 	if(read_buffer.empty()) {
 		params.msgHandler(read_buffer.data(), flagN);
 	}
+}
+FifoRead::~FifoRead()
+{
+	threadReadFifo->join();
+	unlink(FIFO);
 }
