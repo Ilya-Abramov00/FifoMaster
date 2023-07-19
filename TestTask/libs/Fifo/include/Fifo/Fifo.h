@@ -41,14 +41,14 @@
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 #define MAXLINE 64 * 1024
 
-using Data              = std::shared_ptr<std::vector<uint8_t>>;
-using ReadHandler       = std::function<void(Data)>;
+using Data              = std::vector<uint8_t>;
+using ReadHandler       = std::function<void(Data&&)>;
 using ConnectionHandler = std::function<void()>;
 
 struct Params {
 	std::string addrRead;
-	size_t unitMsgLenForReadFromFifo;
 	ReadHandler  msgHandler;
+	ConnectionHandler connectHandler;
 };
 
 
@@ -57,7 +57,6 @@ public:
 	FifoRead(const Params& params);
 
 	void startRead();
-
 	void stopRead();
 	~FifoRead();
 
@@ -70,7 +69,6 @@ private:
 	bool runRead{false};
 	char const* FIFO;
 	uint8_t fifoFd = -1;
-	Data data = std::make_shared<std::vector<uint8_t>>(params.unitMsgLenForReadFromFifo);
 	std::unique_ptr<std::thread> threadReadFifo;
 };
 

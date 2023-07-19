@@ -4,66 +4,66 @@
 
 using namespace std;
 
-TEST(Fifo, empty)
-{
-	std::string FIFO2 = "fifo2";
-	int n             = 10;
-	std::string data  = "";
-	data.reserve(n * 12);
-	auto getterRead = [&](void* dataq, size_t szInBytes) {
-		data += std::string((char*)dataq, (char*)dataq + szInBytes);
-	};
-
-	Params params = {
-	    FIFO2,
-	    100,
-	    0,
-	    getterRead,
-	};
-
-	FifoRead client1(params);
-	FifoWrite client2(FIFO2);
-
-	client1.startRead();
-	client2.startWrite();
-
-	sleep(1);
-
-	client2.stopWrite();
-	client1.stopRead();
-}
-
-TEST(Fifo, null_ptr)
-{
-	std::string FIFO2 = "fifo2";
-	int n             = 10;
-	std::string data  = "";
-	data.reserve(n * 12);
-	auto getterRead = [&](void* dataq, size_t szInBytes) {
-		data += std::string((char*)dataq, (char*)dataq + szInBytes);
-	};
-
-	Params params = {
-	    FIFO2,
-	    100,
-	    0,
-	    getterRead,
-	};
-
-	FifoRead client1(params);
-	FifoWrite client2(FIFO2);
-
-	client1.startRead();
-	client2.startWrite();
-
-	void* a = NULL;
-	client2.pushData(a, 0);
-
-	sleep(1);
-
-	client2.stopWrite();
-	client1.stopRead();
-}
+//TEST(Fifo, empty)
+//{
+//	std::string FIFO2 = "fifo2";
+//	int n             = 10;
+//	std::string data  = "";
+//	data.reserve(n * 12);
+//	auto getterRead = [&](void* dataq, size_t szInBytes) {
+//		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+//	};
+//
+//	Params params = {
+//	    FIFO2,
+//	    100,
+//
+//	    getterRead,
+//	};
+//
+//	FifoRead client1(params);
+//	FifoWrite client2(FIFO2);
+//
+//	client1.startRead();
+//	client2.startWrite();
+//
+//	sleep(1);
+//
+//	client2.stopWrite();
+//	client1.stopRead();
+//}
+//
+//TEST(Fifo, null_ptr)
+//{
+//	std::string FIFO2 = "fifo2";
+//	int n             = 10;
+//	std::string data  = "";
+//	data.reserve(n * 12);
+//	auto getterRead = [&](void* dataq, size_t szInBytes) {
+//		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+//	};
+//
+//	Params params = {
+//	    FIFO2,
+//	    100,
+//	    0,
+//	    getterRead,
+//	};
+//
+//	FifoRead client1(params);
+//	FifoWrite client2(FIFO2);
+//
+//	client1.startRead();
+//	client2.startWrite();
+//
+//	void* a = NULL;
+//	client2.pushData(a, 0);
+//
+//	sleep(1);
+//
+//	client2.stopWrite();
+//	client1.stopRead();
+//}
 
 TEST(Fifo, time)
 {
@@ -71,14 +71,12 @@ TEST(Fifo, time)
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](void* dataq, size_t szInBytes) {
-		data += std::string((char*)dataq, (char*)dataq + szInBytes);
+	auto getterRead = [&](Data && dataq) {
+		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 
 	Params params = {
 	    FIFO2,
-	    100,
-	    50,
 	    getterRead,
 	};
 

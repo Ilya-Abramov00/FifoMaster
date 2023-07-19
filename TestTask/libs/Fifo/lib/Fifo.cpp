@@ -112,32 +112,30 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 }
 FifoWrite::~FifoWrite()
 {
+	std::cout<<"я вызвался";
+	unlink(FIFO);
 	threadWriteFifo->join();
+
 }
 
 void FifoRead::readFifo()
 {
 	fifoFd = openFifoRead(); // должны находиться здесь
-	                         
-	long flagN = 0;
+ //   params.connectHandler();//соединение проиошло
+    std::vector<uint8_t> buffer(1024);
 	while(runRead) {
-		auto flag = read(fifoFd, data->data() + flagN, params.unitMsgLenForReadFromFifo - flagN);
+		auto flag = read(fifoFd, buffer.data() , 1024);
 		if(flag == 0) {
 			break;
 		}
-		flagN += flag;
-		if(flagN == params.unitMsgLenForReadFromFifo) {
-			params.msgHandler( data);
-			flagN = 0;
-			//data->clear();//можно убрать,если подразумевается, что остаток данных не нужен
-		}
-	}
-	if(data->empty()) {
-		params.msgHandler( data);
-	}// и это
+		if(flag==1024){params.msgHandler( std::move(buffer));}
+		else
+		params.msgHandler( std::vector<uint8_t>(buffer.data(),buffer.data()+flag) );
+}
 }
 FifoRead::~FifoRead()
 {
+std::cout<<"я вызвался";
 	threadReadFifo->join();
 	unlink(FIFO);
 }
