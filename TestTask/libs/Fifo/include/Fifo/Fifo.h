@@ -82,21 +82,23 @@ public:
 	void pushData(void* data, size_t sizeN);
 
 	void startWrite();
-
 	void stopWrite();
 
 
 private:
+	void waitConnectFifo();
 	void writeFifo();
 	uint8_t openFifoWrite();
 	void createFifo();
 
 	bool runWrite{false};
+	bool waitConnect{false};
 	char const* FIFO;
 	std::queue<std::vector<uint8_t>> queue;
 	uint8_t fifoFd = -1;
 	std::mutex mtx;
 	std::unique_ptr<std::thread> threadWriteFifo;
+	std::unique_ptr<std::thread> threadWaitConnectFifo;
 };
 
 class Server{

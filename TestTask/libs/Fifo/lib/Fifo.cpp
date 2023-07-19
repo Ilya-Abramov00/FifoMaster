@@ -71,24 +71,33 @@ void FifoWrite::createFifo()
 void FifoWrite::startWrite()
 {
 	runWrite        = true;
+	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
+		waitConnectFifo();
+	}));
+}
+
+void FifoWrite::waitConnectFifo()
+{
+	fifoFd = openFifoWrite();
+	std::cout << "\n Произошел коннект \n";
+	//соединение проиошло
+	waitConnect= true;
 	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
 	}));
-
 }
-
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
 	close(fifoFd);
-	threadWriteFifo->join();
+	threadWaitConnectFifo->detach();
+	if(waitConnect) {
+		threadWriteFifo->join();
+	}
 }
 
 void FifoWrite::writeFifo()
 {
-	fifoFd = openFifoWrite(); // должны находиться здесь
-	std::cout << "\n Произошел коннект \n";
-
 	while(runWrite) {
 		{
 			std::lock_guard<std::mutex> mtx_0(mtx);
@@ -124,7 +133,6 @@ void FifoRead::waitConnectFifo()
 	readFifo();
 	}));
 }
-
 
 
 FifoRead::~FifoRead()
