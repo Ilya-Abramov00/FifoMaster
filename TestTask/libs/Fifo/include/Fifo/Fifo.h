@@ -61,14 +61,17 @@ public:
 	~FifoRead();
 
 private:
+	void waitConnectFifo();
 	void readFifo();
 	uint8_t openFifoRead();
 	void createFifo();
 
 	Params params;
 	bool runRead{false};
+	bool waitConnect{false};
 	char const* FIFO;
 	uint8_t fifoFd = -1;
+	std::unique_ptr<std::thread> threadWaitConnectFifo;
 	std::unique_ptr<std::thread> threadReadFifo;
 };
 
@@ -82,7 +85,6 @@ public:
 
 	void stopWrite();
 
-	~FifoWrite();
 
 private:
 	void writeFifo();

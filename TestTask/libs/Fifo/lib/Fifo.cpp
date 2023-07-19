@@ -35,9 +35,10 @@ uint8_t FifoRead::openFifoRead()
 void FifoRead::startRead()
 {
 	runRead        = true;
-	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
-		readFifo();
+	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
+		waitConnectFifo();
 	}));
+	threadWaitConnectFifo->detach();
 }
 
 void FifoRead::stopRead()
@@ -73,6 +74,7 @@ void FifoWrite::startWrite()
 	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
 	}));
+	threadWriteFifo->detach();
 }
 
 void FifoWrite::stopWrite()
@@ -110,32 +112,41 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 		queue.push(std::move(buffer));
 	}
 }
-FifoWrite::~FifoWrite()
-{
-	std::cout<<"я вызвался";
-	unlink(FIFO);
-	threadWriteFifo->join();
 
+
+void FifoRead::waitConnectFifo()
+{
+	fifoFd = openFifoRead();
+    params.connectHandler();//соединение проиошло
+	waitConnect= true;
+	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
+	readFifo();
+	}));
 }
+
+
+FifoRead::~FifoRead()
+{
+unlink(FIFO);
+if(waitConnect) {
+		threadReadFifo->join();
+}
+}
+
 
 void FifoRead::readFifo()
 {
-	fifoFd = openFifoRead(); // должны находиться здесь
- //   params.connectHandler();//соединение проиошло
-    std::vector<uint8_t> buffer(1024);
-	while(runRead) {
-		auto flag = read(fifoFd, buffer.data() , 1024);
+std::vector<uint8_t> buffer(1024*8);
+
+while(runRead) {
+		auto flag = read(fifoFd, buffer.data(), 1024 * 8);
 		if(flag == 0) {
-			break;
+		break;
 		}
-		if(flag==1024){params.msgHandler( std::move(buffer));}
+		if(flag == 1024) {
+		params.msgHandler(std::move(buffer));
+		}
 		else
-		params.msgHandler( std::vector<uint8_t>(buffer.data(),buffer.data()+flag) );
+		params.msgHandler(std::vector<uint8_t>(buffer.data(), buffer.data() + flag));
 }
-}
-FifoRead::~FifoRead()
-{
-std::cout<<"я вызвался";
-	threadReadFifo->join();
-	unlink(FIFO);
 }
