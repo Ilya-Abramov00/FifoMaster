@@ -2,13 +2,13 @@
 #include <thread>
 #include "Fifo/Fifo.h"
 
-std::string FIFO2 = "/home/ilya/Fifo/fifo2";
+
 
 int main()
 {
 	std::cout << "клиент" << std::endl << std::endl;
 
-	std::string FIFO2 = "/home/ilya/Fifo/fifo2";
+	std::string FIFO2 = "fifo2";
 	int n             = 10;
 
 	FifoWrite client2(FIFO2);

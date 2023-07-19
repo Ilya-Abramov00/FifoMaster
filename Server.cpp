@@ -3,7 +3,7 @@
 #include "Fifo/Fifo.h"
 #include <thread>
 
-std::string FIFO1 = "/home/ilya/Fifo/fifo1";
+
 std::string FIFO2 = "/home/ilya/Fifo/fifo2";
 
 int main()
