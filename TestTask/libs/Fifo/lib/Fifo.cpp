@@ -12,7 +12,7 @@
 
 FifoRead::FifoRead(const Params& params) : params(params)
 {
-	FIFO = params.fdFileName.c_str();
+	FIFO = params.addrRead.c_str();
 	createFifo();
 }
 void FifoRead::createFifo()
@@ -118,23 +118,22 @@ FifoWrite::~FifoWrite()
 void FifoRead::readFifo()
 {
 	fifoFd = openFifoRead(); // должны находиться здесь
-	std::vector<uint8_t> read_buffer(params.dataUnitSize);
+	                         
 	long flagN = 0;
 	while(runRead) {
-		auto flag = read(fifoFd, read_buffer.data() + flagN, params.dataUnitSize - flagN);
+		auto flag = read(fifoFd, data->data() + flagN, params.unitMsgLenForReadFromFifo - flagN);
 		if(flag == 0) {
 			break;
 		}
 		flagN += flag;
-		if(flagN == params.dataUnitSize) {
-			params.msgHandler(read_buffer.data(), flagN);
+		if(flagN == params.unitMsgLenForReadFromFifo) {
+			params.msgHandler( data);
 			flagN = 0;
-			read_buffer.clear();
+			//data->clear();//можно убрать,если подразумевается, что остаток данных не нужен
 		}
-		std::this_thread::sleep_for(std::chrono::nanoseconds(params.timeToWaitDataNanoSeconds));
 	}
-	if(read_buffer.empty()) {
-		params.msgHandler(read_buffer.data(), flagN);
+	if(data->empty()) {
+		params.msgHandler( data);
 	}
 }
 FifoRead::~FifoRead()
