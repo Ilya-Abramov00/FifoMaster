@@ -24,7 +24,7 @@ int main()
 
 	Params params = {FIFO2, getterRead, connect};
 
-	Fifo client1(Params{FIFO2});
+	Fifo client1(params);
 
 	client1.startRead();
 	client1.startWrite();

@@ -161,5 +161,5 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 FifoWrite::~FifoWrite()
 {}
 
-Fifo::Fifo(Params params) : FifoRead(params), FifoWrite("/home/ilya/fifo")
+Fifo::Fifo(Params params) : FifoRead(params), FifoWrite(params.addrRead)
 {}
