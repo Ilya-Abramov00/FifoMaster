@@ -6,8 +6,7 @@
 
 int main()
 {
-	std::cout << "клиент" << std::endl << std::endl;
-
+	std::cout << "клиент" << std::endl ;
 	std::string FIFO2 = "/home/ilya/fifo2";
 	int n             = 10;
 
@@ -17,11 +16,10 @@ int main()
 
 	std::string a(n, '0');
 
-		client2.pushData((void*)a.data(), n);
 
+	client2.pushData((void*)a.data(), n);
 
-	sleep(8);
-
+	sleep(13);
 	client2.stopWrite();
 
 	std::cout << "клиент завершил отправку" << std::endl;

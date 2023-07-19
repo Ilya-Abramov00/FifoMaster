@@ -13,7 +13,7 @@ project(PipeClient1 LANGUAGES CXX)
 set(UNITTEST ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/binaries)
-add_executable(PipeClient1 Client2.cpp)
+add_executable(PipeClient1 Client1.cpp)
 target_link_libraries(${PROJECT_NAME} Fifo)
 
 project(PipeClient2 LANGUAGES CXX)

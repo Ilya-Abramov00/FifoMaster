@@ -71,9 +71,11 @@ void FifoWrite::createFifo()
 void FifoWrite::startWrite()
 {
 	runWrite        = true;
+
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
 		waitConnectFifo();
 	}));
+
 }
 
 void FifoWrite::waitConnectFifo()

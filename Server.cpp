@@ -8,14 +8,18 @@
 
 int main()
 {
-	std::cout << "сервер" << std::endl << std::endl;
+	std::cout << "сервер" << std::endl ;
+
 	std::string FIFO2 = "/home/ilya/fifo2";
 
 	int n            = 10;
 	std::string data = "";
 	data.reserve(n * 10);
 	auto getterRead = [&](Data && dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+		auto a=std::string(dataq.data(), dataq.data() + dataq.size());
+		data += a;
+		std::cout<<a<<std::endl;
+		std::cout<<dataq.size()<<std::endl;
 	};
 	auto connect = []() {
 
@@ -32,9 +36,10 @@ int main()
 
 	client1.startRead();
 
-	std::this_thread::sleep_for(std::chrono::seconds(5));
+	std::this_thread::sleep_for(std::chrono::seconds(20));
 
 	client1.stopRead();
 	std::cout << "\nсервер окончил прием\n" << std::endl;
+	std::cout<<data;
 	return 1;
 }

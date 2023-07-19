@@ -92,7 +92,7 @@ TEST(Fifo, time)
 	client2.startWrite();
 
 	std::string da(n, '3');
-	client2.pushData(da.data(), n);
+	client2.pushData((void*)da.data(), n);
 
 
 	sleep(1);

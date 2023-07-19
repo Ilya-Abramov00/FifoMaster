@@ -15,14 +15,13 @@ int main()
 
 	client2.startWrite();
 
-	std::string a(n, '0');
+	std::string a(n, 'a');
+
 
 	client2.pushData((void*)a.data(), n);
 
 
-	sleep(1);
-
-
+	sleep(10);
 	client2.stopWrite();
 
 	std::cout << "клиент завершил отправку" << std::endl;
