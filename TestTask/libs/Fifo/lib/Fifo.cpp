@@ -134,7 +134,7 @@ void FifoRead::readFifo()
 	}
 	if(data->empty()) {
 		params.msgHandler( data);
-	}
+	}// и это
 }
 FifoRead::~FifoRead()
 {
