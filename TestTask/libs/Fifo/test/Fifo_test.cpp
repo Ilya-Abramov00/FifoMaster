@@ -98,6 +98,6 @@ TEST(Fifo, time)
 
 	client2.stopWrite();
 	client1.stopRead();
-	//ASSERT_TRUE(data.size() == n * 10);
-	//ASSERT_TRUE(data == std::string(n * 10, '3'));
+	ASSERT_TRUE(data.size() == n );
+	ASSERT_TRUE(data == std::string(n , '3'));
 }
