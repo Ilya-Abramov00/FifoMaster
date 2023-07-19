@@ -23,9 +23,9 @@ void FifoRead::createFifo()
 	}
 }
 
-uint8_t FifoRead::openFifoRead()
+long FifoRead::openFifoRead()
 {
-	uint8_t fd = open(FIFO, O_RDONLY, 0);
+	long fd = open(FIFO, O_RDONLY, 0);
 	if(-1 == fd) {
 		throw std::runtime_error("fail openFifoRead");
 	}
@@ -34,26 +34,60 @@ uint8_t FifoRead::openFifoRead()
 
 void FifoRead::startRead()
 {
-	runRead        = true;
+	runRead               = true;
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
 		waitConnectFifo();
 	}));
+}
+void FifoRead::waitConnectFifo()
+{
+	fifoReadFd = openFifoRead();
+	params.connectHandler(); // соединение проиошло
+	waitConnect    = true;
+	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
+		readFifo();
+	}));
+}
 
+FifoRead::~FifoRead()
+{
+	unlink(FIFO);
+	threadWaitConnectFifo->detach();
+	if(waitConnect) {
+		threadReadFifo->join();
+	}
+}
+
+void FifoRead::readFifo()
+{
+	std::vector<uint8_t> buffer(1024);
+	while(runRead) {
+		auto flag = read(fifoReadFd, buffer.data(), 1024);
+		if(flag == 0) {
+			break;
+		}
+		if(flag == 1024) {
+			params.msgHandler(std::move(buffer));
+		}
+		else {
+			params.msgHandler(std::vector<uint8_t>(buffer.data(), buffer.data() + flag));
+		}
+	}
 }
 
 void FifoRead::stopRead()
 {
 	runRead = false;
-	close(fifoFd);
+	close(fifoReadFd);
 }
 
 FifoWrite::FifoWrite(const std::string& fdFileName) : FIFO(fdFileName.c_str())
 {
 	createFifo();
 }
-uint8_t FifoWrite::openFifoWrite()
+long FifoWrite::openFifoWrite()
 {
-	uint8_t fd = open(FIFO, O_WRONLY, 0);
+	long fd = open(FIFO, O_WRONLY, 0);
 	if(-1 == fd) {
 		throw std::runtime_error("fail openFifoWrite");
 	}
@@ -70,20 +104,20 @@ void FifoWrite::createFifo()
 
 void FifoWrite::startWrite()
 {
-	runWrite        = true;
+	runWrite = true;
 
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
 		waitConnectFifo();
 	}));
-
 }
 
 void FifoWrite::waitConnectFifo()
 {
 	fifoFd = openFifoWrite();
 	std::cout << "\n Произошел коннект \n";
-	//соединение проиошло
-	waitConnect= true;
+	// соединение проиошло
+
+	waitConnect     = true;
 	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
 	}));
@@ -93,6 +127,7 @@ void FifoWrite::stopWrite()
 	runWrite = false;
 	close(fifoFd);
 	threadWaitConnectFifo->detach();
+
 	if(waitConnect) {
 		threadWriteFifo->join();
 	}
@@ -125,41 +160,15 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 	}
 }
 
+FifoS::FifoS(Params params) : fifoRead(params), fifoWrite(params.addrRead + "reverse")
+{}
 
-void FifoRead::waitConnectFifo()
+void FifoS::startRead()
 {
-	fifoFd = openFifoRead();
-    params.connectHandler();//соединение проиошло
-	waitConnect= true;
-	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
-	readFifo();
-	}));
+	fifoRead.startRead();
 }
 
-
-FifoRead::~FifoRead()
+void FifoS::stopRead()
 {
-unlink(FIFO);
-threadWaitConnectFifo->detach();
-if(waitConnect) {
-		threadReadFifo->join();
-}
-}
-
-
-void FifoRead::readFifo()
-{
-std::vector<uint8_t> buffer(1024*8);
-
-while(runRead) {
-		auto flag = read(fifoFd, buffer.data(), 1024 * 8);
-		if(flag == 0) {
-		break;
-		}
-		if(flag == 1024) {
-		params.msgHandler(std::move(buffer));
-		}
-		else
-		params.msgHandler(std::vector<uint8_t>(buffer.data(), buffer.data() + flag));
-}
+	fifoRead.startRead();
 }

@@ -47,10 +47,9 @@ using ConnectionHandler = std::function<void()>;
 
 struct Params {
 	std::string addrRead;
-	ReadHandler  msgHandler;
+	ReadHandler msgHandler;
 	ConnectionHandler connectHandler;
 };
-
 
 class FifoRead {
 public:
@@ -63,14 +62,14 @@ public:
 private:
 	void waitConnectFifo();
 	void readFifo();
-	uint8_t openFifoRead();
+	long openFifoRead();
 	void createFifo();
 
 	Params params;
 	bool runRead{false};
 	bool waitConnect{false};
 	char const* FIFO;
-	uint8_t fifoFd = -1;
+	long fifoReadFd = -1;
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 	std::unique_ptr<std::thread> threadReadFifo;
 };
@@ -84,26 +83,64 @@ public:
 	void startWrite();
 	void stopWrite();
 
-
 private:
 	void waitConnectFifo();
 	void writeFifo();
-	uint8_t openFifoWrite();
+	long openFifoWrite();
 	void createFifo();
 
 	bool runWrite{false};
 	bool waitConnect{false};
 	char const* FIFO;
 	std::queue<std::vector<uint8_t>> queue;
-	uint8_t fifoFd = -1;
+	long fifoFd = -1;
 	std::mutex mtx;
 	std::unique_ptr<std::thread> threadWriteFifo;
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 };
 
-class Server{
+class FifoS {
 public:
+	FifoS(Params params);
+	void startRead();
+	void stopRead();
 
 private:
+	FifoRead fifoRead;
+	FifoWrite fifoWrite;
 };
+
+// class b {
+// public:
+//	b(const std::string& fdFileName) : fifoWrite(fdFileName)
+//	{}
+//
+//	void startWrite()
+//	{
+//		fifoWrite.startWrite();
+//	}
+//	void stopWrite()
+//	{
+//		fifoWrite.stopWrite();
+//	}
+//
+//	FifoWrite fifoWrite;
+// };
+
+// class b {
+// public:
+//	b(const std::string& fdFileName) : fifoWrite(fdFileName)
+//	{}
+//
+//	void startWrite()
+//	{
+//		fifoWrite.startWrite();
+//	}
+//	void stopWrite()
+//	{
+//		fifoWrite.stopWrite();
+//	}
+//
+//	FifoWrite fifoWrite;
+// };
 #endif

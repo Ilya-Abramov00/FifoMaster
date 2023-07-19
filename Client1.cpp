@@ -2,14 +2,13 @@
 #include <thread>
 #include "Fifo/Fifo.h"
 
-
 int main()
 {
 	std::cout << "клиент" << std::endl << std::endl;
 
 	std::string FIFO2 = "/home/ilya/fifo2";
 
-	int n             = 10;
+	int n = 10;
 
 	FifoWrite client2(FIFO2);
 
@@ -17,9 +16,7 @@ int main()
 
 	std::string a(n, 'a');
 
-
-	client2.pushData((void*)a.data(), n);
-
+	// client2.pushData((void*)a.data(), n);
 
 	sleep(10);
 	client2.stopWrite();
