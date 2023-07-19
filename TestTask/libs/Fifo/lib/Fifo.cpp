@@ -12,20 +12,19 @@
 
 FifoRead::FifoRead(const Params& params) : params(params)
 {
-	FIFO = params.addrRead.c_str();
 	createFifo();
 }
 void FifoRead::createFifo()
 {
-	if((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
-		std::cout << FIFO << '\n';
+	if((mkfifo(params.addrRead.c_str(), FILE_MODE) < 0) && (errno != EEXIST)) {
+		std::cout << params.addrRead.c_str() << '\n';
 		throw std::runtime_error(" fail createFifo ");
 	}
 }
 
 long FifoRead::openFifoRead()
 {
-	long fd = open(FIFO, O_RDONLY, 0);
+	long fd = open(params.addrRead.c_str(), O_RDONLY, 0);
 	if(-1 == fd) {
 		throw std::runtime_error("fail openFifoRead");
 	}
@@ -51,7 +50,7 @@ void FifoRead::waitConnectFifo()
 
 FifoRead::~FifoRead()
 {
-	unlink(FIFO);
+	unlink(params.addrRead.c_str());
 	threadWaitConnectFifo->detach();
 	if(waitConnect) {
 		threadReadFifo->join();
@@ -81,13 +80,13 @@ void FifoRead::stopRead()
 	close(fifoReadFd);
 }
 
-FifoWrite::FifoWrite(const std::string& fdFileName) : FIFO(fdFileName.c_str())
+FifoWrite::FifoWrite(std::string fdFileName) : fdFileName(fdFileName)
 {
 	createFifo();
 }
 long FifoWrite::openFifoWrite()
 {
-	long fd = open(FIFO, O_WRONLY, 0);
+	long fd = open(fdFileName.c_str(), O_WRONLY, 0);
 	if(-1 == fd) {
 		throw std::runtime_error("fail openFifoWrite");
 	}
@@ -96,8 +95,8 @@ long FifoWrite::openFifoWrite()
 
 void FifoWrite::createFifo()
 {
-	if((mkfifo(FIFO, FILE_MODE) < 0) && (errno != EEXIST)) {
-		std::cout << FIFO << '\n';
+	if((mkfifo(fdFileName.c_str(), FILE_MODE) < 0) && (errno != EEXIST)) {
+		std::cout << fdFileName.c_str() << '\n';
 		throw std::runtime_error(" fail createFifo ");
 	}
 }
@@ -159,16 +158,8 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 		queue.push(std::move(buffer));
 	}
 }
-
-FifoS::FifoS(Params params) : fifoRead(params), fifoWrite(params.addrRead + "reverse")
+FifoWrite::~FifoWrite()
 {}
 
-void FifoS::startRead()
-{
-	fifoRead.startRead();
-}
-
-void FifoS::stopRead()
-{
-	fifoRead.startRead();
-}
+Fifo::Fifo(Params params) : FifoRead(params), FifoWrite("/home/ilya/fifo")
+{}

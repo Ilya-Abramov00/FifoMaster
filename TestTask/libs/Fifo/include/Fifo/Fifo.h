@@ -68,7 +68,6 @@ private:
 	Params params;
 	bool runRead{false};
 	bool waitConnect{false};
-	char const* FIFO;
 	long fifoReadFd = -1;
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 	std::unique_ptr<std::thread> threadReadFifo;
@@ -76,12 +75,13 @@ private:
 
 class FifoWrite {
 public:
-	FifoWrite(const std::string& fdFileName);
+	FifoWrite(const std::string fdFileName);
 
 	void pushData(void* data, size_t sizeN);
 
 	void startWrite();
 	void stopWrite();
+	~FifoWrite();
 
 private:
 	void waitConnectFifo();
@@ -91,7 +91,7 @@ private:
 
 	bool runWrite{false};
 	bool waitConnect{false};
-	char const* FIFO;
+	const std::string fdFileName;
 	std::queue<std::vector<uint8_t>> queue;
 	long fifoFd = -1;
 	std::mutex mtx;
@@ -99,15 +99,11 @@ private:
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 };
 
-class FifoS {
+class Fifo : public FifoRead, public FifoWrite {
 public:
-	FifoS(Params params);
-	void startRead();
-	void stopRead();
+	Fifo(Params params);
 
 private:
-	FifoRead fifoRead;
-	FifoWrite fifoWrite;
 };
 
 // class b {
