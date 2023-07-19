@@ -16,12 +16,16 @@ int main()
 	data.reserve(n * 10);
 	auto getterRead = [&](Data && dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
-		std::cout<<"wefg"<<std::endl;
+	};
+	auto connect = []() {
+
+		std::cout<<"произошел коннект"<<std::endl;
 	};
 
 	Params params = {
 	    FIFO2,
 	    getterRead,
+	    connect
 	};
 
 	FifoRead client1(params);

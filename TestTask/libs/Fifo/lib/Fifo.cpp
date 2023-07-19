@@ -38,7 +38,7 @@ void FifoRead::startRead()
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
 		waitConnectFifo();
 	}));
-	threadWaitConnectFifo->detach();
+
 }
 
 void FifoRead::stopRead()
@@ -74,13 +74,14 @@ void FifoWrite::startWrite()
 	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
 	}));
-	threadWriteFifo->detach();
+
 }
 
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
 	close(fifoFd);
+	threadWriteFifo->join();
 }
 
 void FifoWrite::writeFifo()
@@ -125,9 +126,11 @@ void FifoRead::waitConnectFifo()
 }
 
 
+
 FifoRead::~FifoRead()
 {
 unlink(FIFO);
+threadWaitConnectFifo->detach();
 if(waitConnect) {
 		threadReadFifo->join();
 }
