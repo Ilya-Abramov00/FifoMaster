@@ -7,7 +7,7 @@ using namespace std;
 TEST(big_data, 1)
 {
 	std::string FIFO2 = "fifo2";
-	int n             = 1024 * 1024 * 100;
+	int n             = 1024 * 1024 * 120;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](Data&& dataq) {
