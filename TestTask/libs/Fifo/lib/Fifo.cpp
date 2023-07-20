@@ -26,9 +26,6 @@ void FifoRead::createFifo()
 long FifoRead::openFifoRead()
 {
 	long fd = open(params.addrRead.c_str(), O_RDONLY, 0);
-	if(-1 == fd) {
-		throw std::runtime_error("fail openFifoRead");
-	}
 	return fd;
 }
 
@@ -55,10 +52,7 @@ void FifoRead::waitConnectFifo()
 	}));
 }
 
-FifoRead::~FifoRead()
-{
-	unlink(params.addrRead.c_str());
-}
+
 
 void FifoRead::readFifo()
 {
@@ -82,13 +76,12 @@ void FifoRead::readFifo()
 void FifoRead::stopRead()
 {
 	runRead = false;
-
 	threadWaitConnectFifo->detach();
 	if(waitConnect) {
 		threadReadFifo->join();
+		close(fifoReadFd);
+		unlink(params.addrRead.c_str());
 	}
-	close(fifoReadFd);
-	unlink(params.addrRead.c_str());
 }
 void FifoRead::setConnectionHandler(ConnectionHandler handler)
 {
@@ -110,9 +103,7 @@ FifoWrite::FifoWrite(std::string fdFileName) : fdFileName(fdFileName)
 long FifoWrite::openFifoWrite()
 {
 	long fd = open(fdFileName.c_str(), O_WRONLY, 0);
-	if(-1 == fd) {
-		throw std::runtime_error("fail openFifoWrite");
-	}
+
 	return fd;
 }
 
@@ -151,8 +142,9 @@ void FifoWrite::stopWrite()
 
 	if(waitConnect) {
 		threadWriteFifo->join();
+		close(fifoFd);
+		unlink(fdFileName.c_str()); // хз нужно ли
 	}
-	close(fifoFd);
 }
 
 void FifoWrite::writeFifo()
@@ -187,10 +179,7 @@ const bool FifoWrite::getWaitConnect() const
 {
 	return waitConnect;
 }
-FifoWrite::~FifoWrite()
-{
-	unlink(fdFileName.c_str()); // хз нужно ли
-}
+
 
 Fifo::Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead) :
     fifoRead(fdFileNameRead), fifoWrite(fdFileNameWrite)
@@ -221,9 +210,18 @@ void Fifo::start()
 	fifoWrite.startWrite();
 }
 
+auto getterRead = [](Data&& dataq) {
+	std::cout << "произошло событие" << std::endl;
+};
+auto connect = []() {
+	std::cout << "произошел коннект" << std::endl;
+};
+
 Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)
 {
 	for(const auto& name: nameChannelsFifo) {
 		connectionId[name] = std::make_unique<Fifo>(name, name + "_reverse");
+		connectionId[name]->setReadHandler(getterRead);
+		connectionId[name]->setConnectionHandler(connect);
 	}
 }

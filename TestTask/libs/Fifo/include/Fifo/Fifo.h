@@ -125,15 +125,46 @@ private:
 
 using ConnectionId          = std::unordered_map<std::string, std::shared_ptr<Fifo>>;
 using ConnChangeHandler     = std::function<void(ConnectionId)>;
-using ReadHandler           = std::function<void(ConnectionId, const void*, size_t)>;
+using ReadHandlerId         = std::function<void(ConnectionId, const void*, size_t)>;
 using IdDistributionHandler = std::function<ConnectionId()>;
 
 class Server {
 public:
 	Server(const std::vector<std::string>& nameChannelsFifo);
 
+	void setReadHandlerId(ReadHandlerId h);
+	void start()
+	{
+		for(const auto& Fifo: connectionId) {
+			Fifo.second->start();
+		}
+	}
+	void stop()
+	{
+		for(const auto& Fifo: connectionId) {
+			Fifo.second->stop();
+		}
+	}
+
 private:
 	ConnectionId connectionId;
 	const std::vector<std::string>& nameChannelsFifo;
+	ReadHandlerId readHandlerId;
 };
+
+// virtual ~Server() = default;
+// virtual void start()                                             = 0;
+// virtual void stop()                                              = 0;
+// virtual void write(ConnectionId id, const void* data, size_t sz) = 0;
+// virtual void disconnect(ConnectionId id)                         = 0;
+// void setNewConnectionHandler(ConnChangeHandler h)
+//{
+//	newHandler = h;
+// }
+// void setCloseConnectionHandler(ConnChangeHandler h)
+//{
+//	closeHandler = h;
+// }
+
+// virtual void setIdDistributionHandler(IdDistributionHandler h) = 0;
 #endif

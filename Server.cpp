@@ -38,6 +38,8 @@ int main()
 	//
 	//	std::cout << data.size();
 	Server a(std::vector<std::string>{FIFO1, FIFO2, FIFO3});
-	sleep(5);
+	a.start();
+	sleep(1);
+	a.stop();
 	return 1;
 }
