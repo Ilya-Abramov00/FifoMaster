@@ -1,14 +1,11 @@
 #ifndef COMPLEX_H
 #define COMPLEX_H
 
-#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <cstring>
 #include <unistd.h>
-#include <stdlib.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <iostream>
 #include <string>
@@ -21,6 +18,7 @@
 #include <memory>
 #include <unistd.h>
 #include <sys/signal.h>
+
 // class FifoException : public std::runtime_error {
 // public:
 //	FifoException(std::string const& msg);
@@ -42,26 +40,29 @@
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 
+class FifoBase {
+protected:
+	long openFifo(const std::string fdFileName, const char flag);
+	void createFifo(const std::string fdFileName);
+};
+
 using Data              = std::vector<uint8_t>;
 using ReadsHandler      = std::function<void(Data&&)>;
 using ConnectionHandler = std::function<void()>;
 
-class FifoRead {
+class FifoRead : protected FifoBase {
 public:
+	FifoRead(const std::string fdFileName);
 	void startRead();
 	void stopRead();
-	const bool getBooLWaitConnect() const;
-
-	FifoRead(const std::string fdFileName);
 
 	void setConnectionHandler(ConnectionHandler handler);
 	void setReadHandler(ReadsHandler handler);
+	~FifoRead();
 
 private:
 	void waitConnectFifo();
 	void readFifo();
-	long openFifoRead();
-	void createFifo();
 
 	struct Params {
 		std::string addrRead;
@@ -76,7 +77,7 @@ private:
 	std::unique_ptr<std::thread> threadReadFifo;
 };
 
-class FifoWrite {
+class FifoWrite : protected FifoBase {
 public:
 	void startWrite();
 	void stopWrite();
@@ -85,13 +86,9 @@ public:
 
 	void pushData(const void* data, size_t sizeN);
 
-	const bool getWaitConnect() const;
-
 private:
 	void waitConnectFifo();
 	void writeFifo();
-	long openFifoWrite();
-	void createFifo();
 
 	bool runWrite{false};
 	bool waitConnect{false};
@@ -130,18 +127,8 @@ public:
 	Server(const std::vector<std::string>& nameChannelsFifo);
 
 	void setReadHandlerId(ReadHandlerId h);
-	void start()
-	{
-		for(const auto& Fifo: connectionId) {
-			Fifo.second->start();
-		}
-	}
-	void stop()
-	{
-		for(const auto& Fifo: connectionId) {
-			Fifo.second->stop();
-		}
-	}
+	void start();
+	void stop();
 
 private:
 	ConnectionId connectionId;

@@ -13,20 +13,7 @@
 FifoRead::FifoRead(const std::string fdFileName)
 {
 	params.addrRead = fdFileName;
-	createFifo();
-}
-void FifoRead::createFifo()
-{
-	if((mkfifo(params.addrRead.c_str(), FILE_MODE) < 0) && (errno != EEXIST)) {
-		std::cout << params.addrRead.c_str() << '\n';
-		throw std::runtime_error(" fail createFifo ");
-	}
-}
-
-long FifoRead::openFifoRead()
-{
-	long fd = open(params.addrRead.c_str(), O_RDONLY, 0);
-	return fd;
+	createFifo(params.addrRead);
 }
 
 void FifoRead::startRead()
@@ -44,12 +31,14 @@ void FifoRead::startRead()
 }
 void FifoRead::waitConnectFifo()
 {
-	fifoReadFd = openFifoRead();
-	params.connectHandler(); // соединение проиошло
-	waitConnect    = true;
-	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
-		readFifo();
-	}));
+	fifoReadFd = openFifo(params.addrRead, 'R');
+	if(runRead) {
+		params.connectHandler(); // соединение проиошло
+		waitConnect    = true;
+		threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
+			readFifo();
+		}));
+	}
 }
 
 void FifoRead::readFifo()
@@ -74,11 +63,14 @@ void FifoRead::readFifo()
 void FifoRead::stopRead()
 {
 	runRead = false;
-	threadWaitConnectFifo->detach();
+	long fd = openFifo(params.addrRead.c_str(), 'W');
+	if(-1 == fd)
+		throw "dff";
+	threadWaitConnectFifo->join();
+	close(fd);
+	close(fifoReadFd);
 	if(waitConnect) {
 		threadReadFifo->join();
-		close(fifoReadFd);
-		unlink(params.addrRead.c_str());
 	}
 }
 void FifoRead::setConnectionHandler(ConnectionHandler handler)
@@ -89,29 +81,15 @@ void FifoRead::setReadHandler(ReadsHandler handler)
 {
 	params.msgHandler = std::move(handler);
 }
-const bool FifoRead::getBooLWaitConnect() const
+
+FifoRead::~FifoRead()
 {
-	return waitConnect;
+	unlink(params.addrRead.c_str());
 }
 
 FifoWrite::FifoWrite(std::string fdFileName) : fdFileName(fdFileName)
 {
-	createFifo();
-}
-long FifoWrite::openFifoWrite()
-{
-	long fd = open(fdFileName.c_str(), O_WRONLY, 0);
-	if(-1 == fd)
-		throw std::runtime_error(" fail openFifo ");
-	return fd;
-}
-
-void FifoWrite::createFifo()
-{
-	if((mkfifo(fdFileName.c_str(), FILE_MODE) < 0) && (errno != EEXIST)) {
-		std::cout << fdFileName.c_str() << '\n';
-		throw std::runtime_error(" fail createFifo ");
-	}
+	createFifo(fdFileName);
 }
 
 void FifoWrite::startWrite()
@@ -125,21 +103,25 @@ void FifoWrite::startWrite()
 
 void FifoWrite::waitConnectFifo()
 {
-	fifoFd = openFifoWrite();
-	// соединение проиошло
-
-	waitConnect     = true;
-	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
-		writeFifo();
-	}));
+	fifoFd = openFifo(fdFileName, 'W');
+	if(runWrite) {
+		// соединение проиошло
+		waitConnect     = true;
+		threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
+			writeFifo();
+		}));
+	}
 }
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
 
+	long fd = open(fdFileName.c_str(), O_RDONLY, 0);
+
+	threadWaitConnectFifo->join();
 	close(fifoFd);
-	unlink(fdFileName.c_str()); // хз нужно ли
-	threadWaitConnectFifo->detach();
+	close(fd);
+
 	if(waitConnect) {
 		threadWriteFifo->join();
 	}
@@ -171,11 +153,6 @@ void FifoWrite::pushData(const void* data, size_t sizeN)
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
 	std::lock_guard<std::mutex> mtx_0(mtx);
 	queue.push(std::move(buffer));
-}
-
-const bool FifoWrite::getWaitConnect() const
-{
-	return waitConnect;
 }
 
 Fifo::Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead) :
@@ -222,5 +199,38 @@ Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsF
 		connectionId[name] = std::make_unique<Fifo>(name, name + "_reverse");
 		connectionId[name]->setReadHandler(getter);
 		connectionId[name]->setConnectionHandler(connect);
+	}
+}
+void Server::start()
+{
+	for(const auto& Fifo: connectionId) {
+		Fifo.second->start();
+	}
+}
+void Server::stop()
+{
+	for(const auto& Fifo: connectionId) {
+		Fifo.second->stop();
+	}
+}
+long FifoBase::openFifo(const std::string fdFileName, const char flag)
+{
+	long fd = -1;
+	if(flag == 'W') {
+		fd = open(fdFileName.c_str(), O_WRONLY, 0);
+	}
+	else if(flag == 'R') {
+		fd = open(fdFileName.c_str(), O_RDONLY, 0);
+	}
+	if(-1 == fd)
+		throw std::runtime_error(" fail openFifo ");
+	return fd;
+}
+
+void FifoBase::createFifo(const std::string fdFileName)
+{
+	if((mkfifo(fdFileName.c_str(), FILE_MODE) < 0) && (errno != EEXIST)) {
+		std::cout << fdFileName.c_str() << '\n';
+		throw std::runtime_error(" fail createFifo ");
 	}
 }
