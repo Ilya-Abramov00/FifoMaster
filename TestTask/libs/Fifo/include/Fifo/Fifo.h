@@ -19,6 +19,8 @@
 #include <mutex>
 #include <queue>
 #include <memory>
+#include <unistd.h>
+#include <sys/signal.h>
 // class FifoException : public std::runtime_error {
 // public:
 //	FifoException(std::string const& msg);
@@ -128,4 +130,27 @@ private:
 	FifoRead fifoRead;
 };
 
+using ConnectionId          = std::unordered_map<std::string, std::shared_ptr<Fifo>>;
+using ConnChangeHandler     = std::function<void(ConnectionId)>;
+using ReadHandler           = std::function<void(ConnectionId, const void*, size_t)>;
+using IdDistributionHandler = std::function<ConnectionId()>;
+
+class Server {
+public:
+	Server(const std::vector<std::string>& nameChannelsFifo) : nameChannelsFifo(nameChannelsFifo)
+	{
+		for(const auto& name: nameChannelsFifo) {
+			connectionId[name] = std::make_unique<Fifo>(name, name + "reverse");
+		}
+	}
+
+	~Server()
+	{
+		// unlink(name.c_str());
+	}
+
+private:
+	ConnectionId connectionId;
+	const std::vector<std::string>& nameChannelsFifo;
+};
 #endif

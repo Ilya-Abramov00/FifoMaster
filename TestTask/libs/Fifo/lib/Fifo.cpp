@@ -9,10 +9,7 @@
 //{}
 // FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
 //{}
-#include <unistd.h>
-#include <time.h>
-#include <errno.h>
-#include <sys/signal.h>
+
 FifoRead::FifoRead(const std::string fdFileName)
 {
 	params.addrRead = fdFileName;
@@ -180,8 +177,7 @@ void FifoWrite::pushData(const void* data, size_t sizeN)
 		std::cerr << "\n null ptr is pushData \n";
 		return;
 	}
-	auto ptr = (uint8_t*)data;
-	// auto ptr = reinterpret_cast<uint8_t*>(data);
+	auto ptr = reinterpret_cast<const uint8_t*>(data);
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
 	std::lock_guard<std::mutex> mtx_0(mtx);
 	queue.push(std::move(buffer));

@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-project (Fifo)
+project(Fifo)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB_RECURSE  SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/Fifo/*.h )
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/Fifo/*.h)
 
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
