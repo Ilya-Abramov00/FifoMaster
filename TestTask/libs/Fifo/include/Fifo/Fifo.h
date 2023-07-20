@@ -39,7 +39,6 @@
 // };
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
-#define MAXLINE 64 * 1024
 
 using Data              = std::vector<uint8_t>;
 using ReadHandler       = std::function<void(Data&&)>;

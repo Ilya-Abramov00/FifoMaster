@@ -62,13 +62,15 @@ FifoRead::~FifoRead()
 
 void FifoRead::readFifo()
 {
-	std::vector<uint8_t> buffer(1024);
+	auto MAXLINE = 1024 * 64;
+	std::vector<uint8_t> buffer(MAXLINE);
+	
 	while(runRead) {
-		auto flag = read(fifoReadFd, buffer.data(), 1024);
+		auto flag = read(fifoReadFd, buffer.data(), MAXLINE);
 		if(flag == 0) {
 			break;
 		}
-		if(flag == 1024) {
+		if(flag == MAXLINE) {
 			params.msgHandler(std::move(buffer));
 		}
 		else {
@@ -133,61 +135,7 @@ void FifoWrite::stopWrite()
 		threadWriteFifo->join();
 	}
 }
-ssize_t safe_write(int fd, const void* buf, size_t bufsz)
-{
-	sigset_t sig_block, sig_restore, sig_pending;
 
-	sigemptyset(&sig_block);
-	sigaddset(&sig_block, SIGPIPE);
-
-	/* Block SIGPIPE for this thread.
-	 *
-	 * This works since kernel sends SIGPIPE to the thread that called write(),
-	 * not to the whole process.
-	 */
-	if(pthread_sigmask(SIG_BLOCK, &sig_block, &sig_restore) != 0) {
-		return -1;
-	}
-
-	/* Check if SIGPIPE is already pending.
-	 */
-	int sigpipe_pending = -1;
-	if(sigpending(&sig_pending) != -1) {
-		sigpipe_pending = sigismember(&sig_pending, SIGPIPE);
-	}
-
-	if(sigpipe_pending == -1) {
-		pthread_sigmask(SIG_SETMASK, &sig_restore, NULL);
-		return -1;
-	}
-
-	ssize_t ret;
-	while((ret = write(fd, buf, bufsz)) == -1) {
-		if(errno != EINTR)
-			break;
-	}
-
-	/* Fetch generated SIGPIPE if write() failed with EPIPE.
-	 *
-	 * However, if SIGPIPE was already pending before calling write(), it was also
-	 * generated and blocked by caller, and caller may expect that it can fetch it
-	 * later. Since signals are not queued, we don't fetch it in this case.
-	 */
-	if(ret == -1 && errno == EPIPE && sigpipe_pending == 0) {
-		struct timespec ts;
-		ts.tv_sec  = 0;
-		ts.tv_nsec = 0;
-
-		int sig;
-		while((sig = sigtimedwait(&sig_block, 0, &ts)) == -1) {
-			if(errno != EINTR)
-				break;
-		}
-	}
-
-	pthread_sigmask(SIG_SETMASK, &sig_restore, NULL);
-	return ret;
-}
 void FifoWrite::writeFifo()
 {
 	while(runWrite) {
