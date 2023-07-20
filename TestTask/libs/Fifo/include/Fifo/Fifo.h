@@ -54,8 +54,6 @@ public:
 
 	FifoRead(const std::string fdFileName);
 
-	~FifoRead();
-
 	void setConnectionHandler(ConnectionHandler handler);
 	void setReadHandler(ReadsHandler handler);
 
@@ -88,7 +86,6 @@ public:
 	void pushData(const void* data, size_t sizeN);
 
 	const bool getWaitConnect() const;
-	~FifoWrite();
 
 private:
 	void waitConnectFifo();

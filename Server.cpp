@@ -36,10 +36,15 @@ int main()
 	//
 	//	std::cout << "клиент завершил отправку" << std::endl;
 	//
+
 	//	std::cout << data.size();
-	Server a(std::vector<std::string>{FIFO1, FIFO2, FIFO3});
-	a.start();
-	sleep(1);
-	a.stop();
+
+	{
+		Server a(std::vector<std::string>{FIFO1, FIFO2, FIFO3});
+		a.start();
+		sleep(1);
+		a.stop();
+	}
+
 	return 1;
 }

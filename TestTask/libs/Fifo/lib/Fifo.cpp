@@ -52,8 +52,6 @@ void FifoRead::waitConnectFifo()
 	}));
 }
 
-
-
 void FifoRead::readFifo()
 {
 	auto MAXLINE = 1024 * 64;
@@ -103,7 +101,8 @@ FifoWrite::FifoWrite(std::string fdFileName) : fdFileName(fdFileName)
 long FifoWrite::openFifoWrite()
 {
 	long fd = open(fdFileName.c_str(), O_WRONLY, 0);
-
+	if(-1 == fd)
+		throw std::runtime_error(" fail openFifo ");
 	return fd;
 }
 
@@ -138,12 +137,11 @@ void FifoWrite::stopWrite()
 {
 	runWrite = false;
 
+	close(fifoFd);
+	unlink(fdFileName.c_str()); // хз нужно ли
 	threadWaitConnectFifo->detach();
-
 	if(waitConnect) {
 		threadWriteFifo->join();
-		close(fifoFd);
-		unlink(fdFileName.c_str()); // хз нужно ли
 	}
 }
 
@@ -180,7 +178,6 @@ const bool FifoWrite::getWaitConnect() const
 	return waitConnect;
 }
 
-
 Fifo::Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead) :
     fifoRead(fdFileNameRead), fifoWrite(fdFileNameWrite)
 {}
@@ -210,10 +207,12 @@ void Fifo::start()
 	fifoWrite.startWrite();
 }
 
-auto getterRead = [](Data&& dataq) {
+void getter(Data&& dataq)
+{
 	std::cout << "произошло событие" << std::endl;
 };
-auto connect = []() {
+void connect()
+{
 	std::cout << "произошел коннект" << std::endl;
 };
 
@@ -221,7 +220,7 @@ Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsF
 {
 	for(const auto& name: nameChannelsFifo) {
 		connectionId[name] = std::make_unique<Fifo>(name, name + "_reverse");
-		connectionId[name]->setReadHandler(getterRead);
+		connectionId[name]->setReadHandler(getter);
 		connectionId[name]->setConnectionHandler(connect);
 	}
 }
