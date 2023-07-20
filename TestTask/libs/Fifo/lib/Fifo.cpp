@@ -13,8 +13,9 @@
 #include <time.h>
 #include <errno.h>
 #include <sys/signal.h>
-FifoRead::FifoRead(const Params& params) : params(params)
+FifoRead::FifoRead(const std::string fdFileName)
 {
+	params.addrRead = fdFileName;
 	createFifo();
 }
 void FifoRead::createFifo()
@@ -36,6 +37,12 @@ long FifoRead::openFifoRead()
 
 void FifoRead::startRead()
 {
+	if(!params.msgHandler) {
+		throw std::runtime_error("callback for msg getting not set");
+	}
+	if(!params.connectHandler) {
+		throw std::runtime_error("callback for msg getting not set");
+	}
 	runRead               = true;
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
 		waitConnectFifo();
@@ -53,10 +60,6 @@ void FifoRead::waitConnectFifo()
 
 FifoRead::~FifoRead()
 {
-	threadWaitConnectFifo->detach();
-	if(waitConnect) {
-		threadReadFifo->join();
-	}
 	unlink(params.addrRead.c_str());
 }
 
@@ -64,7 +67,7 @@ void FifoRead::readFifo()
 {
 	auto MAXLINE = 1024 * 64;
 	std::vector<uint8_t> buffer(MAXLINE);
-	
+
 	while(runRead) {
 		auto flag = read(fifoReadFd, buffer.data(), MAXLINE);
 		if(flag == 0) {
@@ -83,6 +86,10 @@ void FifoRead::stopRead()
 {
 	runRead = false;
 	close(fifoReadFd);
+	threadWaitConnectFifo->detach();
+	if(waitConnect) {
+		threadReadFifo->join();
+	}
 }
 
 FifoWrite::FifoWrite(std::string fdFileName) : fdFileName(fdFileName)
@@ -166,5 +173,5 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 FifoWrite::~FifoWrite()
 {}
 
-Fifo::Fifo(Params params) : FifoRead(params), FifoWrite(params.addrRead + "wd")
+Fifo::Fifo(const std::string fdFileName) : FifoRead(fdFileName), FifoWrite(fdFileName)
 {}

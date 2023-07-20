@@ -22,17 +22,11 @@ int main()
 		std::cout << "произошел коннект" << std::endl;
 	};
 
-	Params params = {FIFO2, getterRead, connect};
+	Fifo client1(FIFO2);
 
-	Fifo client1(params);
+	//	std::this_thread::sleep_for(std::chrono::seconds(5));
 
-	client1.startRead();
-	client1.startWrite();
-
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-	client1.stopWrite();
-	client1.stopRead();
 	std::cout << "\nсервер окончил прием\n" << std::endl;
-	std::cout << data;
+	//	std::cout << data;
 	return 1;
 }

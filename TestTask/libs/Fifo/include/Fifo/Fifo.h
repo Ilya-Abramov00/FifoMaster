@@ -41,22 +41,31 @@
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 
 using Data              = std::vector<uint8_t>;
-using ReadHandler       = std::function<void(Data&&)>;
+using ReadsHandler      = std::function<void(Data&&)>;
 using ConnectionHandler = std::function<void()>;
 
-struct Params {
-	std::string addrRead;
-	ReadHandler msgHandler;
-	ConnectionHandler connectHandler;
-};
-
 class FifoRead {
-public:
-	FifoRead(const Params& params);
-
+protected:
 	void startRead();
 	void stopRead();
+	const bool getBooLWaitConnect() const
+	{
+		return waitConnect;
+	}
+
+public:
+	FifoRead(const std::string fdFileName);
+
 	~FifoRead();
+
+	void setConnectionHandler(ConnectionHandler handler)
+	{
+		params.connectHandler = std::move(handler);
+	}
+	void ReadHandler(ReadsHandler handler)
+	{
+		params.msgHandler = std::move(handler);
+	}
 
 private:
 	void waitConnectFifo();
@@ -64,6 +73,11 @@ private:
 	long openFifoRead();
 	void createFifo();
 
+	struct Params {
+		std::string addrRead;
+		ReadsHandler msgHandler;
+		ConnectionHandler connectHandler;
+	};
 	Params params;
 	bool runRead{false};
 	bool waitConnect{false};
@@ -73,14 +87,21 @@ private:
 };
 
 class FifoWrite {
+protected:
+	void startWrite();
+	void stopWrite();
+
 public:
 	FifoWrite(const std::string fdFileName);
 
 	void pushData(void* data, size_t sizeN);
 
-	void startWrite();
-	void stopWrite();
 	~FifoWrite();
+
+	const bool getWaitConnect() const
+	{
+		return waitConnect;
+	}
 
 private:
 	void waitConnectFifo();
@@ -98,9 +119,14 @@ private:
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 };
 
-class Fifo : public FifoRead, public FifoWrite {
+class Fifo : public FifoWrite, public FifoRead {
 public:
-	Fifo(Params params);
+	Fifo(const std::string fdFileName);
+
+	//	void start()
+	//	{}
+	//	void stop()
+	//	{}
 
 private:
 };
