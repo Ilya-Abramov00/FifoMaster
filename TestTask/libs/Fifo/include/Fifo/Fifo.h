@@ -105,37 +105,4 @@ public:
 private:
 };
 
-// class b {
-// public:
-//	b(const std::string& fdFileName) : fifoWrite(fdFileName)
-//	{}
-//
-//	void startWrite()
-//	{
-//		fifoWrite.startWrite();
-//	}
-//	void stopWrite()
-//	{
-//		fifoWrite.stopWrite();
-//	}
-//
-//	FifoWrite fifoWrite;
-// };
-
-// class b {
-// public:
-//	b(const std::string& fdFileName) : fifoWrite(fdFileName)
-//	{}
-//
-//	void startWrite()
-//	{
-//		fifoWrite.startWrite();
-//	}
-//	void stopWrite()
-//	{
-//		fifoWrite.stopWrite();
-//	}
-//
-//	FifoWrite fifoWrite;
-// };
 #endif
