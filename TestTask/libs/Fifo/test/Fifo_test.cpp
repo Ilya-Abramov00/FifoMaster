@@ -10,19 +10,16 @@ TEST(Fifo, empty)
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();
@@ -40,21 +37,17 @@ TEST(Fifo, null_ptr)
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
-
 	client1.startRead();
 	client2.startWrite();
 
@@ -70,22 +63,19 @@ TEST(Fifo, null_ptr)
 TEST(Fifo, time)
 {
 	std::string FIFO2 = "fifo2";
-	int n             = 1024*5;
+	int n             = 1024 * 5;
 	std::string data  = "";
-	data.reserve(n );
-	auto getterRead = [&](Data && dataq) {
+	data.reserve(n);
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();
@@ -94,11 +84,10 @@ TEST(Fifo, time)
 	std::string da(n, '3');
 	client2.pushData((void*)da.data(), n);
 
-
 	sleep(1);
 
 	client2.stopWrite();
 	client1.stopRead();
-	ASSERT_TRUE(data.size() == n );
-	ASSERT_TRUE(data == std::string(n , '3'));
+	ASSERT_TRUE(data.size() == n);
+	ASSERT_TRUE(data == std::string(n, '3'));
 }

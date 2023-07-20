@@ -71,7 +71,7 @@ void FifoRead::readFifo()
 	while(runRead) {
 		auto flag = read(fifoReadFd, buffer.data(), MAXLINE);
 		if(flag == 0) {
-			break;
+			return;
 		}
 		if(flag == MAXLINE) {
 			params.msgHandler(std::move(buffer));
@@ -85,11 +85,25 @@ void FifoRead::readFifo()
 void FifoRead::stopRead()
 {
 	runRead = false;
-	close(fifoReadFd);
+
 	threadWaitConnectFifo->detach();
 	if(waitConnect) {
 		threadReadFifo->join();
 	}
+	close(fifoReadFd);
+	unlink(params.addrRead.c_str());
+}
+void FifoRead::setConnectionHandler(ConnectionHandler handler)
+{
+	params.connectHandler = std::move(handler);
+}
+void FifoRead::setReadHandler(ReadsHandler handler)
+{
+	params.msgHandler = std::move(handler);
+}
+const bool FifoRead::getBooLWaitConnect() const
+{
+	return waitConnect;
 }
 
 FifoWrite::FifoWrite(std::string fdFileName) : fdFileName(fdFileName)
@@ -135,12 +149,13 @@ void FifoWrite::waitConnectFifo()
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
-	close(fifoFd);
+
 	threadWaitConnectFifo->detach();
 
 	if(waitConnect) {
 		threadWriteFifo->join();
 	}
+	close(fifoFd);
 }
 
 void FifoWrite::writeFifo()
@@ -151,7 +166,7 @@ void FifoWrite::writeFifo()
 			signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
 			auto flag = write(fifoFd, queue.front().data(), queue.front().size());
 			if(flag == -1) {
-				runWrite = false;
+				return;
 				std::cerr << "\n принимающая сторона закрыла канал \n";
 			}
 			queue.pop();
@@ -159,19 +174,39 @@ void FifoWrite::writeFifo()
 	}
 }
 
-void FifoWrite::pushData(void* data, size_t sizeN)
+void FifoWrite::pushData(const void* data, size_t sizeN)
 {
 	if(!data) {
 		std::cerr << "\n null ptr is pushData \n";
 		return;
 	}
-	auto ptr = reinterpret_cast<uint8_t*>(data);
+	auto ptr = (uint8_t*)data;
+	// auto ptr = reinterpret_cast<uint8_t*>(data);
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
 	std::lock_guard<std::mutex> mtx_0(mtx);
 	queue.push(std::move(buffer));
 }
-FifoWrite::~FifoWrite()
+
+const bool FifoWrite::getWaitConnect() const
+{
+	return waitConnect;
+}
+
+Fifo::Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead) :
+    fifoRead(fdFileNameRead), fifoWrite(fdFileNameWrite)
 {}
 
-Fifo::Fifo(const std::string fdFileName) : FifoRead(fdFileName), FifoWrite(fdFileName)
-{}
+void Fifo::setReadHandler(ReadsHandler handler)
+{
+	fifoRead.setReadHandler(handler);
+}
+
+void Fifo::setConnectionHandler(ConnectionHandler handler)
+{
+	fifoRead.setConnectionHandler(handler);
+}
+
+void Fifo::write(const void* data, size_t sizeInBytes)
+{
+	fifoWrite.pushData(data, sizeInBytes);
+}

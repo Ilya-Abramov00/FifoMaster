@@ -45,27 +45,17 @@ using ReadsHandler      = std::function<void(Data&&)>;
 using ConnectionHandler = std::function<void()>;
 
 class FifoRead {
-protected:
+public:
 	void startRead();
 	void stopRead();
-	const bool getBooLWaitConnect() const
-	{
-		return waitConnect;
-	}
+	const bool getBooLWaitConnect() const;
 
-public:
 	FifoRead(const std::string fdFileName);
 
 	~FifoRead();
 
-	void setConnectionHandler(ConnectionHandler handler)
-	{
-		params.connectHandler = std::move(handler);
-	}
-	void ReadHandler(ReadsHandler handler)
-	{
-		params.msgHandler = std::move(handler);
-	}
+	void setConnectionHandler(ConnectionHandler handler);
+	void setReadHandler(ReadsHandler handler);
 
 private:
 	void waitConnectFifo();
@@ -87,21 +77,15 @@ private:
 };
 
 class FifoWrite {
-protected:
+public:
 	void startWrite();
 	void stopWrite();
 
-public:
 	FifoWrite(const std::string fdFileName);
 
-	void pushData(void* data, size_t sizeN);
+	void pushData(const void* data, size_t sizeN);
 
-	~FifoWrite();
-
-	const bool getWaitConnect() const
-	{
-		return waitConnect;
-	}
+	const bool getWaitConnect() const;
 
 private:
 	void waitConnectFifo();
@@ -119,16 +103,29 @@ private:
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 };
 
-class Fifo : public FifoWrite, public FifoRead {
+class Fifo {
 public:
-	Fifo(const std::string fdFileName);
+	Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
 
-	//	void start()
-	//	{}
-	//	void stop()
-	//	{}
+	void setConnectionHandler(ConnectionHandler handler);
+	void setReadHandler(ReadsHandler handler);
+
+	void write(const void* data, size_t sizeInBytes);
+
+	void start()
+	{
+		fifoRead.startRead();
+		fifoWrite.startWrite();
+	}
+	void stop()
+	{
+		fifoWrite.stopWrite();
+		fifoRead.stopRead();
+	}
 
 private:
+	FifoWrite fifoWrite;
+	FifoRead fifoRead;
 };
 
 #endif

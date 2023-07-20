@@ -22,7 +22,9 @@ int main()
 		std::cout << "произошел коннект" << std::endl;
 	};
 
-	Fifo client1(FIFO2);
+	Fifo client1(FIFO2, FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
 	//	std::this_thread::sleep_for(std::chrono::seconds(5));
 

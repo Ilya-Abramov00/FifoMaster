@@ -9,19 +9,16 @@ TEST(Fifo_many_potoc, 1)
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();
@@ -124,22 +121,19 @@ TEST(Fifo_many_potoc, 1)
 TEST(Fifo_many_potoc, 2)
 {
 	std::string FIFO2 = "fifo2";
-	int n             = 10*1024;
+	int n             = 10 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();
@@ -238,25 +232,22 @@ TEST(Fifo_many_potoc, 2)
 	ASSERT_TRUE(data.size() == n * 12);
 	// вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
 }
-TEST(Fifo_many_potoc,3)
+TEST(Fifo_many_potoc, 3)
 {
 	std::string FIFO2 = "fifo2";
-	int n             = 10*1024;
+	int n             = 10 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();

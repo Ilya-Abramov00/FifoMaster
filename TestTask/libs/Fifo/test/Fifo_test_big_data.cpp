@@ -16,9 +16,10 @@ TEST(big_data, 1)
 	auto connect = []() {
 
 	};
-	Params params = {FIFO2, getterRead, connect};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();
@@ -90,7 +91,6 @@ TEST(big_data, 1)
 
 	ASSERT_TRUE(data.size() == n * 12);
 	ASSERT_TRUE(data == a);
-	client1.stopRead();
 }
 TEST(big_data, 2)
 {
@@ -104,9 +104,10 @@ TEST(big_data, 2)
 	auto connect = []() {
 
 	};
-	Params params = {FIFO2, getterRead, connect};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();
@@ -178,7 +179,6 @@ TEST(big_data, 2)
 
 	ASSERT_TRUE(data.size() == n * 12);
 	ASSERT_TRUE(data == a);
-	client1.stopRead();
 }
 TEST(big_data, sequential_write)
 {
@@ -192,9 +192,10 @@ TEST(big_data, sequential_write)
 	auto connect = []() {
 
 	};
-	Params params = {FIFO2, getterRead, connect};
+	FifoRead client1(FIFO2);
+	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
 
 	client1.startRead();
@@ -266,5 +267,4 @@ TEST(big_data, sequential_write)
 
 	ASSERT_TRUE(data.size() == n * 12);
 	ASSERT_TRUE(data == a);
-	client1.stopRead();
 }
