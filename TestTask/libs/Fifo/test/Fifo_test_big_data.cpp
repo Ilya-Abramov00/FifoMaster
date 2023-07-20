@@ -7,20 +7,16 @@ using namespace std;
 TEST(big_data, 1)
 {
 	std::string FIFO2 = "fifo2";
-	int n             = 1024 * 1024;
+	int n             = 1024 * 1024 * 100;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	Params params = {FIFO2, getterRead, connect};
 
 	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
@@ -102,17 +98,13 @@ TEST(big_data, 2)
 	int n             = 1024 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	Params params = {FIFO2, getterRead, connect};
 
 	FifoRead client1(params);
 	FifoWrite client2(FIFO2);
@@ -194,17 +186,13 @@ TEST(big_data, sequential_write)
 	int n             = 1024 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](Data && dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Params params = {
-	    FIFO2,
-	    getterRead,
-	    connect
-	};
+	Params params = {FIFO2, getterRead, connect};
 
 	FifoRead client1(params);
 	FifoWrite client2(FIFO2);

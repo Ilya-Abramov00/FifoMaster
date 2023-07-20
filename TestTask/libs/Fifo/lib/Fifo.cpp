@@ -9,7 +9,10 @@
 //{}
 // FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
 //{}
-
+#include <unistd.h>
+#include <time.h>
+#include <errno.h>
+#include <sys/signal.h>
 FifoRead::FifoRead(const Params& params) : params(params)
 {
 	createFifo();
@@ -50,11 +53,11 @@ void FifoRead::waitConnectFifo()
 
 FifoRead::~FifoRead()
 {
-	unlink(params.addrRead.c_str());
 	threadWaitConnectFifo->detach();
 	if(waitConnect) {
 		threadReadFifo->join();
 	}
+	unlink(params.addrRead.c_str());
 }
 
 void FifoRead::readFifo()
@@ -113,7 +116,6 @@ void FifoWrite::startWrite()
 void FifoWrite::waitConnectFifo()
 {
 	fifoFd = openFifoWrite();
-	std::cout << "\n Произошел коннект \n";
 	// соединение проиошло
 
 	waitConnect     = true;
@@ -131,16 +133,73 @@ void FifoWrite::stopWrite()
 		threadWriteFifo->join();
 	}
 }
+ssize_t safe_write(int fd, const void* buf, size_t bufsz)
+{
+	sigset_t sig_block, sig_restore, sig_pending;
 
+	sigemptyset(&sig_block);
+	sigaddset(&sig_block, SIGPIPE);
+
+	/* Block SIGPIPE for this thread.
+	 *
+	 * This works since kernel sends SIGPIPE to the thread that called write(),
+	 * not to the whole process.
+	 */
+	if(pthread_sigmask(SIG_BLOCK, &sig_block, &sig_restore) != 0) {
+		return -1;
+	}
+
+	/* Check if SIGPIPE is already pending.
+	 */
+	int sigpipe_pending = -1;
+	if(sigpending(&sig_pending) != -1) {
+		sigpipe_pending = sigismember(&sig_pending, SIGPIPE);
+	}
+
+	if(sigpipe_pending == -1) {
+		pthread_sigmask(SIG_SETMASK, &sig_restore, NULL);
+		return -1;
+	}
+
+	ssize_t ret;
+	while((ret = write(fd, buf, bufsz)) == -1) {
+		if(errno != EINTR)
+			break;
+	}
+
+	/* Fetch generated SIGPIPE if write() failed with EPIPE.
+	 *
+	 * However, if SIGPIPE was already pending before calling write(), it was also
+	 * generated and blocked by caller, and caller may expect that it can fetch it
+	 * later. Since signals are not queued, we don't fetch it in this case.
+	 */
+	if(ret == -1 && errno == EPIPE && sigpipe_pending == 0) {
+		struct timespec ts;
+		ts.tv_sec  = 0;
+		ts.tv_nsec = 0;
+
+		int sig;
+		while((sig = sigtimedwait(&sig_block, 0, &ts)) == -1) {
+			if(errno != EINTR)
+				break;
+		}
+	}
+
+	pthread_sigmask(SIG_SETMASK, &sig_restore, NULL);
+	return ret;
+}
 void FifoWrite::writeFifo()
 {
 	while(runWrite) {
-		{
-			std::lock_guard<std::mutex> mtx_0(mtx);
-			if(!queue.empty()) {
-				write(fifoFd, queue.front().data(), queue.front().size());
-				queue.pop();
+		std::lock_guard<std::mutex> mtx_0(mtx);
+		if(!queue.empty()) {
+			signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
+			auto flag = write(fifoFd, queue.front().data(), queue.front().size());
+			if(flag == -1) {
+				runWrite = false;
+				std::cerr << "\n принимающая сторона закрыла канал \n";
 			}
+			queue.pop();
 		}
 	}
 }
@@ -153,13 +212,11 @@ void FifoWrite::pushData(void* data, size_t sizeN)
 	}
 	auto ptr = reinterpret_cast<uint8_t*>(data);
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
-	{
-		std::lock_guard<std::mutex> mtx_0(mtx);
-		queue.push(std::move(buffer));
-	}
+	std::lock_guard<std::mutex> mtx_0(mtx);
+	queue.push(std::move(buffer));
 }
 FifoWrite::~FifoWrite()
 {}
 
-Fifo::Fifo(Params params) : FifoRead(params), FifoWrite(params.addrRead)
+Fifo::Fifo(Params params) : FifoRead(params), FifoWrite(params.addrRead + "wd")
 {}
