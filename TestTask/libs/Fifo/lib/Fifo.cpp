@@ -187,6 +187,10 @@ const bool FifoWrite::getWaitConnect() const
 {
 	return waitConnect;
 }
+FifoWrite::~FifoWrite()
+{
+	unlink(fdFileName.c_str()); // хз нужно ли
+}
 
 Fifo::Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead) :
     fifoRead(fdFileNameRead), fifoWrite(fdFileNameWrite)
@@ -205,4 +209,21 @@ void Fifo::setConnectionHandler(ConnectionHandler handler)
 void Fifo::write(const void* data, size_t sizeInBytes)
 {
 	fifoWrite.pushData(data, sizeInBytes);
+}
+void Fifo::stop()
+{
+	fifoWrite.stopWrite();
+	fifoRead.stopRead();
+}
+void Fifo::start()
+{
+	fifoRead.startRead();
+	fifoWrite.startWrite();
+}
+
+Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)
+{
+	for(const auto& name: nameChannelsFifo) {
+		connectionId[name] = std::make_unique<Fifo>(name, name + "_reverse");
+	}
 }

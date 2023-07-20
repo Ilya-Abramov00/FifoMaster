@@ -88,6 +88,7 @@ public:
 	void pushData(const void* data, size_t sizeN);
 
 	const bool getWaitConnect() const;
+	~FifoWrite();
 
 private:
 	void waitConnectFifo();
@@ -114,16 +115,8 @@ public:
 
 	void write(const void* data, size_t sizeInBytes);
 
-	void start()
-	{
-		fifoRead.startRead();
-		fifoWrite.startWrite();
-	}
-	void stop()
-	{
-		fifoWrite.stopWrite();
-		fifoRead.stopRead();
-	}
+	void start();
+	void stop();
 
 private:
 	FifoWrite fifoWrite;
@@ -137,17 +130,7 @@ using IdDistributionHandler = std::function<ConnectionId()>;
 
 class Server {
 public:
-	Server(const std::vector<std::string>& nameChannelsFifo) : nameChannelsFifo(nameChannelsFifo)
-	{
-		for(const auto& name: nameChannelsFifo) {
-			connectionId[name] = std::make_unique<Fifo>(name, name + "reverse");
-		}
-	}
-
-	~Server()
-	{
-		// unlink(name.c_str());
-	}
+	Server(const std::vector<std::string>& nameChannelsFifo);
 
 private:
 	ConnectionId connectionId;
