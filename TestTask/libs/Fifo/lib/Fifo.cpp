@@ -31,7 +31,6 @@ void FifoBase::createFifo(const std::string fdFileName)
 	}
 }
 
-
 FifoRead::FifoRead(const std::string fdFileName)
 {
 	params.addrRead = fdFileName;
@@ -40,10 +39,10 @@ FifoRead::FifoRead(const std::string fdFileName)
 void FifoRead::startRead()
 {
 	if(!params.msgHandler) {
-		throw std::runtime_error("callback for msg getting not set");
+		throw std::runtime_error("callback msgHandler not set");
 	}
 	if(!params.connectHandler) {
-		throw std::runtime_error("callback for msg getting not set");
+		throw std::runtime_error("callback connectHandler not set");
 	}
 	runRead               = true;
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
@@ -84,9 +83,8 @@ void FifoRead::readFifo()
 void FifoRead::stopRead()
 {
 	runRead = false;
-	long fd = openFifo(params.addrRead.c_str(), 'W');
-	if(-1 == fd)
-		throw "dff";
+	auto fd = openFifo(params.addrRead.c_str(), 'W');
+
 	threadWaitConnectFifo->join();
 	close(fd);
 	close(fifoReadFd);
@@ -99,7 +97,7 @@ void FifoRead::setConnectionHandler(ConnectionHandler handler)
 	params.connectHandler = std::move(handler);
 }
 
-void FifoRead::setReadHandler(ReadsHandler handler)
+void FifoRead::setReadHandler(FifoRead::ReadHandler handler)
 {
 	params.msgHandler = std::move(handler);
 }
@@ -138,7 +136,7 @@ void FifoWrite::stopWrite()
 {
 	runWrite = false;
 
-	long fd = open(fdFileName.c_str(), O_RDONLY, 0);
+	auto fd = open(fdFileName.c_str(), O_RDONLY, 0);
 
 	threadWaitConnectFifo->join();
 	close(fifoFd);
@@ -158,7 +156,6 @@ void FifoWrite::writeFifo()
 			auto flag = write(fifoFd, queue.front().data(), queue.front().size());
 			if(flag == -1) {
 				return;
-				std::cerr << "\n принимающая сторона закрыла канал \n";
 			}
 			queue.pop();
 		}
@@ -181,12 +178,12 @@ Fifo::Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead) 
     fifoRead(fdFileNameRead), fifoWrite(fdFileNameWrite)
 {}
 
-void Fifo::setReadHandler(ReadsHandler handler)
+void Fifo::setReadHandler(FifoRead::ReadHandler handler)
 {
 	fifoRead.setReadHandler(handler);
 }
 
-void Fifo::setConnectionHandler(ConnectionHandler handler)
+void Fifo::setConnectionHandler(FifoRead::ConnectionHandler handler)
 {
 	fifoRead.setConnectionHandler(handler);
 }
@@ -205,12 +202,13 @@ void Fifo::start()
 	fifoRead.startRead();
 	fifoWrite.startWrite();
 }
-void getter(Data&& dataq)
+void Server::getter(FifoRead::Data&& data)
 {
 	std::cout << "произошло событие" << std::endl;
+	readHandler(connectionId, std::move(data));
 };
 
-void connect()
+void Server::connect()
 {
 	std::cout << "произошел коннект" << std::endl;
 };
@@ -218,12 +216,27 @@ Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsF
 {
 	for(const auto& name: nameChannelsFifo) {
 		connectionId[name] = std::make_unique<Fifo>(name, name + "_reverse");
-		connectionId[name]->setReadHandler(getter);
-		connectionId[name]->setConnectionHandler(connect);
+
+		connectionId[name]->setReadHandler([this](FifoRead::Data&& data) {
+			this->getter(std::move(data));
+		});
+		connectionId[name]->setConnectionHandler([this]() {
+			this->connect();
+		});
 	}
 }
 void Server::start()
 {
+	if(!newHandler) {
+		throw std::runtime_error("callback newHandler not set");
+	}
+	if(!closeHandler) {
+		throw std::runtime_error("callback closeHandler not set");
+	}
+	if(!readHandler) {
+		throw std::runtime_error("callback readHandler not set");
+	}
+
 	for(const auto& Fifo: connectionId) {
 		Fifo.second->start();
 	}
@@ -233,4 +246,17 @@ void Server::stop()
 	for(const auto& Fifo: connectionId) {
 		Fifo.second->stop();
 	}
+}
+void Server::setReadHandler(ReadHandler h)
+{
+	readHandler = std::move(h);
+}
+void Server::setNewConnectionHandler(Server::ConnChangeHandler h)
+{
+	newHandler = std::move(h);
+}
+
+void Server::setCloseConnectionHandler(Server::ConnChangeHandler h)
+{
+	closeHandler = std::move(h);
 }

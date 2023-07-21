@@ -46,18 +46,18 @@ protected:
 	void createFifo(const std::string fdFileName);
 };
 
-using Data              = std::vector<uint8_t>;
-using ReadsHandler      = std::function<void(Data&&)>;
-using ConnectionHandler = std::function<void()>;
-
 class FifoRead : protected FifoBase {
 public:
+	using Data              = std::vector<uint8_t>;
+	using ReadHandler       = std::function<void(Data&&)>;
+	using ConnectionHandler = std::function<void()>;
+
 	FifoRead(const std::string fdFileName);
 	void startRead();
 	void stopRead();
 
 	void setConnectionHandler(ConnectionHandler handler);
-	void setReadHandler(ReadsHandler handler);
+	void setReadHandler(ReadHandler handler);
 	~FifoRead();
 
 private:
@@ -66,7 +66,7 @@ private:
 
 	struct Params {
 		std::string addrRead;
-		ReadsHandler msgHandler;
+		ReadHandler msgHandler;
 		ConnectionHandler connectHandler;
 	};
 	Params params;
@@ -104,8 +104,8 @@ class Fifo {
 public:
 	Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
 
-	void setConnectionHandler(ConnectionHandler handler);
-	void setReadHandler(ReadsHandler handler);
+	void setConnectionHandler(FifoRead::ConnectionHandler handler);
+	void setReadHandler(FifoRead::ReadHandler handler);
 
 	void write(const void* data, size_t sizeInBytes);
 
@@ -117,23 +117,34 @@ private:
 	FifoRead fifoRead;
 };
 
-using ConnectionId          = std::unordered_map<std::string, std::shared_ptr<Fifo>>;
-using ConnChangeHandler     = std::function<void(ConnectionId)>;
-using ReadHandlerId         = std::function<void(ConnectionId, const void*, size_t)>;
-using IdDistributionHandler = std::function<ConnectionId()>;
-
 class Server {
 public:
+	using ConnectionId          = std::unordered_map<std::string, std::shared_ptr<Fifo>>;
+	using ConnChangeHandler     = std::function<void(ConnectionId)>;
+	using ReadHandler           = std::function<void(ConnectionId, FifoRead::Data&&)>;
+	using IdDistributionHandler = std::function<ConnectionId()>;
+
 	Server(const std::vector<std::string>& nameChannelsFifo);
 
-	void setReadHandlerId(ReadHandlerId h);
+	void setReadHandler(ReadHandler h);
+
+	void setNewConnectionHandler(ConnChangeHandler h);
+	void setCloseConnectionHandler(ConnChangeHandler h);
+
 	void start();
 	void stop();
 
 private:
+	void getter(FifoRead::Data&& data);
+	void connect();
+
 	ConnectionId connectionId;
 	const std::vector<std::string>& nameChannelsFifo;
-	ReadHandlerId readHandlerId;
+
+	ReadHandler readHandler;
+
+	ConnChangeHandler newHandler;
+	ConnChangeHandler closeHandler;
 };
 
 // virtual ~Server() = default;

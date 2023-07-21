@@ -38,11 +38,13 @@ int main()
 	//
 
 	//	std::cout << data.size();
-
+	auto e = [](Server::ConnectionId, FifoRead::Data&&) {
+	};
 	{
 		Server a(std::vector<std::string>{FIFO1, FIFO2, FIFO3});
+		a.setReadHandler(e);
 		a.start();
-		sleep(1);
+		sleep(16);
 		a.stop();
 	}
 

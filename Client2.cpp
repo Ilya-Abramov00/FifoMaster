@@ -12,7 +12,6 @@ int main()
 	std::string data  = "";
 	data.reserve(n * 1024);
 
-
 	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
@@ -20,7 +19,7 @@ int main()
 		std::cout << "произошел коннект" << std::endl;
 	};
 
-	Fifo client1(FIFO2, FIFO1);
+	Fifo client1(FIFO2 + "_reverse", FIFO2);
 	client1.setReadHandler(getterRead);
 	client1.setConnectionHandler(connect);
 	client1.start();
@@ -30,7 +29,7 @@ int main()
 	for(int i = 0; i != 10; i++) {
 		client1.write((void*)a.data(), n);
 	}
-	sleep(5);
+	sleep(15);
 	client1.stop();
 
 	std::cout << "клиент завершил отправку" << std::endl;
