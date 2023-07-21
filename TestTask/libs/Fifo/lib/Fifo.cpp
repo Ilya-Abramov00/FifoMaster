@@ -8,14 +8,35 @@
 // FifoReadException::FifoReadException(const std::string& msg) : FifoException(msg)
 //{}
 // FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
-//{}
+
+long FifoBase::openFifo(const std::string fdFileName, const char flag)
+{
+	long fd = -1;
+	if(flag == 'W') {
+		fd = open(fdFileName.c_str(), O_WRONLY, 0);
+	}
+	else if(flag == 'R') {
+		fd = open(fdFileName.c_str(), O_RDONLY, 0);
+	}
+	if(-1 == fd)
+		throw std::runtime_error(" fail openFifo ");
+	return fd;
+}
+
+void FifoBase::createFifo(const std::string fdFileName)
+{
+	if((mkfifo(fdFileName.c_str(), FILE_MODE) < 0) && (errno != EEXIST)) {
+		std::cout << fdFileName.c_str() << '\n';
+		throw std::runtime_error(" fail createFifo ");
+	}
+}
+
 
 FifoRead::FifoRead(const std::string fdFileName)
 {
 	params.addrRead = fdFileName;
 	createFifo(params.addrRead);
 }
-
 void FifoRead::startRead()
 {
 	if(!params.msgHandler) {
@@ -29,6 +50,7 @@ void FifoRead::startRead()
 		waitConnectFifo();
 	}));
 }
+
 void FifoRead::waitConnectFifo()
 {
 	fifoReadFd = openFifo(params.addrRead, 'R');
@@ -59,7 +81,6 @@ void FifoRead::readFifo()
 		}
 	}
 }
-
 void FifoRead::stopRead()
 {
 	runRead = false;
@@ -77,6 +98,7 @@ void FifoRead::setConnectionHandler(ConnectionHandler handler)
 {
 	params.connectHandler = std::move(handler);
 }
+
 void FifoRead::setReadHandler(ReadsHandler handler)
 {
 	params.msgHandler = std::move(handler);
@@ -100,7 +122,6 @@ void FifoWrite::startWrite()
 		waitConnectFifo();
 	}));
 }
-
 void FifoWrite::waitConnectFifo()
 {
 	fifoFd = openFifo(fdFileName, 'W');
@@ -112,6 +133,7 @@ void FifoWrite::waitConnectFifo()
 		}));
 	}
 }
+
 void FifoWrite::stopWrite()
 {
 	runWrite = false;
@@ -168,7 +190,6 @@ void Fifo::setConnectionHandler(ConnectionHandler handler)
 {
 	fifoRead.setConnectionHandler(handler);
 }
-
 void Fifo::write(const void* data, size_t sizeInBytes)
 {
 	fifoWrite.pushData(data, sizeInBytes);
@@ -178,21 +199,21 @@ void Fifo::stop()
 	fifoWrite.stopWrite();
 	fifoRead.stopRead();
 }
+
 void Fifo::start()
 {
 	fifoRead.startRead();
 	fifoWrite.startWrite();
 }
-
 void getter(Data&& dataq)
 {
 	std::cout << "произошло событие" << std::endl;
 };
+
 void connect()
 {
 	std::cout << "произошел коннект" << std::endl;
 };
-
 Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)
 {
 	for(const auto& name: nameChannelsFifo) {
@@ -211,26 +232,5 @@ void Server::stop()
 {
 	for(const auto& Fifo: connectionId) {
 		Fifo.second->stop();
-	}
-}
-long FifoBase::openFifo(const std::string fdFileName, const char flag)
-{
-	long fd = -1;
-	if(flag == 'W') {
-		fd = open(fdFileName.c_str(), O_WRONLY, 0);
-	}
-	else if(flag == 'R') {
-		fd = open(fdFileName.c_str(), O_RDONLY, 0);
-	}
-	if(-1 == fd)
-		throw std::runtime_error(" fail openFifo ");
-	return fd;
-}
-
-void FifoBase::createFifo(const std::string fdFileName)
-{
-	if((mkfifo(fdFileName.c_str(), FILE_MODE) < 0) && (errno != EEXIST)) {
-		std::cout << fdFileName.c_str() << '\n';
-		throw std::runtime_error(" fail createFifo ");
 	}
 }
