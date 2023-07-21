@@ -1,5 +1,5 @@
-#ifndef COMPLEX_H
-#define COMPLEX_H
+#ifndef FIFO_H
+#define FIFO_H
 
 #include <sys/types.h>
 #include <sys/stat.h>

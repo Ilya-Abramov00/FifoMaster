@@ -1,5 +1,5 @@
-#ifndef FIFOREAD_H
-#define FIFOREAD_H
+#ifndef FIFOWRITE_H
+#define FIFOWRITE_H
 
 class FifoRead : protected FifoBase {
 public:

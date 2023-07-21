@@ -1,5 +1,5 @@
-#ifndef COMPLEX_H
-#define COMPLEX_H
+#ifndef SERVER_H
+#define SERVER_H
 
 #include <sys/types.h>
 #include <sys/stat.h>
