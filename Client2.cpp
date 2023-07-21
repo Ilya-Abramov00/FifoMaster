@@ -15,17 +15,27 @@ int main()
 	auto getterRead = [&](FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
-	auto connect = []() {
-		std::cout << "произошел коннект" << std::endl;
+	auto connectR = []() {
+		std::cout << "произошел logicConnectRead" << std::endl;
 	};
-	auto disconnect = []() {
-		std::cout << "произошел disconnect" << std::endl;
+	auto connectW = []() {
+		std::cout << "произошел logicConnectWrite" << std::endl;
+	};
+	auto disconnectR = []() {
+		std::cout << "произошел disconnectRead" << std::endl;
+	};
+	auto disconnectW = []() {
+		std::cout << "произошел disconnectWrite" << std::endl;
 	};
 
-	Fifo client1(FIFO2 + "_reverse", FIFO2);
+	Fifo client1(FIFO1 + "_reverse", FIFO1);
 	client1.setReadHandler(getterRead);
-	client1.setConnectionHandlerRead(connect);
-	client1.setDisConnectionHandlerRead(disconnect);
+
+	client1.setConnectionHandlerRead(connectR);
+	client1.setDisConnectionHandlerRead(disconnectR);
+
+	client1.setConnectionHandlerWrite(connectW);
+	client1.setDisConnectionHandlerWrite(disconnectW);
 
 	client1.start();
 
@@ -34,7 +44,7 @@ int main()
 	for(int i = 0; i != 10; i++) {
 		client1.write((void*)a.data(), n);
 	}
-	sleep(15);
+	sleep(5);
 	client1.stop();
 
 	std::cout << "клиент завершил отправку" << std::endl;

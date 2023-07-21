@@ -52,21 +52,23 @@ int main()
 
 	auto e = [&](Server::ConnectionId, FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
-		std::cout << "ReadHandler\n";
-	};
-	auto r = [&](Server::ConnChangeHandler w) {
-		std::cout << "CloseConnectionHandler\n";
-	};
-	auto t = [&](Server::ConnChangeHandler w) {
-		std::cout << "NewConnectionHandler\n";
+		std::cout << "пришли данные\n";
 	};
 
-	Server a(std::vector<std::string>{FIFO1, FIFO2, FIFO3});
+	Server a(std::vector<std::string>{FIFO1});
+
 	a.setReadHandler(e);
 	a.setCloseConnectionHandler(c);
 	a.setNewConnectionHandler(q);
+
+	std::string eqq(n, 'a');
+
+	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), n);
+
 	a.start();
+
 	sleep(5);
+
 	a.stop();
 
 	std::cout << data.size();

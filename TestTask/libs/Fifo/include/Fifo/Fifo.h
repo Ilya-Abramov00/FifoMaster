@@ -185,15 +185,18 @@ public:
 	void setNewConnectionHandler(ConnChangeHandler h);
 	void setCloseConnectionHandler(ConnChangeHandler h);
 
+	void write(std::shared_ptr<Fifo> object, const void* data, size_t sizeInBytes);
+
 	void start();
 	void stop();
+	ConnectionId connectionId;
 
 private:
 	void getter(FifoRead::Data&& data);
-	void logicConnect(Fifo a);
-	void logicDisConnect(Fifo a);
 
-	ConnectionId connectionId;
+	void logicConnect(std::shared_ptr<Fifo> object);
+	void logicDisConnect(std::shared_ptr<Fifo> object);
+
 	const std::vector<std::string>& nameChannelsFifo;
 
 	ReadHandler readHandler;
