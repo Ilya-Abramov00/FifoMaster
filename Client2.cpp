@@ -18,10 +18,15 @@ int main()
 	auto connect = []() {
 		std::cout << "произошел коннект" << std::endl;
 	};
+	auto disconnect = []() {
+		std::cout << "произошел disconnect" << std::endl;
+	};
 
 	Fifo client1(FIFO2 + "_reverse", FIFO2);
 	client1.setReadHandler(getterRead);
-	client1.setConnectionHandler(connect);
+	client1.setConnectionHandlerRead(connect);
+	client1.setDisConnectionHandlerRead(disconnect);
+
 	client1.start();
 
 	std::string a(n, 'a');

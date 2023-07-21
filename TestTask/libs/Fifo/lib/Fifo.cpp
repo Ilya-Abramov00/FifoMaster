@@ -44,6 +44,9 @@ void FifoRead::startRead()
 	if(!params.connectHandler) {
 		throw std::runtime_error("callback connectHandler not set");
 	}
+	if(!params.disconnectHandler) {
+		throw std::runtime_error("callback disconnectHandler not set");
+	}
 	runRead               = true;
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
 		waitConnectFifo();
@@ -70,6 +73,8 @@ void FifoRead::readFifo()
 	while(runRead) {
 		auto flag = read(fifoReadFd, buffer.data(), MAXLINE);
 		if(flag == 0) {
+			waitDisConnect = true;
+			params.disconnectHandler();
 			return;
 		}
 		if(flag == MAXLINE) {
@@ -92,9 +97,14 @@ void FifoRead::stopRead()
 		threadReadFifo->join();
 	}
 }
-void FifoRead::setConnectionHandler(ConnectionHandler handler)
+void FifoRead::setConnectionHandler(FifoBase::ConnectionHandler handler)
 {
 	params.connectHandler = std::move(handler);
+}
+
+void FifoRead::setDisConnectionHandler(FifoBase::ConnectionHandler handler)
+{
+	params.disconnectHandler = std::move(handler);
 }
 
 void FifoRead::setReadHandler(FifoRead::ReadHandler handler)
@@ -107,13 +117,30 @@ FifoRead::~FifoRead()
 	unlink(params.addrRead.c_str());
 }
 
-FifoWrite::FifoWrite(std::string fdFileName) : fdFileName(fdFileName)
+FifoWrite::FifoWrite(std::string fdFileName)
 {
-	createFifo(fdFileName);
+	params.addrRead = fdFileName;
+	createFifo(params.addrRead);
+}
+
+void FifoWrite::setConnectionHandler(FifoBase::ConnectionHandler handler)
+{
+	params.connectHandler = std::move(handler);
+}
+
+void FifoWrite::setDisConnectionHandler(FifoBase::ConnectionHandler handler)
+{
+	params.disconnectHandler = std::move(handler);
 }
 
 void FifoWrite::startWrite()
 {
+	if(!params.connectHandler) {
+		throw std::runtime_error("callback connectHandler not set");
+	}
+	if(!params.disconnectHandler) {
+		throw std::runtime_error("callback disconnectHandler not set");
+	}
 	runWrite = true;
 
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
@@ -122,7 +149,7 @@ void FifoWrite::startWrite()
 }
 void FifoWrite::waitConnectFifo()
 {
-	fifoFd = openFifo(fdFileName, 'W');
+	fifoFd = openFifo(params.addrRead, 'W');
 	if(runWrite) {
 		// соединение проиошло
 		waitConnect     = true;
@@ -136,7 +163,7 @@ void FifoWrite::stopWrite()
 {
 	runWrite = false;
 
-	auto fd = open(fdFileName.c_str(), O_RDONLY, 0);
+	auto fd = open(params.addrRead.c_str(), O_RDONLY, 0);
 
 	threadWaitConnectFifo->join();
 	close(fifoFd);
@@ -155,6 +182,8 @@ void FifoWrite::writeFifo()
 			signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
 			auto flag = write(fifoFd, queue.front().data(), queue.front().size());
 			if(flag == -1) {
+				waitDisConnect = true;
+				params.disconnectHandler();
 				return;
 			}
 			queue.pop();
@@ -183,10 +212,24 @@ void Fifo::setReadHandler(FifoRead::ReadHandler handler)
 	fifoRead.setReadHandler(handler);
 }
 
-void Fifo::setConnectionHandler(FifoRead::ConnectionHandler handler)
+void Fifo::setConnectionHandlerRead(FifoBase::ConnectionHandler handler)
 {
 	fifoRead.setConnectionHandler(handler);
 }
+void Fifo::setDisConnectionHandlerRead(FifoBase::ConnectionHandler handler)
+{
+	fifoRead.setDisConnectionHandler(handler);
+}
+
+void Fifo::setConnectionHandlerWrite(FifoBase::ConnectionHandler handler)
+{
+	fifoWrite.setConnectionHandler(handler);
+}
+void Fifo::setDisConnectionHandlerWrite(FifoBase::ConnectionHandler handler)
+{
+	fifoWrite.setDisConnectionHandler(handler);
+}
+
 void Fifo::write(const void* data, size_t sizeInBytes)
 {
 	fifoWrite.pushData(data, sizeInBytes);
@@ -207,10 +250,17 @@ void Server::getter(FifoRead::Data&& data)
 	readHandler(connectionId, std::move(data));
 };
 
-void Server::connect()
+void Server::logicConnect(Fifo a)
 {
-	//yflj dspdfnm newhandler
-	std::cout << "произошел коннект" << std::endl;
+	if(a.getWaitConnectRead() && a.getWaitConnectWrite()) {
+		std::cout << "произошел logicConnect" << std::endl;
+	}
+};
+void Server::logicDisConnect(Fifo a)
+{
+	if(a.getWaitDisConnectRead() || a.getWaitDisConnectWrite()) {
+		std::cout << "произошел disconnect" << std::endl;
+	}
 };
 Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)
 {
@@ -220,8 +270,17 @@ Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsF
 		connectionId[name]->setReadHandler([this](FifoRead::Data&& data) {
 			this->getter(std::move(data));
 		});
-		connectionId[name]->setConnectionHandler([this]() {
-			this->connect();
+		connectionId[name]->setConnectionHandlerRead([this]() {
+			this->logicConnect();
+		});
+		connectionId[name]->setDisConnectionHandlerRead([this]() {
+			this->logicDisConnect();
+		});
+		connectionId[name]->setConnectionHandlerWrite([this]() {
+			this->logicConnect();
+		});
+		connectionId[name]->setDisConnectionHandlerWrite([this]() {
+			this->logicDisConnect();
 		});
 	}
 }

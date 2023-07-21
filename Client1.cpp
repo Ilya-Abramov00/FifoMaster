@@ -17,13 +17,16 @@ int main()
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
-		std::cout << "произошел коннект" << std::endl;
+		std::cout << "произошел logicConnect" << std::endl;
+	};
+	auto disconnect = []() {
+		std::cout << "произошел disconnect" << std::endl;
 	};
 
 	Fifo client1(FIFO1 + "_reverse", FIFO1);
 	client1.setReadHandler(getterRead);
-	client1.setConnectionHandler(connect);
-
+	client1.setConnectionHandlerRead(connect);
+	client1.setDisConnectionHandlerRead(disconnect);
 	std::string a(n, 'a');
 
 	for(int i = 0; i != 10; i++) {
@@ -32,8 +35,6 @@ int main()
 	client1.start();
 	sleep(15);
 	client1.stop();
-
-	std::cout << "клиент завершил отправку" << std::endl;
 
 	std::cout << data.size();
 
