@@ -3,6 +3,14 @@
 #include "Fifo/Fifo.h"
 #include <thread>
 
+void c(Server::ConnectionId w)
+{
+	std::cout << "CloseConnectionHandler\n";
+};
+void q(Server::ConnectionId w)
+{
+	std::cout << "NewConnectionHandler\n";
+};
 int main()
 {
 	//	std::cout << "клиент" << std::endl << std::endl;
@@ -39,14 +47,22 @@ int main()
 
 	//	std::cout << data.size();
 	auto e = [](Server::ConnectionId, FifoRead::Data&&) {
+		std::cout << "ReadHandler\n";
 	};
-	{
-		Server a(std::vector<std::string>{FIFO1, FIFO2, FIFO3});
-		a.setReadHandler(e);
-		a.start();
-		sleep(16);
-		a.stop();
-	}
+	auto r = [&](Server::ConnChangeHandler w) {
+		std::cout << "CloseConnectionHandler\n";
+	};
+	auto t = [&](Server::ConnChangeHandler w) {
+		std::cout << "NewConnectionHandler\n";
+	};
+
+	Server a(std::vector<std::string>{FIFO1, FIFO2, FIFO3});
+	a.setReadHandler(e);
+	a.setCloseConnectionHandler(c);
+	a.setNewConnectionHandler(q);
+	a.start();
+	sleep(16);
+	a.stop();
 
 	return 1;
 }

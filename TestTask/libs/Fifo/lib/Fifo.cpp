@@ -204,12 +204,12 @@ void Fifo::start()
 }
 void Server::getter(FifoRead::Data&& data)
 {
-	std::cout << "произошло событие" << std::endl;
 	readHandler(connectionId, std::move(data));
 };
 
 void Server::connect()
 {
+	//yflj dspdfnm newhandler
 	std::cout << "произошел коннект" << std::endl;
 };
 Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)

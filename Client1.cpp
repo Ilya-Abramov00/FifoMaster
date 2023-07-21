@@ -13,7 +13,7 @@ int main()
 	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto getterRead = [&](Data&& dataq) {
+	auto getterRead = [&](FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
