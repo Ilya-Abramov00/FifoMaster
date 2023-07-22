@@ -4,17 +4,20 @@
 
 #include "Fifo/Fifo.h"
 
-class Client :public Fifo{
+class Client {
 public:
-	using ConnectionId          = std::unordered_map<std::string, std::shared_ptr<Fifo>>;
-	using ConnChangeHandler     = std::function<void(ConnectionId)>;
-	using ReadHandler           = std::function<void(ConnectionId, FifoRead::Data&&)>;
-	using IdDistributionHandler = std::function<ConnectionId()>;
 
-	Client(std::string nameChannel):Fifo(nameChannel,nameChannel+"_reverse");
-
+	Client(std::string nameChannel);
+void start();
+void stop();
+void write(const void* data, size_t sizeN);
+void setReadHandler(FifoRead::ReadHandler h);
 private:
-
+	void logicConnect();
+	void logicDisConnect();
+	void getter(FifoRead::Data&& data);
+	Fifo client;
+	FifoRead::ReadHandler readHandler;
 };
 
 
