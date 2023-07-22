@@ -10,24 +10,17 @@ TEST(big_data, 1)
 	int n             = 1024 * 1024 * 120;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](FifoRead::Data&& dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
 	FifoRead client1(FIFO2);
-	FifoWrite client2(FIFO2);
-
 	client1.setReadHandler(getterRead);
-
 	client1.setConnectionHandler(connect);
-	client1.setDisConnectionHandler(connect);
 
-	client2.setConnectionHandler(connect);
-	client2.setDisConnectionHandler(connect);
-
-
+	FifoWrite client2(FIFO2);
 
 	client1.startRead();
 	client2.startWrite();
@@ -105,7 +98,7 @@ TEST(big_data, 2)
 	int n             = 1024 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](FifoRead::Data&& dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {

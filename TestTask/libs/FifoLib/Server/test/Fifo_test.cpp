@@ -10,27 +10,25 @@ TEST(Fifo, empty)
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](FifoRead::Data&& dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Fifo client1(FIFO2,FIFO2);
-
+	FifoRead client1(FIFO2);
 	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	client1.setConnectionHandlerRead(connect);
-	client1.setConnectionHandlerWrite(connect);
+	FifoWrite client2(FIFO2);
 
-	client1.setDisConnectionHandlerRead(connect);
-	client1.setDisConnectionHandlerWrite(connect);
-
-	client1.start();
+	client1.startRead();
+	client2.startWrite();
 
 	sleep(1);
 
-	client1.stop();
+	client2.stopWrite();
+	client1.stopRead();
 }
 
 TEST(Fifo, null_ptr)
@@ -39,31 +37,27 @@ TEST(Fifo, null_ptr)
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
-	auto getterRead = [&](FifoRead::Data&& dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Fifo client1(FIFO2,FIFO2);
-
+	FifoRead client1(FIFO2);
 	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	client1.setConnectionHandlerRead(connect);
-	client1.setConnectionHandlerWrite(connect);
-
-	client1.setDisConnectionHandlerRead(connect);
-	client1.setDisConnectionHandlerWrite(connect);
-
-	client1.start();
+	FifoWrite client2(FIFO2);
+	client1.startRead();
+	client2.startWrite();
 
 	void* a = NULL;
-	client1.write(a, 2);
+	client2.pushData(a, 0);
 
 	sleep(1);
 
-	client1.stop();
-	ASSERT_TRUE(data.size() == 0);
+	client2.stopWrite();
+	client1.stopRead();
 }
 
 TEST(Fifo, time)
@@ -72,32 +66,28 @@ TEST(Fifo, time)
 	int n             = 1024 * 5;
 	std::string data  = "";
 	data.reserve(n);
-	auto getterRead = [&](FifoRead::Data&& dataq) {
+	auto getterRead = [&](Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
 	};
-	Fifo client1(FIFO2,FIFO2);
-
+	FifoRead client1(FIFO2);
 	client1.setReadHandler(getterRead);
+	client1.setConnectionHandler(connect);
 
-	client1.setConnectionHandlerRead(connect);
-	client1.setConnectionHandlerWrite(connect);
+	FifoWrite client2(FIFO2);
 
-	client1.setDisConnectionHandlerRead(connect);
-	client1.setDisConnectionHandlerWrite(connect);
-
-	client1.start();
+	client1.startRead();
+	client2.startWrite();
 
 	std::string da(n, '3');
-
-	client1.write((void*)da.data(), n);
+	client2.pushData((void*)da.data(), n);
 
 	sleep(1);
 
-
-	client1.stop();
+	client2.stopWrite();
+	client1.stopRead();
 	ASSERT_TRUE(data.size() == n);
 	ASSERT_TRUE(data == std::string(n, '3'));
 }

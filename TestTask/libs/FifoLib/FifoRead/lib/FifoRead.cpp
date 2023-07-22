@@ -8,13 +8,13 @@ FifoRead::FifoRead(const std::string fdFileName)
 void FifoRead::startRead()
 {
 	if(!params.msgHandler) {
-		throw std::runtime_error("callback msgHandler not set");
+		throw std::runtime_error("callback ReadHandler not set");
 	}
 	if(!params.connectHandler) {
-		throw std::runtime_error("callback connectHandler not set");
+		throw std::runtime_error("callback Read connectHandler not set");
 	}
 	if(!params.disconnectHandler) {
-		throw std::runtime_error("callback disconnectHandler not set");
+		throw std::runtime_error("callback Read disconnectHandler not set");
 	}
 	runRead               = true;
 	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {

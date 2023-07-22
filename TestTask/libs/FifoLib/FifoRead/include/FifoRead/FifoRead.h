@@ -17,15 +17,18 @@ public:
 	void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
 
 	void setReadHandler(ReadHandler handler);
-	~FifoRead();
+
 	bool const getWaitDisConnect() const
 	{
 		return waitDisConnect;
 	}
+
 	bool const getWaitConnect() const
 	{
 		return waitConnect;
 	}
+
+	~FifoRead();
 
 private:
 	void waitConnectFifo();
