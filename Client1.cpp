@@ -1,6 +1,7 @@
 
 #include <thread>
 #include "Fifo/Fifo.h"
+#include "Server/Server.h"
 
 int main()
 {

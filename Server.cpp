@@ -1,6 +1,8 @@
 
 
 #include "Fifo/Fifo.h"
+#include "Server/Server.h"
+
 #include <thread>
 
 void c(Server::ConnectionId w)
