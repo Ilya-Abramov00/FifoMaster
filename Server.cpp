@@ -20,12 +20,13 @@ std::cout<<"Server\n\n";
 	std::string FIFO2 = "/home/ilya/fifo2";
 	std::string FIFO1 = "/home/ilya/fifo1";
 
-	int n            = 100;
+	int n            = 10;
 	std::string data = "";
 	data.reserve(n * 1024);
 
 	auto e = [&](Server::ConnectionId, FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
+		std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 		std::cout << "пришли данные\n";
 	};
 
@@ -34,17 +35,21 @@ std::cout<<"Server\n\n";
 	a.setReadHandler(e);
 	a.setCloseConnectionHandler(c);
 	a.setNewConnectionHandler(q);
-
-	std::string eqq(n, 'a');
-
-	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), n);
-	a.write(a.connectionId.at(FIFO2), (void*)eqq.data(), n);
-	a.write(a.connectionId.at(FIFO3), (void*)eqq.data(), n);
-
 	a.start();
 
-	sleep(15);
+	auto x=2;
+	for(int i = 0; i != 4; i++) {
+		std::string eqq(x, 'a');
+	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), x);
+	a.write(a.connectionId.at(FIFO2), (void*)eqq.data(), x);
+	a.write(a.connectionId.at(FIFO3), (void*)eqq.data(), x);
+		sleep(1);
+	}
 
+	sleep(7);
+
+
+	std::cout<<"\nstop\n";
 	a.stop();
 
 	std::cout << data.size();

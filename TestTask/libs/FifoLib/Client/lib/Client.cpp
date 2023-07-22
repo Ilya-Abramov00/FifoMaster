@@ -45,13 +45,13 @@ void Client::getter(FifoRead::Data&& data)
 void Client::logicConnect()
 {
 
-	if(client.getWaitConnectWrite() && client.getWaitConnectRead()) {
-		std::cout << "произошел Connect" << std::endl;
+	if(client.getWaitConnectWrite() || client.getWaitConnectRead()) {
+		std::cout << "Connect " <<client.getNameR()<< std::endl;
 	}
 };
 void Client::logicDisConnect()
 {
-	if(client.getWaitDisConnectRead() && client.getWaitDisConnectWrite()) {
-		std::cout << "произошел Disconnect" << std::endl;
+	if(client.getWaitDisConnectRead() || client.getWaitDisConnectWrite()) {
+		std::cout << "Disconnect " <<client.getNameR()<< std::endl;
 	}
 }

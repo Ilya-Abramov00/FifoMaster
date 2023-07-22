@@ -7,14 +7,14 @@ void Server::getter(FifoRead::Data&& data)
 
 void Server::logicConnect(std::shared_ptr<Fifo> object)
 {
-	if(object->getWaitConnectWrite() && object->getWaitConnectRead()) {
-		std::cout << "произошел Connect" << std::endl;
+	if(object->getWaitConnectWrite() || object->getWaitConnectRead()) {
+		std::cout << "Connect " <<object->getNameW()<< std::endl;
 	}
 };
 void Server::logicDisConnect(std::shared_ptr<Fifo> object)
 {
-	if(object->getWaitDisConnectRead() && object->getWaitDisConnectWrite()) {
-		std::cout << "произошел Disconnect" << std::endl;
+	if(object->getWaitDisConnectRead() || object->getWaitDisConnectWrite()) {
+		std::cout << "Disconnect " <<object->getNameW()<< std::endl;
 	}
 };
 

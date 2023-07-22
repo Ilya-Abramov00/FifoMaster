@@ -9,32 +9,37 @@ int main()
 
 	std::string FIFO2 = "/home/ilya/fifo2";
 
-	int n             = 100;
-	std::string data  = "";
+	int n            = 10;
+	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto getterRead = [&](FifoRead::Data&& dataq) {
+	auto e = [&]( FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
+		std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
+		std::cout << "пришли данные\n";
 	};
 
 
+
 	Client client1(FIFO2);
-	client1.setReadHandler(getterRead);
+	client1.setReadHandler(e);
 
 
 	client1.start();
-
-	std::string a(n, 'a');
-
-	for(int i = 0; i != 10; i++) {
-		client1.write((void*)a.data(), n);
+	auto x=2;
+	for(int i = 0; i != 4; i++) {
+		std::string a(x, 'a');
+		client1.write((void*)a.data(), x);
+		sleep(1);
 	}
-	sleep(5);
+	sleep(7);
+	std::cout<<"\nstop\n";
 	client1.stop();
 
-	std::cout << "клиент завершил отправку" << std::endl;
+
 
 	std::cout << data.size();
 
+	sleep(15);
 	return 0;
 }

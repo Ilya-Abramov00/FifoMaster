@@ -39,6 +39,12 @@ public:
 	void start();
 	void stop();
 
+	std::string const getNameR()const{
+		return fifoRead.getName();
+	}
+	std::string const getNameW()const{
+		return fifoWrite.getName();
+	}
 private:
 	FifoWrite fifoWrite;
 	FifoRead fifoRead;

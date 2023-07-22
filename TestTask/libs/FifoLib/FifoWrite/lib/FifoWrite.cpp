@@ -48,7 +48,6 @@ void FifoWrite::stopWrite()
 
 	auto fd        = open(params.addrRead.c_str(), O_RDONLY, 0);
 	waitDisConnect = false;
-	params.disconnectHandler();
 	threadWaitConnectFifo->join();
 	close(fifoFd);
 	close(fd);

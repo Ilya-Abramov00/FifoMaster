@@ -23,7 +23,9 @@ public:
 	{
 		return waitConnect;
 	}
-
+	std::string const getName()const{
+		return params.addrRead;
+	}
 private:
 	void waitConnectFifo();
 	void writeFifo();
