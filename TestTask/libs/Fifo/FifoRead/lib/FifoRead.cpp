@@ -1,4 +1,4 @@
-#include "Fifo/FifoRead.h"
+#include "FifoRead/FifoRead.h"
 
 FifoRead::FifoRead(const std::string fdFileName)
 {

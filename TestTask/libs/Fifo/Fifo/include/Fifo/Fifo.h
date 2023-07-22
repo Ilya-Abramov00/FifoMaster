@@ -1,25 +1,9 @@
 #ifndef FIFO_H
 #define FIFO_H
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <cstring>
-#include <unistd.h>
-#include <fcntl.h>
-#include <iostream>
-#include <string>
-#include <functional>
-#include <chrono>
-#include <thread>
-#include <list>
-#include <mutex>
-#include <queue>
-#include <memory>
-#include <unistd.h>
-#include <sys/signal.h>
 
-#include "Fifo/FifoBase.h"
+#include "FifoRead/FifoRead.h"
+#include "FifoWrite/FifoWrite.h"
 
 class Fifo {
 public:
