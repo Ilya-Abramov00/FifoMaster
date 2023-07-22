@@ -45,6 +45,7 @@ public:
 	std::string const getNameW()const{
 		return fifoWrite.getName();
 	}
+
 private:
 	FifoWrite fifoWrite;
 	FifoRead fifoRead;

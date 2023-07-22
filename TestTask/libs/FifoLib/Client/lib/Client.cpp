@@ -45,7 +45,7 @@ void Client::getter(FifoRead::Data&& data)
 void Client::logicConnect()
 {
 
-	if(client.getWaitConnectWrite() || client.getWaitConnectRead()) {
+	if(client.getWaitConnectWrite() && client.getWaitConnectRead()) {
 		std::cout << "Connect " <<client.getNameR()<< std::endl;
 	}
 };

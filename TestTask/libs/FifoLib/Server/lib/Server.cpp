@@ -7,7 +7,7 @@ void Server::getter(FifoRead::Data&& data)
 
 void Server::logicConnect(std::shared_ptr<Fifo> object)
 {
-	if(object->getWaitConnectWrite() || object->getWaitConnectRead()) {
+	if(object->getWaitConnectWrite() && object->getWaitConnectRead()) {
 		std::cout << "Connect " <<object->getNameW()<< std::endl;
 	}
 };

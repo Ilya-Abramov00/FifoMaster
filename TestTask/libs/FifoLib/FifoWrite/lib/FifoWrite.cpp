@@ -34,8 +34,8 @@ void FifoWrite::waitConnectFifo()
 {
 	fifoFd = openFifo(params.addrRead, 'W');
 	if(runWrite) {
-		params.connectHandler();
 		waitConnect     = true;
+		params.connectHandler();
 		threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
 			writeFifo();
 		}));
@@ -46,8 +46,7 @@ void FifoWrite::stopWrite()
 {
 	runWrite = false;
 
-	auto fd        = open(params.addrRead.c_str(), O_RDONLY, 0);
-	waitDisConnect = false;
+	auto fd        = openFifo(params.addrRead.c_str(), 'R');
 	threadWaitConnectFifo->join();
 	close(fifoFd);
 	close(fd);

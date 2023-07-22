@@ -26,6 +26,7 @@ public:
 	std::string const getName()const{
 		return params.addrRead;
 	}
+
 private:
 	void waitConnectFifo();
 	void writeFifo();

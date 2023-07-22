@@ -46,7 +46,7 @@ std::cout<<"Server\n\n";
 		sleep(1);
 	}
 
-	sleep(7);
+	sleep(10);
 
 
 	std::cout<<"\nstop\n";

@@ -28,6 +28,7 @@ int main()
 	client1.setReadHandler(e);
 
 	client1.start();
+	sleep(3);
 	client2.start();
 
 auto x=2;
@@ -45,6 +46,6 @@ auto x=2;
 	client1.stop();
 	client2.stop();
 	std::cout << data.size();
-	sleep(15);
+	sleep(6);
 	return 0;
 }

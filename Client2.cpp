@@ -40,6 +40,6 @@ int main()
 
 	std::cout << data.size();
 
-	sleep(15);
+	sleep(6);
 	return 0;
 }

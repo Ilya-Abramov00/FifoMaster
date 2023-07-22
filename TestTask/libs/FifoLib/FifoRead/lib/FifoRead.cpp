@@ -26,8 +26,8 @@ void FifoRead::waitConnectFifo()
 {
 	fifoReadFd = openFifo(params.addrRead, 'R');
 	if(runRead) {
-		params.connectHandler(); // соединение проиошло
 		waitConnect    = true;
+		params.connectHandler(); // соединение проиошло
 		threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
 			readFifo();
 		}));
