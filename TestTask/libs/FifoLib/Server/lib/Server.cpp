@@ -8,13 +8,13 @@ void Server::getter(FifoRead::Data&& data)
 void Server::logicConnect(std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitConnectWrite() || object->getWaitConnectRead()) {
-		std::cout << "произошел logicConnect" << std::endl;
+		std::cout << "произошел Connect" << std::endl;
 	}
 };
 void Server::logicDisConnect(std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitDisConnectRead() || object->getWaitDisConnectWrite()) {
-		std::cout << "произошел disconnect" << std::endl;
+		std::cout << "произошел Disconnect" << std::endl;
 	}
 };
 
@@ -28,19 +28,15 @@ Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsF
 		});
 
 		connectionId[name]->setConnectionHandlerRead([this, name]() {
-			std::cout << "connectR \n";
 			this->logicConnect(connectionId[name]);
 		});
 		connectionId[name]->setDisConnectionHandlerRead([this, name]() {
-			std::cout << "disconnectR \n";
 			this->logicDisConnect(connectionId[name]);
 		});
 		connectionId[name]->setConnectionHandlerWrite([this, name]() {
-			std::cout << "connectW \n";
 			this->logicConnect(connectionId[name]);
 		});
 		connectionId[name]->setDisConnectionHandlerWrite([this, name]() {
-			std::cout << "DisconnectW \n";
 			this->logicDisConnect(connectionId[name]);
 		});
 	}

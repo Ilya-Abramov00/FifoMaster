@@ -56,6 +56,7 @@ void FifoWrite::stopWrite()
 	if(waitConnect) {
 		threadWriteFifo->join();
 	}
+	if(queue.size()){std::cerr<<"данные не отправились\n";}
 }
 
 void FifoWrite::writeFifo()
