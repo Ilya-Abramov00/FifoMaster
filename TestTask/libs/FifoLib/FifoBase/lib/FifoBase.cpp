@@ -8,6 +8,11 @@
 // FifoReadException::FifoReadException(const std::string& msg) : FifoException(msg)
 //{}
 // FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
+#include <string>
+#include <iostream>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 long FifoBase::openFifo(const std::string fdFileName, const char flag)
 {

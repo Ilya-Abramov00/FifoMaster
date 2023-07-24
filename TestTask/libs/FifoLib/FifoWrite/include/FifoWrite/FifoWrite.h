@@ -3,6 +3,24 @@
 
 #include "FifoBase/FifoBase.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
+#include <iostream>
+#include <string>
+#include <functional>
+#include <chrono>
+#include <thread>
+#include <list>
+#include <mutex>
+#include <queue>
+#include <memory>
+#include <unistd.h>
+#include <sys/signal.h>
+
 class FifoWrite : protected FifoBase {
 public:
 	void setConnectionHandler(FifoBase::ConnectionHandler handler);

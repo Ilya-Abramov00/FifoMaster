@@ -1,23 +1,9 @@
 #ifndef FIFO_BASE_H
 #define FIFO_BASE_H
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <cstring>
-#include <unistd.h>
-#include <fcntl.h>
-#include <iostream>
-#include <string>
 #include <functional>
-#include <chrono>
-#include <thread>
-#include <list>
-#include <mutex>
-#include <queue>
-#include <memory>
-#include <unistd.h>
-#include <sys/signal.h>
+
+
+
 
 // class FifoException : public std::runtime_error {
 // public:
@@ -37,6 +23,10 @@
 // public:
 //	FifoAniException(std::string const& msg);
 // };
+
+#include <memory>
+#include <unistd.h>
+#include <sys/signal.h>
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
 
