@@ -1,7 +1,6 @@
 
 #include <thread>
 #include "Fifo/Fifo.h"
-#include "Server/Server.h"
 #include "Client/Client.h"
 int main()
 {
@@ -28,7 +27,6 @@ int main()
 	client1.setReadHandler(e);
 
 	client1.start();
-	sleep(3);
 	client2.start();
 
 auto x=2;
@@ -46,6 +44,6 @@ auto x=2;
 	client1.stop();
 	client2.stop();
 	std::cout << data.size();
-	sleep(6);
+	sleep(2);
 	return 0;
 }

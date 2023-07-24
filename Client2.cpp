@@ -1,12 +1,11 @@
 
 #include <thread>
 #include "Fifo/Fifo.h"
-#include "Server/Server.h"
 #include "Client/Client.h"
 int main()
 {
 	std::cout << "клиент" << std::endl << std::endl;
-
+	std::string FIFO1 = "/home/ilya/fifo1";
 	std::string FIFO2 = "/home/ilya/fifo2";
 
 	int n            = 10;
@@ -40,6 +39,6 @@ int main()
 
 	std::cout << data.size();
 
-	sleep(6);
+	sleep(2);
 	return 0;
 }

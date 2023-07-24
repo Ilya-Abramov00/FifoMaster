@@ -29,7 +29,7 @@ void Fifo::setDisConnectionHandlerWrite(FifoBase::ConnectionHandler handler)
 
 void Fifo::write(const void* data, size_t sizeInBytes)
 {
-	fifoWrite.pushData(data, sizeInBytes);
+	fifoWrite.pushData(std::move(data), sizeInBytes);
 }
 void Fifo::stop()
 {
