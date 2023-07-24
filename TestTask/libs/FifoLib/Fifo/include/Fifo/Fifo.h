@@ -16,6 +16,7 @@ public:
 	void setDisConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
 
 	void setReadHandler(FifoRead::ReadHandler handler);
+
 	bool const getWaitDisConnectRead() const
 	{
 		return fifoRead.getWaitDisConnect();
@@ -27,7 +28,6 @@ public:
 	bool const getWaitDisConnectWrite() const
 	{
 		return fifoWrite.getWaitDisConnect();
-		;
 	}
 	bool const getWaitConnectWrite() const
 	{
