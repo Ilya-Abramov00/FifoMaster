@@ -1,5 +1,16 @@
 #include "FifoRead/FifoRead.h"
 
+
+
+#include <unistd.h>
+#include <iostream>
+#include <string>
+#include <thread>
+#include <list>
+#include <mutex>
+#include <queue>
+
+
 FifoRead::FifoRead(const std::string fdFileName)
 {
 	params.addrRead = fdFileName;
