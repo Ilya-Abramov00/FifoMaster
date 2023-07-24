@@ -12,7 +12,7 @@ add_subdirectory(Client)
 
 add_library(${PROJECT_NAME} INTERFACE)
 
-target_link_libraries(${PROJECT_NAME} INTERFACE Server Fifo Client)
+target_link_libraries(${PROJECT_NAME} INTERFACE Server  Client)
 
 
 include("unittest.cmake")
