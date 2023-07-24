@@ -24,7 +24,7 @@ void FifoRead::startRead()
 
 void FifoRead::waitConnectFifo()
 {
-	fifoReadFd = openFifo(params.addrRead, 'R');
+	fifoFd = openFifo(params.addrRead, 'R');
 	if(runRead) {
 		waitConnect    = true;
 		params.connectHandler(); // соединение проиошло
@@ -38,11 +38,11 @@ void FifoRead::readFifo()
 {
 	auto MAXLINE = 1024 * 64;
 	std::vector<uint8_t> buffer(MAXLINE);
-	if(fifoReadFd == -1) {
+	if(fifoFd == -1) {
 		throw std::runtime_error(" fail openFifo ");
 	}
 	while(runRead) {
-		auto flag = read(fifoReadFd, buffer.data(), MAXLINE);
+		auto flag = read(fifoFd, buffer.data(), MAXLINE);
 		if(flag == 0) {
 			waitDisConnect = true;
 			params.disconnectHandler();
@@ -58,15 +58,18 @@ void FifoRead::readFifo()
 }
 void FifoRead::stopRead()
 {
-	runRead = false;
-	auto fd = openFifo(params.addrRead.c_str(), 'W');
+		runRead = false;
+		if(!waitConnect) {
+			auto fd = openFifo(params.addrRead.c_str(), 'W');
+			close(fd);
+		}
 
-	threadWaitConnectFifo->join();
-	close(fd);
-	close(fifoReadFd);
-	if(waitConnect) {
-		threadReadFifo->join();
-	}
+		threadWaitConnectFifo->join();
+		close(fifoFd);
+		if(waitConnect) {
+			threadReadFifo->join();
+		}
+	//unlink(params.addrRead.c_str());
 }
 void FifoRead::setConnectionHandler(FifoBase::ConnectionHandler handler)
 {
@@ -82,8 +85,15 @@ void FifoRead::setReadHandler(FifoRead::ReadHandler handler)
 {
 	params.msgHandler = std::move(handler);
 }
-
-FifoRead::~FifoRead()
+bool const FifoRead::getWaitDisconnect() const
 {
-	unlink(params.addrRead.c_str());
+	return waitDisConnect;
+}
+bool const FifoRead::getWaitConnect() const
+{
+	return waitConnect;
+}
+std::string const FifoRead::getName() const
+{
+	return params.addrRead;
 }

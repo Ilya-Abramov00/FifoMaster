@@ -18,7 +18,7 @@ int main()
 		std::cout << "пришли данные\n";
 	};
 
-
+//sleep(10);
 
 	Client client1(FIFO2);
 	client1.setReadHandler(e);
@@ -31,11 +31,11 @@ int main()
 		client1.write((void*)a.data(), x);
 		sleep(1);
 	}
-	sleep(7);
-	std::cout<<"\nstop\n";
+	sleep(2);
+	std::cout<<"\nstopStart\n";
 	client1.stop();
 
-
+	std::cout<<"\nstop\n";
 
 	std::cout << data.size();
 

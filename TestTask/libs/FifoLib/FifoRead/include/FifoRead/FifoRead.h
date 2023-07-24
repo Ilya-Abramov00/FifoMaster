@@ -18,20 +18,15 @@ public:
 
 	void setReadHandler(ReadHandler handler);
 
-	bool const getWaitDisConnect() const
-	{
-		return waitDisConnect;
-	}
+	bool const getWaitDisconnect() const;
 
-	bool const getWaitConnect() const
-	{
-		return waitConnect;
-	}
-	std::string const getName()const{
-		return params.addrRead;
-	}
-	~FifoRead();
+	bool const getWaitConnect() const;
 
+	std::string const getName()const;
+
+	long const& getFifoFd()const{
+		return fifoFd;
+	}
 private:
 	void waitConnectFifo();
 	void readFifo();
@@ -46,7 +41,7 @@ private:
 	bool runRead{false};
 	bool waitConnect{false};
 	bool waitDisConnect{false};
-	long fifoReadFd = -1;
+	long fifoFd = -1;
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 	std::unique_ptr<std::thread> threadReadFifo;
 };

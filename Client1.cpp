@@ -37,12 +37,12 @@ auto x=2;
 		client1.write((void*)z.data(), x);
 		sleep(1);
 	}
-	sleep(7);
+	sleep(9);
 
 
 	std::cout<<"\nstop\n";
-	client1.stop();
 	client2.stop();
+	client1.stop();
 	std::cout << data.size();
 	sleep(2);
 	return 0;

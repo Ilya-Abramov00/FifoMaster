@@ -17,38 +17,33 @@ public:
 
 	void setReadHandler(FifoRead::ReadHandler handler);
 
-	bool const getWaitDisConnectRead() const
-	{
-		return fifoRead.getWaitDisConnect();
-	}
-	bool const getWaitConnectRead() const
-	{
-		return fifoRead.getWaitConnect();
-	}
-	bool const getWaitDisConnectWrite() const
-	{
-		return fifoWrite.getWaitDisConnect();
-	}
-	bool const getWaitConnectWrite() const
-	{
-		return fifoWrite.getWaitConnect();
-	}
+	bool const getWaitDisconnectRead() const;
+
+	bool const getWaitConnectRead() const;
+
+	bool const getWaitDisconnectWrite() const;
+
+	bool const getWaitConnectWrite() const;
 
 	void write(const void* data, size_t sizeInBytes);
 
 	void start();
-	void stop();
+	void stopRead();
+	void stopWrite();
 
-	std::string const getNameR()const{
-		return fifoRead.getName();
-	}
-	std::string const getNameW()const{
-		return fifoWrite.getName();
-	}
+	std::string const getNameR()const;
+	std::string const getNameW()const;
 
+	void closeR(){
+		close(fifoRead.getFifoFd());
+	}
+	void closeW(){
+		close(fifoWrite.getFifoFd());
+	}
 private:
 	FifoWrite fifoWrite;
 	FifoRead fifoRead;
+	bool waitStop{false};
 };
 
 

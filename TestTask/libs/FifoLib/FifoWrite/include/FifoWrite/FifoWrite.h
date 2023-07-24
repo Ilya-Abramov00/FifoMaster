@@ -15,7 +15,7 @@ public:
 
 	void pushData(const void* data, size_t sizeN);
 
-	bool const getWaitDisConnect() const
+	bool const getWaitDisconnect() const
 	{
 		return waitDisConnect;
 	}
@@ -23,10 +23,13 @@ public:
 	{
 		return waitConnect;
 	}
+
 	std::string const getName()const{
 		return params.addrRead;
 	}
-
+	long const& getFifoFd()const{
+		return fifoFd;
+	}
 private:
 	void waitConnectFifo();
 	void writeFifo();
@@ -40,8 +43,8 @@ private:
 	bool runWrite{false};
 	bool waitConnect{false};
 	bool waitDisConnect{false};
-	std::queue<std::vector<uint8_t>> queue;
 	long fifoFd = -1;
+	std::queue<std::vector<uint8_t>> queue;
 	std::mutex mtx;
 	std::unique_ptr<std::thread> threadWriteFifo;
 	std::unique_ptr<std::thread> threadWaitConnectFifo;

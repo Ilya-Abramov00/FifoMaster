@@ -46,12 +46,16 @@ std::cout<<"Server\n\n";
 		sleep(1);
 	}
 
+	sleep(11);
+
+
+
+
 	sleep(10);
 
-
-	std::cout<<"\nstop\n";
+	std::cout<<"\nstopStart\n";
 	a.stop();
-
+	std::cout<<"\nstop\n";
 	std::cout << data.size();
 	return 1;
 }

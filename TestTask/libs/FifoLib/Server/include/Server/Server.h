@@ -28,7 +28,7 @@ private:
 	void getter(FifoRead::Data&& data);
 
 	void logicConnect(std::shared_ptr<Fifo> object);
-	void logicDisConnect(std::shared_ptr<Fifo> object);
+	void logicDisconnect(std::shared_ptr<Fifo> object);
 
 	const std::vector<std::string>& nameChannelsFifo;
 

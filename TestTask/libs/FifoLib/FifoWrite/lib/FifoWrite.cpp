@@ -44,17 +44,21 @@ void FifoWrite::waitConnectFifo()
 
 void FifoWrite::stopWrite()
 {
-	runWrite = false;
+		runWrite = false;
+		if(!waitConnect) {
+			auto fd = openFifo(params.addrRead.c_str(), 'R');
+			close(fd);
+		}
 
-	auto fd        = openFifo(params.addrRead.c_str(), 'R');
-	threadWaitConnectFifo->join();
-	close(fifoFd);
-	close(fd);
+		threadWaitConnectFifo->join();
+		close(fifoFd);
 
-	if(waitConnect) {
-		threadWriteFifo->join();
-	}
-	if(queue.size()){std::cerr<<"данные не отправились\n";}
+		if(waitConnect) {
+			threadWriteFifo->join();
+		}
+		if(queue.size()) {
+			std::cerr << "данные не отправились\n";
+		}
 }
 
 void FifoWrite::writeFifo()

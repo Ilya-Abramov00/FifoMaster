@@ -11,9 +11,9 @@ void Server::logicConnect(std::shared_ptr<Fifo> object)
 		std::cout << "Connect " <<object->getNameW()<< std::endl;
 	}
 };
-void Server::logicDisConnect(std::shared_ptr<Fifo> object)
+void Server::logicDisconnect(std::shared_ptr<Fifo> object)
 {
-	if(object->getWaitDisConnectRead() || object->getWaitDisConnectWrite()) {
+	if(object->getWaitDisconnectWrite() || object->getWaitDisconnectRead()) {
 		std::cout << "Disconnect " <<object->getNameW()<< std::endl;
 	}
 };
@@ -30,14 +30,20 @@ Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsF
 		connectionId[name]->setConnectionHandlerRead([this, name]() {
 			this->logicConnect(connectionId[name]);
 		});
+
 		connectionId[name]->setDisConnectionHandlerRead([this, name]() {
-			this->logicDisConnect(connectionId[name]);
+
+		connectionId[name]->closeW();
+		this->logicDisconnect(connectionId[name]);
 		});
+
 		connectionId[name]->setConnectionHandlerWrite([this, name]() {
 			this->logicConnect(connectionId[name]);
 		});
+
 		connectionId[name]->setDisConnectionHandlerWrite([this, name]() {
-			this->logicDisConnect(connectionId[name]);
+			connectionId[name]->closeR();
+			this->logicDisconnect(connectionId[name]);
 		});
 	}
 }
@@ -60,7 +66,8 @@ void Server::start()
 void Server::stop()
 {
 	for(const auto& Fifo: connectionId) {
-		Fifo.second->stop();
+		Fifo.second->stopRead();
+		Fifo.second->stopWrite();
 	}
 }
 void Server::setReadHandler(ReadHandler h)
