@@ -77,7 +77,8 @@ TEST(big_data_FIFO, 1)
 
 	sleep(3);
 
-	client2.stop();
+	client2.stopRead();
+	client2.stopWrite();
 
 	a = a0 + a;
 	a += b;
@@ -166,7 +167,8 @@ TEST(big_data_FIFO, 2)
 
 	sleep(3);
 
-	client2.stop();
+	client2.stopWrite();
+	client2.stopRead();
 
 	a = a0 + a;
 	a += b;

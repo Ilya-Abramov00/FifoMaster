@@ -29,9 +29,9 @@ public:
 
 	std::string const getName()const;
 
-	long const& getFifoFd()const{
-		return fifoFd;
-	}
+	long const& getFifoFd()const;
+
+	~FifoRead();
 private:
 	void waitConnectFifo();
 	void readFifo();

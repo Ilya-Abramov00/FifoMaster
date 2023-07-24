@@ -31,14 +31,11 @@ void Fifo::write(const void* data, size_t sizeInBytes)
 {
 	fifoWrite.pushData(std::move(data), sizeInBytes);
 }
-void Fifo::stopRead()
-{
-	fifoRead.stopRead();
-}
 
-void Fifo::stopWrite()
+void Fifo::stop()
 {
 	fifoWrite.stopWrite();
+	fifoRead.stopRead();
 }
 void Fifo::start()
 {
@@ -61,11 +58,19 @@ bool const Fifo::getWaitConnectWrite() const
 {
 	return fifoWrite.getWaitConnect();
 }
-std::string const Fifo::getNameR() const
+std::string const Fifo::getNameRead() const
 {
 	return fifoRead.getName();
 }
-std::string const Fifo::getNameW() const
+std::string const Fifo::getNameWrite() const
 {
 	return fifoWrite.getName();
+}
+void Fifo::closeRead()
+{
+	close(fifoRead.getFifoFd());
+}
+void Fifo::closeWrite()
+{
+	close(fifoWrite.getFifoFd());
 }

@@ -1,4 +1,5 @@
 #include "Client/Client.h"
+#include <iostream>
 
 Client::Client(std::string nameChannel) :client(nameChannel+"_reverse",nameChannel){
 
@@ -10,14 +11,12 @@ Client::Client(std::string nameChannel) :client(nameChannel+"_reverse",nameChann
 		this->logicConnect();
 	});
 	client.setDisConnectionHandlerRead([this]() {
-		std::cout<<"DISC R\n";
 		this->logicDisConnect();
 	});
 	client.setConnectionHandlerWrite([this]() {
 		this->logicConnect();
 	});
 	client.setDisConnectionHandlerWrite([this]() {
-		std::cout<<"DISC W\n";
 		this->logicDisConnect();
 	});
 }
@@ -34,8 +33,7 @@ void Client::write(const void* data, size_t sizeN)
 
 void Client::stop()
 {
-	client.stopWrite();
-	client.stopRead();
+	client.stop();
 }
 
 void Client::setReadHandler(FifoRead::ReadHandler h){readHandler = std::move(h);};
@@ -49,12 +47,12 @@ void Client::logicConnect()
 {
 
 	if(client.getWaitConnectWrite() && client.getWaitConnectRead()) {
-		std::cout << "Connect " <<client.getNameR()<< std::endl;
+		std::cout << "Connect " << client.getNameRead()<< std::endl;
 	}
 };
 void Client::logicDisConnect()
 {
 	if(client.getWaitDisconnectWrite()|| client.getWaitDisconnectRead()) {
-		std::cout << "Disconnect " <<client.getNameR()<< std::endl;
+		std::cout << "Disconnect " << client.getNameRead()<< std::endl;
 	}
 }

@@ -74,13 +74,11 @@ void FifoRead::stopRead()
 			auto fd = openFifo(params.addrRead.c_str(), 'W');
 			close(fd);
 		}
-
+	    close(fifoFd);
 		threadWaitConnectFifo->join();
-		close(fifoFd);
 		if(waitConnect) {
 			threadReadFifo->join();
 		}
-	//unlink(params.addrRead.c_str());
 }
 void FifoRead::setConnectionHandler(FifoBase::ConnectionHandler handler)
 {
@@ -107,4 +105,12 @@ bool const FifoRead::getWaitConnect() const
 std::string const FifoRead::getName() const
 {
 	return params.addrRead;
+}
+FifoRead::~FifoRead()
+{
+	unlink(params.addrRead.c_str());
+}
+long const& FifoRead::getFifoFd() const
+{
+	return fifoFd;
 }

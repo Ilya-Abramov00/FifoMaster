@@ -1,5 +1,17 @@
 #include "FifoWrite/FifoWrite.h"
 
+
+
+#include <unistd.h>
+#include <iostream>
+#include <string>
+#include <thread>
+#include <list>
+#include <mutex>
+#include <queue>
+#include <sys/signal.h>
+
+
 FifoWrite::FifoWrite(std::string fdFileName)
 {
 	params.addrRead = fdFileName;
@@ -91,4 +103,16 @@ void FifoWrite::pushData(const void* data, size_t sizeN)
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
 	std::lock_guard<std::mutex> mtx_0(mtx);
 	queue.push(std::move(buffer));
+}
+bool const FifoWrite::getWaitDisconnect() const
+{
+	return waitDisConnect;
+}
+std::string const FifoWrite::getName() const
+{
+	return params.addrRead;
+}
+long const& FifoWrite::getFifoFd() const
+{
+	return fifoFd;
 }

@@ -3,23 +3,12 @@
 
 #include "FifoBase/FifoBase.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <cstring>
-#include <unistd.h>
-#include <fcntl.h>
-#include <iostream>
 #include <string>
 #include <functional>
-#include <chrono>
 #include <thread>
-#include <list>
 #include <mutex>
 #include <queue>
-#include <memory>
-#include <unistd.h>
-#include <sys/signal.h>
+
 
 class FifoWrite : protected FifoBase {
 public:
@@ -33,21 +22,16 @@ public:
 
 	void pushData(const void* data, size_t sizeN);
 
-	bool const getWaitDisconnect() const
-	{
-		return waitDisConnect;
-	}
+	bool const getWaitDisconnect() const;
 	bool const getWaitConnect() const
 	{
 		return waitConnect;
 	}
 
-	std::string const getName()const{
-		return params.addrRead;
-	}
-	long const& getFifoFd()const{
-		return fifoFd;
-	}
+	std::string const getName()const;
+
+	long const& getFifoFd()const;
+
 private:
 	void waitConnectFifo();
 	void writeFifo();

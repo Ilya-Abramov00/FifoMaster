@@ -2,6 +2,7 @@
 #include <thread>
 #include "Fifo/Fifo.h"
 #include "Client/Client.h"
+#include <iostream>
 int main()
 {
 	std::cout << "клиент" << std::endl << std::endl;
@@ -41,8 +42,9 @@ auto x=2;
 
 
 	std::cout<<"\nstop\n";
-	client2.stop();
 	client1.stop();
+	client2.stop();
+	sleep(9);
 	std::cout << data.size();
 	sleep(2);
 	return 0;

@@ -28,22 +28,18 @@ public:
 	void write(const void* data, size_t sizeInBytes);
 
 	void start();
-	void stopRead();
-	void stopWrite();
 
-	std::string const getNameR()const;
-	std::string const getNameW()const;
+	void stop();
 
-	void closeR(){
-		close(fifoRead.getFifoFd());
-	}
-	void closeW(){
-		close(fifoWrite.getFifoFd());
-	}
+	std::string const getNameRead()const;
+	std::string const getNameWrite()const;
+
+	void closeRead();
+
+	void closeWrite();
 private:
 	FifoWrite fifoWrite;
 	FifoRead fifoRead;
-	bool waitStop{false};
 };
 
 

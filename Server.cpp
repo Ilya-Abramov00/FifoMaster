@@ -4,7 +4,7 @@
 #include "Server/Server.h"
 
 #include <thread>
-
+#include <iostream>
 void c(Server::ConnectionId w)
 {
 	std::cout << "CloseConnectionHandler\n";
@@ -46,10 +46,10 @@ std::cout<<"Server\n\n";
 		sleep(1);
 	}
 
+
+
+
 	sleep(11);
-
-
-
 
 	sleep(10);
 

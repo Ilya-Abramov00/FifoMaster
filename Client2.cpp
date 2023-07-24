@@ -2,6 +2,7 @@
 #include <thread>
 #include "Fifo/Fifo.h"
 #include "Client/Client.h"
+#include <iostream>
 int main()
 {
 	std::cout << "клиент" << std::endl << std::endl;
