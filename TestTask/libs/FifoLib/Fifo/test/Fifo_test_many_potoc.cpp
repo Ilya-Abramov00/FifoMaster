@@ -90,8 +90,7 @@ TEST(Fifo_many_potoc, 1)
 
 	sleep(3);
 
-	client2.stopWrite();
-	client2.stopRead();
+	client2.stop();
 
 	a = a0 + a;
 	a += b;
@@ -209,8 +208,7 @@ TEST(Fifo_many_potoc, 2)
 
 	sleep(3);
 
-	client2.stopWrite();
-	client2.stopRead();
+	client2.stop();
 
 	a = a0 + a;
 	a += b;
@@ -327,8 +325,7 @@ TEST(Fifo_many_potoc, 3)
 
 	sleep(3);
 
-	client2.stopWrite();
-	client2.stopRead();
+	client2.stop();
 
 	a = a0 + a;
 	a += b;

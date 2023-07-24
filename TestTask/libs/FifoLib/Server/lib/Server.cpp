@@ -19,10 +19,11 @@ void Server::logicDisconnect(std::shared_ptr<Fifo> object)
 	}
 };
 
-Server::Server(const std::vector<std::string>& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)
+Server::Server( ServedFiles&& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)
 {
-	for(auto const& name: nameChannelsfifo) {
-		connectionId[name] = std::make_unique<Fifo>(name, name +"_reverse");
+	for(auto name: nameChannelsfifo) {
+
+		connectionId[name] = std::make_unique<Fifo>(name.directFile, name.reverseFile);
 
 		connectionId[name]->setReadHandler([this](FifoRead::Data&& data) {
 			this->getter(std::move(data));

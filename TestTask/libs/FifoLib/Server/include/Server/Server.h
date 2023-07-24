@@ -1,17 +1,23 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-
+#include "list"
 #include "Fifo/Fifo.h"
+
+struct FifoFiles{
+	std::string directFile;
+	std::string reverseFile;
+};
+using ServedFiles = std::list<FifoFiles>;
 
 class Server {
 public:
-	using ConnectionId          = std::unordered_map<std::string, std::shared_ptr<Fifo>>;
+	using ConnectionId          = std::unordered_map<FifoFiles, std::shared_ptr<Fifo>>;
 	using ConnChangeHandler     = std::function<void(ConnectionId)>;
 	using ReadHandler           = std::function<void(ConnectionId, FifoRead::Data&&)>;
 	using IdDistributionHandler = std::function<ConnectionId()>;
 
-	Server(const std::vector<std::string>& nameChannelsFifo);
+	Server( ServedFiles && nameChannelsFifo);
 
 	void setReadHandler(ReadHandler h);
 
@@ -30,7 +36,7 @@ private:
 	void logicConnect(std::shared_ptr<Fifo> object);
 	void logicDisconnect(std::shared_ptr<Fifo> object);
 
-	const std::vector<std::string>& nameChannelsFifo;
+	ServedFiles nameChannelsFifo;
 
 	ReadHandler readHandler;
 

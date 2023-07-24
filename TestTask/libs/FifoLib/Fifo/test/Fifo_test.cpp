@@ -30,8 +30,7 @@ TEST(Fifo, empty)
 
 	sleep(1);
 
-	client1.stopWrite();
-	client1.stopRead();
+	client1.stop();
 }
 
 TEST(Fifo, null_ptr)
@@ -63,8 +62,8 @@ TEST(Fifo, null_ptr)
 
 	sleep(1);
 
-	client1.stopWrite();
-	client1.stopRead();
+	client1.stop();
+
 	ASSERT_TRUE(data.size() == 0);
 }
 
@@ -99,8 +98,8 @@ TEST(Fifo, time)
 	sleep(1);
 
 
-	client1.stopWrite();
-	client1.stopRead();
+	client1.stop();
+
 	ASSERT_TRUE(data.size() == n);
 	ASSERT_TRUE(data == std::string(n, '3'));
 }
