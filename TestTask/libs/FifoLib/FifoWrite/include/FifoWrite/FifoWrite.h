@@ -9,7 +9,6 @@
 #include <mutex>
 #include <queue>
 
-
 class FifoWrite : protected FifoBase {
 public:
 	void setConnectionHandler(FifoBase::ConnectionHandler handler);
@@ -25,9 +24,9 @@ public:
 	bool const getWaitDisconnect() const;
 	bool const getWaitConnect() const;
 
-	std::string const getName()const;
+	std::string const getName() const;
 
-	long const& getFifoFd()const;
+	long const& getFifoFd() const;
 
 private:
 	void waitConnectFifo();
