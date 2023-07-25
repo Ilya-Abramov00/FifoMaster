@@ -8,8 +8,6 @@
 struct FifoCfg {
 	std::string directFile;
 	std::string reverseFile;
-	bool operator== (const FifoCfg&other) const;
-	bool operator< (const FifoCfg&other) const;
 };
 
 class Fifo {
