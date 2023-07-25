@@ -56,9 +56,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin)
 	std::mutex mtx0;
 
 	auto getterServer = [&dataServer, &mtx0](FifoCfg name, FifoRead::Data&& dataq) {
-		using namespace std;
-
-		lock_guard<std::mutex> mtx(mtx0);
+		std::lock_guard<std::mutex> mtx(mtx0);
 		dataServer += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 
