@@ -22,6 +22,15 @@ namespace Ipc {
     }
 
     void Client::start() {
+        if (!readHandler) {
+            throw std::runtime_error("callback readHandler not set");
+        }
+        if (!connectionHandler) {
+            throw std::runtime_error("callback connectHandler not set");
+        }
+        if (!disconnectionHandler) {
+            throw std::runtime_error("callback disconnectHandler not set");
+        }
         client.start();
     }
 
@@ -37,6 +46,14 @@ namespace Ipc {
         readHandler = std::move(h);
     };
 
+    void Client::setConnectHandler(Ipc::Client::EventHandler h)  {
+       connectionHandler = std::move(h);
+    };
+
+    void Client::setDisconnectHandler(Ipc::Client::EventHandler h) {
+        disconnectionHandler = std::move(h);
+    };
+
     void Client::getter(FifoRead::Data &&data) {
         readHandler(std::move(data));
     };
@@ -44,12 +61,14 @@ namespace Ipc {
     void Client::logicConnect() {
         if (client.getWaitConnectWrite() && client.getWaitConnectRead()) {
             std::cout << "Connect " << std::endl;
+            connectionHandler();
         }
     };
 
     void Client::logicDisConnect() {
         if (client.getWaitDisconnectWrite() || client.getWaitDisconnectRead()) {
             std::cout << "Disconnect " << std::endl;
+            disconnectionHandler();
         }
     }
 }
