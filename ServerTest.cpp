@@ -43,7 +43,7 @@ std::cout<<"Server\n\n";
 	FifoCfg k3{FIFO3,FIFO3+"_reverse"};
 
 	auto getter = [&](size_t id, FifoRead::Data&& dataq) {
-	  data += std::string(dataq.data(), dataq.data() + dataq.size());
+	  data.insert(data.begin(),dataq.data(), dataq.data() + dataq.size());
 	};
 
 	Server server({k1,k2,k3});

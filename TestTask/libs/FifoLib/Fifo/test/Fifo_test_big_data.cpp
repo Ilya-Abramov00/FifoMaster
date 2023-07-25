@@ -2,16 +2,18 @@
 
 #include "Fifo/Fifo.h"
 
-using namespace std;
-using namespace Ipc;
+
 TEST(big_data, 1)
 {
+    using namespace std;
+    using namespace Ipc;
+
 	std::string FIFO2 = "fifo2";
 	int n             = 1024 * 1024 * 120;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+        data.insert(data.end(),dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
@@ -99,12 +101,15 @@ TEST(big_data, 1)
 }
 TEST(big_data, 2)
 {
+    using namespace std;
+    using namespace Ipc;
+
 	std::string FIFO2 = "fifo2";
 	int n             = 1024 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+        data.insert(data.end(),dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 

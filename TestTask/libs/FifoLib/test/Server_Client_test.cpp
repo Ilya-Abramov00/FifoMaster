@@ -49,6 +49,7 @@ using namespace Ipc;
     FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
 
     TEST_F(ServerClientTest, Clients3To1ServerConnectin) {
+
         int n = 1024 * 1024;
         std::string dataServer = "";
 
@@ -56,7 +57,7 @@ using namespace Ipc;
 
         auto getterServer = [&dataServer, &mtx0](size_t id, FifoRead::Data &&dataq) {
             std::lock_guard<std::mutex> mtx(mtx0);
-            dataServer += std::string(dataq.data(), dataq.data() + dataq.size());
+            dataServer.insert(dataServer.end(), dataq.data(), dataq.data() + dataq.size());
         };
 
         Server server({k1, k2, k3});
@@ -71,21 +72,21 @@ using namespace Ipc;
         std::string dataClient1 = "";
 
         auto getterClient1 = [&dataClient1](FifoRead::Data &&dataq) {
-            dataClient1 += std::string(dataq.data(), dataq.data() + dataq.size());
+            dataClient1.insert(dataClient1.begin(),dataq.data(), dataq.data() + dataq.size());
         };
         client1.setReadHandler(getterClient1);
 
         Client client2(k2);
         std::string dataClient2 = "";
         auto getterClient2 = [&dataClient2](FifoRead::Data &&dataq) {
-            dataClient2 += std::string(dataq.data(), dataq.data() + dataq.size());
+            dataClient2.insert(dataClient2.begin(),dataq.data(), dataq.data() + dataq.size());
         };
         client2.setReadHandler(getterClient2);
 
         Client client3(k3);
         std::string dataClient3 = "";
         auto getterClient3 = [&dataClient3](FifoRead::Data &&dataq) {
-            dataClient3 += std::string(dataq.data(), dataq.data() + dataq.size());
+            dataClient3.insert(dataClient3.begin(),dataq.data(), dataq.data() + dataq.size());
         };
         client3.setReadHandler(getterClient3);
 

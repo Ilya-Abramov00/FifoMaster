@@ -35,12 +35,14 @@ TEST(Fifo, empty)
 
 TEST(Fifo, null_ptr)
 {
+    using namespace std;
+    using namespace Ipc;
 	std::string FIFO2 = "fifo2";
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+		data.insert(data.end(),dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
@@ -69,12 +71,14 @@ TEST(Fifo, null_ptr)
 
 TEST(Fifo, time)
 {
+    using namespace std;
+    using namespace Ipc;
 	std::string FIFO2 = "fifo2";
 	int n             = 1024 * 5;
 	std::string data  = "";
 	data.reserve(n);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+        data.insert(data.end(),dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 	};

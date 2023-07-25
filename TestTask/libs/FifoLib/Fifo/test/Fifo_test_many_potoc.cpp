@@ -2,17 +2,17 @@
 
 #include "Fifo/Fifo.h"
 
-using namespace std;
-using namespace Ipc;
+
 
 TEST(Fifo_many_potoc, 1)
-{
+{using namespace std;
+    using namespace Ipc;
 	std::string FIFO2 = "fifo2";
 	int n             = 10;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+        data.insert(data.end(),dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
@@ -128,12 +128,15 @@ TEST(Fifo_many_potoc, 1)
 
 TEST(Fifo_many_potoc, 2)
 {
+    using namespace std;
+    using namespace Ipc;
+
 	std::string FIFO2 = "fifo2";
 	int n             = 10 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+        data.insert(data.end(),dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
@@ -248,12 +251,14 @@ TEST(Fifo_many_potoc, 2)
 }
 TEST(Fifo_many_potoc, 3)
 {
+    using namespace std;
+    using namespace Ipc;
 	std::string FIFO2 = "fifo2";
 	int n             = 10 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
+        data.insert(data.end(),dataq.data(), dataq.data() + dataq.size());
 	};
 	auto connect = []() {
 
