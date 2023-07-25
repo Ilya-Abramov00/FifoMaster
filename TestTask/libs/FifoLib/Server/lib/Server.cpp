@@ -21,7 +21,7 @@ void Server::disconnect(size_t id,std::shared_ptr<Fifo> object)
 	}
 };
 
-Server::Server(ServerFiles const& nameChannelsfifo)
+Server::Server(std::list<FifoCfg> const& nameChannelsfifo)
 {
 	size_t id=0;
 	for(auto const&  name: nameChannelsfifo) {

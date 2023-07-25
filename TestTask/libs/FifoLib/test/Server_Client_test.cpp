@@ -113,6 +113,7 @@ std::thread tClient3([&client3, &n]() {
 		sleep(1);
 	}
 	sleep(20);
+
 	client3.stop();
 
 });
