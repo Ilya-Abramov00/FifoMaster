@@ -1,9 +1,9 @@
 #include "Server/Server.h"
 #include <iostream>
 
-void Server::getter(FifoRead::Data&& data)
+void Server::getter( FifoCfg object,FifoRead::Data&& data)
 {
-	readHandler(connectionTable, std::move(data));
+	readHandler(object, std::move(data));
 };
 
 void Server::logicConnect(std::shared_ptr<Fifo> object)
@@ -19,14 +19,14 @@ void Server::logicDisconnect(std::shared_ptr<Fifo> object)
 	}
 };
 
-Server::Server(  ServedFiles nameChannelsfifo)
+Server::Server(  ServedFiles const& nameChannelsfifo)
 {
-	for(auto  const& name: nameChannelsfifo) {
+	for(auto const&  name: nameChannelsfifo) {
 
 		connectionTable.insert({name, std::make_unique<Fifo>(name.reverseFile, name.directFile)});
 
-		connectionTable[name]->setReadHandler([this](FifoRead::Data&& data) {
-			this->getter(std::move(data));
+		connectionTable[name]->setReadHandler([this,name](FifoRead::Data&& data) {
+			this->getter(name,std::move(data));
 		});
 
 		connectionTable[name]->setConnectionHandlerRead([this, name]() {

@@ -5,11 +5,11 @@
 
 #include <thread>
 #include <iostream>
-void c(Server::ConnectionsTable w)
+void c(FifoCfg w)
 {
 	std::cout << "CloseConnectionHandler\n";
 };
-void q(Server::ConnectionsTable w)
+void q(FifoCfg w)
 {
 	std::cout << "NewConnectionHandler\n";
 };
@@ -24,15 +24,17 @@ std::cout<<"Server\n\n";
 	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto e = [&](Server::ConnectionsTable, FifoRead::Data&& dataq) {
-		data += std::string(dataq.data(), dataq.data() + dataq.size());
-		std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
-		std::cout << "пришли данные\n";
-	};
+
 	FifoCfg k1{FIFO1,FIFO1+"_reverse"};
 	FifoCfg k2{FIFO2,FIFO2+"_reverse"};
 	FifoCfg k3{FIFO3,FIFO3+"_reverse"};
 
+	auto e = [&](FifoCfg name, FifoRead::Data&& dataq) {
+
+	  std::cout << "\n пришли от "<<name.directFile;
+	  data += std::string(dataq.data(), dataq.data() + dataq.size());
+	  std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
+	};
 	std::list<FifoCfg> z={k1,k2,k3};
 
 	Server a(z);

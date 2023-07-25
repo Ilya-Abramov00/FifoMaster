@@ -12,11 +12,11 @@ public:
 	using ServedFiles = std::list<FifoCfg>;
 
 	using ConnectionsTable      = std::map<FifoCfg, std::shared_ptr<Fifo>>;
-	using ConnChangeHandler     = std::function<void(ConnectionsTable)>;
-	using ReadHandler           = std::function<void(ConnectionsTable, FifoRead::Data&&)>;
+	using ConnChangeHandler     = std::function<void(FifoCfg)>;
+	using ReadHandler           = std::function<void(FifoCfg, FifoRead::Data&&)>;
 	using IdDistributionHandler = std::function<ConnectionsTable()>;
 
-	Server( ServedFiles  nameChannelsFifo);
+	Server( ServedFiles const & nameChannelsFifo);
 
 	void setReadHandler(ReadHandler h);
 
@@ -31,7 +31,7 @@ public:
 private:
 	ConnectionsTable connectionTable;
 
-	void getter(FifoRead::Data&& data);
+	void getter(FifoCfg object,FifoRead::Data&& data);
 	void logicConnect(std::shared_ptr<Fifo> object);
 
 	void logicDisconnect(std::shared_ptr<Fifo> object);
