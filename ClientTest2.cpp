@@ -5,6 +5,7 @@
 #include <iostream>
 int main()
 {
+    using namespace Ipc;
 	std::cout << "клиент" << std::endl << std::endl;
 	std::string FIFO1 = "/home/ilya/fifo1";
 	std::string FIFO2 = "/home/ilya/fifo2";
@@ -24,6 +25,7 @@ int main()
 
 	Client client1(k2);
 	client1.setReadHandler(e);
+
 
 
 	client1.start();

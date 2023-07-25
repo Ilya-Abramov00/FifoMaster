@@ -83,13 +83,13 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin)
 		dataClient1.insert(dataClient1.begin(), dataq.data(), dataq.data() + dataq.size());
 	};
 	bool client1Connection{false};
-	bool client1Disonnection{false};
+	bool client1Disconnection{false};
 	client1.setReadHandler(getterClient1);
 	client1.setConnectHandler([&client1Connection]() {
 		client1Connection = true;
 	});
-	client1.setDisconnectHandler([&client1Disonnection]() {
-		client1Disonnection = true;
+	client1.setDisconnectHandler([&client1Disconnection]() {
+        client1Disconnection = true;
 	});
 
 	Client client2(k2);
@@ -98,13 +98,13 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin)
         dataClient2.insert(dataClient2.begin(), dataq.data(), dataq.data() + dataq.size());
 	};
 	bool client2Connection{false};
-	bool client2Disonnection{false};
+	bool client2Disconnection{false};
 	client2.setReadHandler(getterClient2);
 	client2.setConnectHandler([&client2Connection]() {
 		client2Connection = true;
 	});
-	client2.setDisconnectHandler([&client2Disonnection]() {
-		client2Disonnection = true;
+	client2.setDisconnectHandler([&client2Disconnection]() {
+        client2Disconnection = true;
 	});
 
 	Client client3(k3);
@@ -113,13 +113,13 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin)
         dataClient3.insert(dataClient3.begin(), dataq.data(), dataq.data() + dataq.size());
 	};
 	bool client3Connection{false};
-	bool client3Disonnection{false};
+	bool client3Disconnection{false};
 	client3.setReadHandler(getterClient3);
 	client3.setConnectHandler([&client3Connection]() {
 		client3Connection = true;
 	});
-	client3.setDisconnectHandler([&client3Disonnection]() {
-		client3Disonnection = true;
+	client3.setDisconnectHandler([&client3Disconnection]() {
+        client3Disconnection = true;
 	});
 
 	std::thread tServer([&server, &n, this]() {
@@ -147,13 +147,13 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin)
 	ASSERT_TRUE(serverDisonnection == true);
 
 	ASSERT_TRUE(client1Connection == true);
-	ASSERT_TRUE(client1Disonnection == true);
+	ASSERT_TRUE(client1Disconnection == true);
 
 	ASSERT_TRUE(client2Connection == true);
-	ASSERT_TRUE(client2Disonnection == true);
+	ASSERT_TRUE(client2Disconnection == true);
 
 	ASSERT_TRUE(client3Connection == true);
-	ASSERT_TRUE(client3Disonnection == true);
+	ASSERT_TRUE(client3Disconnection == true);
 
 	ASSERT_TRUE(dataServer.size() == 3 * n * 10);
 	ASSERT_TRUE(dataClient1.size() == n * 10);
