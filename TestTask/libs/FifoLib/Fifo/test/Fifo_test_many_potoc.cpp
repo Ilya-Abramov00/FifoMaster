@@ -28,6 +28,7 @@ TEST(Fifo_many_potoc, 1)
 
 	client2.start();
 
+    sleep(1);
 	std::string a0(n, '0');
 	std::thread t([&client2, &a0, &n]() {
 		client2.write((void*)a0.data(), n);
@@ -116,6 +117,10 @@ TEST(Fifo_many_potoc, 1)
 	t91.join();
 	t101.join();
 	t111.join();
+
+    std::cout<<data.size()<<std::endl;
+    std::cout<<n * 12<<std::endl;
+
 
 	ASSERT_TRUE(data.size() == n * 12);
 	// вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
@@ -146,6 +151,7 @@ TEST(Fifo_many_potoc, 2)
 
 	client2.start();
 
+    sleep(1);
 	std::string a0(n, '0');
 	std::thread t([&client2, &a0, &n]() {
 		client2.write((void*)a0.data(), n);
@@ -206,7 +212,7 @@ TEST(Fifo_many_potoc, 2)
 		client2.write((void*)t11.data(), n);
 	});
 
-	sleep(3);
+	sleep(5);
 
 	client2.stop();
 
@@ -234,6 +240,9 @@ TEST(Fifo_many_potoc, 2)
 	t91.join();
 	t101.join();
 	t111.join();
+
+    std::cout<<data.size()<<std::endl;
+    std::cout<<n * 12<<std::endl;
 
 	ASSERT_TRUE(data.size() == n * 12);
 	// вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
@@ -263,6 +272,7 @@ TEST(Fifo_many_potoc, 3)
 
 	client2.start();
 
+    sleep(2);
 	std::string a0(n, '0');
 	std::thread t([&client2, &a0, &n]() {
 		client2.write((void*)a0.data(), n);

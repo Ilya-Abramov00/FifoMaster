@@ -17,7 +17,7 @@ TEST(big_data, 1)
 
 	};
 	FifoRead client1(FIFO2);
-	FifoWrite client2(FIFO2);
+	FifoWriteQueue client2(FIFO2);
 
 	client1.setReadHandler(getterRead);
 
@@ -112,7 +112,7 @@ TEST(big_data, 2)
 
 	};
 	FifoRead client1(FIFO2);
-	FifoWrite client2(FIFO2);
+	FifoWriteQueue client2(FIFO2);
 
 	client1.setReadHandler(getterRead);
 
