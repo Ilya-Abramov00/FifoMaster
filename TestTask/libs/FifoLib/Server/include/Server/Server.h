@@ -15,7 +15,6 @@ public:
 	using ConnectionsTable      = std::map<size_t, std::shared_ptr<Fifo>>;
 
 	using ReadHandler           = std::function<void(FifoCfg, FifoRead::Data&&)>;
-
 	using EventHandler = std::function<void(size_t)>;
 
 	Server(ServerFiles const & nameChannelsFifo);

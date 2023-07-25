@@ -9,14 +9,14 @@ void Server::getter( FifoCfg object,FifoRead::Data&& data)
 void Server::connect(size_t id,std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitConnectWrite() && object->getWaitConnectRead()) {
-		std::cout << "Connect " << object->getNameRead()<< std::endl;
+		std::cout << "Connect " << id<< std::endl;
 		connectHandler(id);
 	}
 };
 void Server::disconnect(size_t id,std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitDisconnectWrite() || object->getWaitDisconnectRead()) {
-		std::cout << "Disconnect " << object->getNameRead()<< std::endl;
+		std::cout << "Disconnect " << id<< std::endl;
 		disconnectHandler(id);
 	}
 };

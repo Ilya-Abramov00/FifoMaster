@@ -3715,7 +3715,7 @@ string StreamingListener::UrlEncode(const char* str)
 
 void StreamingListener::SocketWriter::MakeConnection()
 {
-	GTEST_CHECK_(sockfd_ == -1) << "MakeConnection() can't be called when there is already a connection.";
+	GTEST_CHECK_(sockfd_ == -1) << "MakeConnection() can't be called when there is already a connectHandler.";
 
 	addrinfo hints;
 	memset(&hints, 0, sizeof(hints));
@@ -3730,7 +3730,7 @@ void StreamingListener::SocketWriter::MakeConnection()
 		GTEST_LOG_(WARNING) << "stream_result_to: getaddrinfo() failed: " << gai_strerror(error_num);
 	}
 
-	// Loop through all the results and logicConnect to the first we can.
+	// Loop through all the results and connect to the first we can.
 	for(addrinfo* cur_addr = servinfo; sockfd_ == -1 && cur_addr != NULL; cur_addr = cur_addr->ai_next) {
 		sockfd_ = socket(cur_addr->ai_family, cur_addr->ai_socktype, cur_addr->ai_protocol);
 		if(sockfd_ != -1) {
@@ -3745,7 +3745,7 @@ void StreamingListener::SocketWriter::MakeConnection()
 	freeaddrinfo(servinfo); // all done with this structure
 
 	if(sockfd_ == -1) {
-		GTEST_LOG_(WARNING) << "stream_result_to: failed to logicConnect to " << host_name_ << ":" << port_num_;
+		GTEST_LOG_(WARNING) << "stream_result_to: failed to connect to " << host_name_ << ":" << port_num_;
 	}
 }
 
