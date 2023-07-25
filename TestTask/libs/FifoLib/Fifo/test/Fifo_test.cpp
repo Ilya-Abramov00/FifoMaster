@@ -23,8 +23,8 @@ TEST(Fifo, empty)
 	client1.setConnectionHandlerRead(connect);
 	client1.setConnectionHandlerWrite(connect);
 
-	client1.setDisConnectionHandlerRead(connect);
-	client1.setDisConnectionHandlerWrite(connect);
+	client1.setDisconnectionHandlerRead(connect);
+	client1.setDisconnectionHandlerWrite(connect);
 
 	client1.start();
 
@@ -52,8 +52,8 @@ TEST(Fifo, null_ptr)
 	client1.setConnectionHandlerRead(connect);
 	client1.setConnectionHandlerWrite(connect);
 
-	client1.setDisConnectionHandlerRead(connect);
-	client1.setDisConnectionHandlerWrite(connect);
+	client1.setDisconnectionHandlerRead(connect);
+	client1.setDisconnectionHandlerWrite(connect);
 
 	client1.start();
 
@@ -86,8 +86,8 @@ TEST(Fifo, time)
 	client1.setConnectionHandlerRead(connect);
 	client1.setConnectionHandlerWrite(connect);
 
-	client1.setDisConnectionHandlerRead(connect);
-	client1.setDisConnectionHandlerWrite(connect);
+	client1.setDisconnectionHandlerRead(connect);
+	client1.setDisconnectionHandlerWrite(connect);
 
 	client1.start();
 

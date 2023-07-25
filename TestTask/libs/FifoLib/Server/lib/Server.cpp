@@ -6,60 +6,64 @@ void Server::getter( FifoCfg object,FifoRead::Data&& data)
 	readHandler(object, std::move(data));
 };
 
-void Server::logicConnect(std::shared_ptr<Fifo> object)
+void Server::connect(size_t id,std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitConnectWrite() && object->getWaitConnectRead()) {
 		std::cout << "Connect " << object->getNameRead()<< std::endl;
+		connectHandler(id);
 	}
 };
-void Server::logicDisconnect(std::shared_ptr<Fifo> object)
+void Server::disconnect(size_t id,std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitDisconnectWrite() || object->getWaitDisconnectRead()) {
 		std::cout << "Disconnect " << object->getNameRead()<< std::endl;
+		disconnectHandler(id);
 	}
 };
 
-Server::Server(  ServedFiles const& nameChannelsfifo)
+Server::Server(ServerFiles const& nameChannelsfifo)
 {
+	size_t id=0;
 	for(auto const&  name: nameChannelsfifo) {
 
-		connectionTable.insert({name, std::make_unique<Fifo>(name.reverseFile, name.directFile)});
+        fifoCfgTable.insert({id,name});
 
-		connectionTable[name]->setReadHandler([this,name](FifoRead::Data&& data) {
+		connectionTable.insert({id, std::make_unique<Fifo>(name.reverseFile, name.directFile)});
+
+		connectionTable[id]->setReadHandler([this,name](FifoRead::Data&& data) {
 			this->getter(name,std::move(data));
 		});
 
-		connectionTable[name]->setConnectionHandlerRead([this, name]() {
-			this->logicConnect(connectionTable[name]);
+		connectionTable[id]->setConnectionHandlerRead([this, id]() {
+			this->connect(id,connectionTable[id]);
 		});
 
-		connectionTable[name]->setDisConnectionHandlerRead([this, name]() {
-			connectionTable[name]->closeWrite();
-		this->logicDisconnect(connectionTable[name]);
+		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
+			connectionTable[id]->closeWrite(); // чтобы не приходилась ждать stop
+			this->disconnect(id,connectionTable[id]);
 		});
 
-		connectionTable[name]->setConnectionHandlerWrite([this, name]() {
-			this->logicConnect(connectionTable[name]);
+		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
+			this->connect(id,connectionTable[id]);
 		});
 
-		connectionTable[name]->setDisConnectionHandlerWrite([this, name]() {
-			connectionTable[name]->closeRead();
-			this->logicDisconnect(connectionTable[name]);
+		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
+			connectionTable[id]->closeRead(); // чтобы не приходилась ждать stop
+			this->disconnect(id,connectionTable[id]);
 		});
+		id++;
 	}
 }
 void Server::start()
 {
-	if(!newHandler) {
-		throw std::runtime_error("callback newHandler not set");
-	}
-	if(!closeHandler) {
-		throw std::runtime_error("callback closeHandler not set");
-	}
 	if(!readHandler) {
 		throw std::runtime_error("callback readHandler not set");
 	}
-
+	if(!connectHandler) {
+		throw std::runtime_error("callback connectHandler not set");
+	}if(!disconnectHandler) {
+		throw std::runtime_error("callback disconnectHandler not set");
+	}
 	for(const auto& Fifo: connectionTable) {
 		Fifo.second->start();
 	}
@@ -75,17 +79,16 @@ void Server::setReadHandler(ReadHandler h)
 {
 	readHandler = std::move(h);
 }
-void Server::setNewConnectionHandler(Server::ConnChangeHandler h)
-{
-	newHandler = std::move(h);
-}
 
-void Server::setCloseConnectionHandler(Server::ConnChangeHandler h)
+void Server::setDisconnectHandler(EventHandler h)
 {
-	closeHandler = std::move(h);
-}
+	disconnectHandler = std::move(h);}
 
-void Server::write(FifoCfg object, const void* data, size_t sizeInBytes)
+void Server::setConnectHandler(EventHandler h)
 {
-	connectionTable[object]->write(data, sizeInBytes);
+	connectHandler = std::move(h);}
+
+void Server::write(size_t id, const void* data, size_t sizeInBytes)
+{
+	connectionTable[id]->write(data, sizeInBytes);
 }

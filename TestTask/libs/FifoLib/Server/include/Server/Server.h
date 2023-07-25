@@ -9,37 +9,42 @@
 
 class Server {
 public:
-	using ServedFiles = std::list<FifoCfg>;
+	using ServerFiles           = std::list<FifoCfg>;
+	using FifoCfgTable      = std::map<size_t ,FifoCfg>;
 
-	using ConnectionsTable      = std::map<FifoCfg, std::shared_ptr<Fifo>>;
-	using ConnChangeHandler     = std::function<void(FifoCfg)>;
+	using ConnectionsTable      = std::map<size_t, std::shared_ptr<Fifo>>;
+
 	using ReadHandler           = std::function<void(FifoCfg, FifoRead::Data&&)>;
-	using IdDistributionHandler = std::function<ConnectionsTable()>;
 
-	Server( ServedFiles const & nameChannelsFifo);
+	using EventHandler = std::function<void(size_t)>;
+
+	Server(ServerFiles const & nameChannelsFifo);
 
 	void setReadHandler(ReadHandler h);
 
-	void setNewConnectionHandler(ConnChangeHandler h);
-	void setCloseConnectionHandler(ConnChangeHandler h);
+	void setConnectHandler(EventHandler h);
+	void setDisconnectHandler(EventHandler h);
 
-	void write(FifoCfg object, const void* data, size_t sizeInBytes);
+	void write(size_t id, const void* data, size_t sizeInBytes);
 
 	void start();
 	void stop();
 
 private:
+	FifoCfgTable fifoCfgTable;
 	ConnectionsTable connectionTable;
 
-	void getter(FifoCfg object,FifoRead::Data&& data);
-	void logicConnect(std::shared_ptr<Fifo> object);
+	EventHandler connectHandler;
+	EventHandler disconnectHandler;
 
-	void logicDisconnect(std::shared_ptr<Fifo> object);
+	void getter(FifoCfg object,FifoRead::Data&& data);
+
+	void connect(size_t id,std::shared_ptr<Fifo> object);
+	void disconnect(size_t id,std::shared_ptr<Fifo> object);
 
 	ReadHandler readHandler;
 
-	ConnChangeHandler newHandler;
-	ConnChangeHandler closeHandler;
+
 };
 
 // virtual ~Server() = default;

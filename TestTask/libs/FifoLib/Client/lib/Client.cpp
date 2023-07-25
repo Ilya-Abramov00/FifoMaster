@@ -10,13 +10,13 @@ Client::Client(FifoCfg name) :client(name.directFile,name.reverseFile){
 	client.setConnectionHandlerRead([this]() {
 		this->logicConnect();
 	});
-	client.setDisConnectionHandlerRead([this]() {
+	client.setDisconnectionHandlerRead([this]() {
 		this->logicDisConnect();
 	});
 	client.setConnectionHandlerWrite([this]() {
 		this->logicConnect();
 	});
-	client.setDisConnectionHandlerWrite([this]() {
+	client.setDisconnectionHandlerWrite([this]() {
 		this->logicDisConnect();
 	});
 }

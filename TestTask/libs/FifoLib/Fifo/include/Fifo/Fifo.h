@@ -17,10 +17,10 @@ public:
 	Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
 
 	void setConnectionHandlerRead(FifoBase::ConnectionHandler handler);
-	void setDisConnectionHandlerRead(FifoBase::ConnectionHandler handler);
+	void setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler);
 
 	void setConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
-	void setDisConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
+	void setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler);
 
 	void setReadHandler(FifoRead::ReadHandler handler);
 
@@ -42,8 +42,8 @@ public:
 	std::string const getNameWrite()const;
 
 	void closeRead();
-
 	void closeWrite();
+
 private:
 	FifoWrite fifoWrite;
 	FifoRead fifoRead;

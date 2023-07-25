@@ -1,5 +1,16 @@
 
-
+//void Server::connect(std::shared_ptr<Fifo> object)
+//{
+//	if(object->getWaitConnectWrite() && object->getWaitConnectRead()) {
+//		std::cout << "Connect " << object->getNameRead()<< std::endl;
+//	}
+//};
+//void Server::disconnectr(std::shared_ptr<Fifo> object)
+//{
+//	if(object->getWaitDisconnectWrite() || object->getWaitDisconnectRead()) {
+//		std::cout << "Disconnect " << object->getNameRead()<< std::endl;
+//	}
+//};
 #include "Fifo/Fifo.h"
 #include "Server/Server.h"
 
@@ -39,16 +50,17 @@ std::cout<<"Server\n\n";
 
 	Server a(z);
 	a.setReadHandler(e);
-	a.setCloseConnectionHandler(c);
-	a.setNewConnectionHandler(q);
+
+a.setConnectHandler([](size_t){});
+a.setDisconnectHandler([](size_t){});
 	a.start();
 
 	auto x=2;
+	std::string eqq(x, 'a');
 	for(int i = 0; i != 4; i++) {
-		std::string eqq(x, 'a');
-	a.write(k1, (void*)eqq.data(), x);
-	a.write(k2, (void*)eqq.data(), x);
-	a.write(k3, (void*)eqq.data(), x);
+	a.write(0, (void*)eqq.data(), x);
+	a.write(1, (void*)eqq.data(), x);
+	a.write(2, (void*)eqq.data(), x);
 		sleep(1);
 	}
 

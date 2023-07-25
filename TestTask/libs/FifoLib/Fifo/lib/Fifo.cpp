@@ -13,7 +13,7 @@ void Fifo::setConnectionHandlerRead(FifoBase::ConnectionHandler handler)
 {
 	fifoRead.setConnectionHandler(std::move(handler));
 }
-void Fifo::setDisConnectionHandlerRead(FifoBase::ConnectionHandler handler)
+void Fifo::setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler)
 {
 	fifoRead.setDisConnectionHandler(std::move(handler));
 }
@@ -22,7 +22,7 @@ void Fifo::setConnectionHandlerWrite(FifoBase::ConnectionHandler handler)
 {
 	fifoWrite.setConnectionHandler(std::move(handler));
 }
-void Fifo::setDisConnectionHandlerWrite(FifoBase::ConnectionHandler handler)
+void Fifo::setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler)
 {
 	fifoWrite.setDisConnectionHandler(std::move(handler));
 }

@@ -22,8 +22,8 @@ TEST(Fifo_many_potoc, 1)
 	client2.setConnectionHandlerRead(connect);
 	client2.setConnectionHandlerWrite(connect);
 
-	client2.setDisConnectionHandlerRead(connect);
-	client2.setDisConnectionHandlerWrite(connect);
+	client2.setDisconnectionHandlerRead(connect);
+	client2.setDisconnectionHandlerWrite(connect);
 
 
 	client2.start();
@@ -140,8 +140,8 @@ TEST(Fifo_many_potoc, 2)
 	client2.setConnectionHandlerRead(connect);
 	client2.setConnectionHandlerWrite(connect);
 
-	client2.setDisConnectionHandlerRead(connect);
-	client2.setDisConnectionHandlerWrite(connect);
+	client2.setDisconnectionHandlerRead(connect);
+	client2.setDisconnectionHandlerWrite(connect);
 
 
 	client2.start();
@@ -257,8 +257,8 @@ TEST(Fifo_many_potoc, 3)
 	client2.setConnectionHandlerRead(connect);
 	client2.setConnectionHandlerWrite(connect);
 
-	client2.setDisConnectionHandlerRead(connect);
-	client2.setDisConnectionHandlerWrite(connect);
+	client2.setDisconnectionHandlerRead(connect);
+	client2.setDisconnectionHandlerWrite(connect);
 
 
 	client2.start();

@@ -69,7 +69,7 @@ void FifoWrite::stopWrite()
 			threadWriteFifo->join();
 		}
 		if(queue.size()) {
-			std::cerr << "данные не отправились\n";
+			std::cerr <<getName()<< " канал не смог отправить данные в полном размере";
 		}
 }
 
@@ -79,16 +79,18 @@ void FifoWrite::writeFifo()
 		throw std::runtime_error(" fail openFifo ");
 	}
 	while(runWrite) {
-		std::lock_guard<std::mutex> mtx_0(mtx);
-		if(!queue.empty()) {
-			signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
-			auto flag = write(fifoFd, queue.front().data(), queue.front().size());
-			if(flag == -1) {
-				waitDisConnect = true;
-				params.disconnectHandler();
-				return;
+		{
+			std::lock_guard<std::mutex> mtx_0(mtx);
+			if(!queue.empty()) {
+				signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
+				auto flag = write(fifoFd, queue.front().data(), queue.front().size());
+				if(flag == -1) {
+					waitDisConnect = true;
+					params.disconnectHandler();
+					return;
+				}
+				queue.pop();
 			}
-			queue.pop();
 		}
 	}
 }
@@ -101,8 +103,10 @@ void FifoWrite::pushData(const void* data, size_t sizeN)
 	}
 	auto ptr = reinterpret_cast<const uint8_t*>(data);
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
-	std::lock_guard<std::mutex> mtx_0(mtx);
-	queue.push(std::move(buffer));
+	{
+		std::lock_guard<std::mutex> mtx_0(mtx);
+		queue.push(std::move(buffer));
+	}
 }
 bool const FifoWrite::getWaitDisconnect() const
 {

@@ -3,11 +3,11 @@
 #include "Server/Server.h"
 
 using namespace std;
-void c(Server::ConnectionsTable w)
+void c(FifoCfg name )
 {
 	std::cout << "CloseConnectionHandler\n";
 };
-void q(Server::ConnectionsTable w)
+void q(FifoCfg name )
 {
 	std::cout << "NewConnectionHandler\n";
 };
@@ -21,20 +21,24 @@ TEST(Fifo, start)
 	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto e = [&](Server::ConnectionsTable, FifoRead::Data&& dataq) {
+	FifoCfg k1{FIFO1,FIFO1+"_reverse"};
+	FifoCfg k2{FIFO2,FIFO2+"_reverse"};
+	FifoCfg k3{FIFO3,FIFO3+"_reverse"};
+
+	auto e = [&](FifoCfg name, FifoRead::Data&& dataq) {
+
+		std::cout << "\n пришли от "<<name.directFile;
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
-		std::cout << "пришли данные\n";
+		std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
+	std::list<FifoCfg> z={k1,k2,k3};
 
-	Server a(std::vector<std::string>{FIFO1,FIFO2,FIFO3});
-
+	Server a(z);
 	a.setReadHandler(e);
-	a.setCloseConnectionHandler(c);
-	a.setNewConnectionHandler(q);
 
 	std::string eqq(n, 'a');
 
-	a.write(a.connectionTable.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
+	a.write(k1, (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
 
 	a.start();
 
@@ -58,29 +62,36 @@ TEST(Fifo, empty)
 	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto e = [&](Server::ConnectionsTable, FifoRead::Data&& dataq) {
+	FifoCfg k1{FIFO1,FIFO1+"_reverse"};
+	FifoCfg k2{FIFO2,FIFO2+"_reverse"};
+	FifoCfg k3{FIFO3,FIFO3+"_reverse"};
+
+	auto e = [&](FifoCfg name, FifoRead::Data&& dataq) {
+
+		std::cout << "\n пришли от "<<name.directFile;
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
-		std::cout << "пришли данные\n";
+		std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
+	std::list<FifoCfg> z={k1,k2,k3};
 
-	Server a(std::vector<std::string>{FIFO1,FIFO2,FIFO3});
-
+	Server a(z);
 	a.setReadHandler(e);
-	a.setCloseConnectionHandler(c);
-	a.setNewConnectionHandler(q);
+
 
 	std::string eqq(n, 'a');
 
-	a.write(a.connectionTable.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
+	a.write(k1, (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
 
 	a.start();
 
 	sleep(1);
 
-
-
 	a.stop();
 
+	a.start();
 
+	sleep(1);
+
+	a.stop();
 }
 
