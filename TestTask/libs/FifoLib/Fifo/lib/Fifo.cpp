@@ -74,4 +74,3 @@ void Fifo::closeWrite()
 {
 	close(fifoWrite.getFifoFd());
 }
-

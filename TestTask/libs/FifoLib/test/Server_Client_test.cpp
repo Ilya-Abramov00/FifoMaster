@@ -4,15 +4,14 @@
 #include "Server/Server.h"
 #include "thread"
 
-class ServerClientTest : public ::testing::Test{
+class ServerClientTest : public ::testing::Test {
 public:
-	void SetUp() override{
+	void SetUp() override
+	{}
+	void TearDown() override
+	{}
 
-	}
-	void TearDown() override{
-	}
 private:
-
 };
 TEST_F(ServerClientTest, Clients3To1ServerConnectin)
 {
@@ -130,5 +129,4 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin)
 	ASSERT_TRUE(dataClient1.size() == n * 10);
 	ASSERT_TRUE(dataClient2.size() == n * 10);
 	ASSERT_TRUE(dataClient3.size() == n * 10);
-
 }

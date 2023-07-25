@@ -45,7 +45,7 @@ TEST(Fifo, null_ptr)
 	auto connect = []() {
 
 	};
-	Fifo client1(FIFO2,FIFO2);
+	Fifo client1(FIFO2, FIFO2);
 
 	client1.setReadHandler(getterRead);
 
@@ -76,9 +76,10 @@ TEST(Fifo, time)
 	auto getterRead = [&](FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
-	auto connect = []() {	};
+	auto connect = []() {
+	};
 
-	Fifo client1(FIFO2,FIFO2);
+	Fifo client1(FIFO2, FIFO2);
 
 	client1.setReadHandler(getterRead);
 
@@ -91,18 +92,17 @@ TEST(Fifo, time)
 	client1.start();
 
 	std::string da(n, '3');
-    sleep(2);
-   if(client1.getWaitConnectWrite()) {
-       client1.write((void *) da.data(), n);
-       std::cout<<"df";
-   }
 	sleep(2);
-
+	if(client1.getWaitConnectWrite()) {
+		client1.write((void*)da.data(), n);
+		std::cout << "df";
+	}
+	sleep(2);
 
 	client1.stop();
 
-    std::cout<<data.size()<<std::endl;
-    std::cout<<n <<std::endl;
+	std::cout << data.size() << std::endl;
+	std::cout << n << std::endl;
 
 	ASSERT_TRUE(data.size() == n);
 	ASSERT_TRUE(data == std::string(n, '3'));

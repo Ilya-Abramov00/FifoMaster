@@ -27,8 +27,6 @@ TEST(big_data, 1)
 	client2.setConnectionHandler(connect);
 	client2.setDisConnectionHandler(connect);
 
-
-
 	client1.startRead();
 	client2.startWrite();
 

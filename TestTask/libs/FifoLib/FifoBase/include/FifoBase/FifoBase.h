@@ -2,9 +2,6 @@
 #define FIFO_BASE_H
 #include <functional>
 
-
-
-
 // class FifoException : public std::runtime_error {
 // public:
 //	FifoException(std::string const& msg);

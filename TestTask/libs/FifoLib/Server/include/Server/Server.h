@@ -5,17 +5,15 @@
 #include "map"
 #include "Fifo/Fifo.h"
 
-
-
 class Server {
 public:
-	using FifoCfgTable      = std::map<size_t ,FifoCfg>;
-	using ConnectionsTable      = std::map<size_t, std::shared_ptr<Fifo>>;
+	using FifoCfgTable     = std::map<size_t, FifoCfg>;
+	using ConnectionsTable = std::map<size_t, std::shared_ptr<Fifo>>;
 
-	using ReadHandler           = std::function<void(FifoCfg, FifoRead::Data&&)>;
+	using ReadHandler  = std::function<void(FifoCfg, FifoRead::Data&&)>;
 	using EventHandler = std::function<void(size_t)>;
 
-	Server(std::list<FifoCfg> const & nameChannelsFifo);
+	Server(std::list<FifoCfg> const& nameChannelsFifo);
 
 	void setReadHandler(ReadHandler h);
 
@@ -36,12 +34,10 @@ private:
 
 	ReadHandler readHandler;
 
-	void getter(FifoCfg object,FifoRead::Data&& data);
-	void connect(size_t id,std::shared_ptr<Fifo> object);
+	void getter(FifoCfg object, FifoRead::Data&& data);
+	void connect(size_t id, std::shared_ptr<Fifo> object);
 
-	void disconnect(size_t id,std::shared_ptr<Fifo> object);
-
-
+	void disconnect(size_t id, std::shared_ptr<Fifo> object);
 };
 
 // virtual ~Server() = default;

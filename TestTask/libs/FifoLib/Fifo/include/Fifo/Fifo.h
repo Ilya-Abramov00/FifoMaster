@@ -1,7 +1,6 @@
 #ifndef FIFO_H
 #define FIFO_H
 
-
 #include "FifoRead/FifoRead.h"
 #include "FifoWrite/FifoWrite.h"
 
@@ -36,8 +35,8 @@ public:
 
 	void stop();
 
-	std::string const getNameRead()const;
-	std::string const getNameWrite()const;
+	std::string const getNameRead() const;
+	std::string const getNameWrite() const;
 
 	void closeRead();
 	void closeWrite();
@@ -46,8 +45,6 @@ private:
 	FifoWrite fifoWrite;
 	FifoRead fifoRead;
 };
-
-
 
 // virtual ~Server() = default;
 // virtual void start()                                             = 0;

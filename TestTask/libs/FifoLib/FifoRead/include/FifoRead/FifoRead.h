@@ -3,8 +3,6 @@
 
 #include "FifoBase/FifoBase.h"
 
-
-
 #include <string>
 #include <functional>
 #include <thread>
@@ -27,11 +25,12 @@ public:
 
 	bool const getWaitConnect() const;
 
-	std::string const getName()const;
+	std::string const getName() const;
 
-	long const& getFifoFd()const;
+	long const& getFifoFd() const;
 
 	~FifoRead();
+
 private:
 	void waitConnectFifo();
 	void readFifo();

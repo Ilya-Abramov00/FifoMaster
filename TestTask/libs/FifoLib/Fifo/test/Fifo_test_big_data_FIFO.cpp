@@ -79,7 +79,6 @@ TEST(big_data_FIFO, 1)
 
 	client2.stop();
 
-
 	a = a0 + a;
 	a += b;
 	a += c;

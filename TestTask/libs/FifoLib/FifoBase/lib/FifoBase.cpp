@@ -13,7 +13,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
 long FifoBase::openFifo(const std::string fdFileName, const char flag)
 {
 	long fd = -1;

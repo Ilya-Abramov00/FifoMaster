@@ -15,7 +15,7 @@ TEST(Fifo_many_potoc, 1)
 	auto connect = []() {
 
 	};
-	Fifo client2(FIFO2,FIFO2);
+	Fifo client2(FIFO2, FIFO2);
 
 	client2.setReadHandler(getterRead);
 
@@ -25,10 +25,9 @@ TEST(Fifo_many_potoc, 1)
 	client2.setDisconnectionHandlerRead(connect);
 	client2.setDisconnectionHandlerWrite(connect);
 
-
 	client2.start();
 
-    sleep(1);
+	sleep(1);
 	std::string a0(n, '0');
 	std::thread t([&client2, &a0, &n]() {
 		client2.write((void*)a0.data(), n);
@@ -118,9 +117,8 @@ TEST(Fifo_many_potoc, 1)
 	t101.join();
 	t111.join();
 
-    std::cout<<data.size()<<std::endl;
-    std::cout<<n * 12<<std::endl;
-
+	std::cout << data.size() << std::endl;
+	std::cout << n * 12 << std::endl;
 
 	ASSERT_TRUE(data.size() == n * 12);
 	// вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
@@ -142,7 +140,7 @@ TEST(Fifo_many_potoc, 2)
 
 	client2.setReadHandler(getterRead);
 
-	client2.setConnectionHandlerRead(connect);
+	cli ent2.setConnectionHandlerRead(connect);
 	client2.setConnectionHandlerWrite(connect);
 
 	client2.setDisconnectionHandlerRead(connect);
@@ -152,8 +150,12 @@ TEST(Fifo_many_potoc, 2)
 	client2.start();
 
     sleep(1);
-	std::string a0(n, '0');
-	std::thread t([&client2, &a0, &n]() {
+	std::string a0
+
+	'0');
+	std::thre
+
+	&client2, &a0, &n]() {
 		client2.write((void*)a0.data(), n);
 	});
 
@@ -242,10 +244,13 @@ TEST(Fifo_many_potoc, 2)
 	t111.join();
 
     std::cout<<data.size()<<std::endl;
-    std::cout<<n * 12<<std::endl;
+    std::c
 
-	ASSERT_TRUE(data.size() == n * 12);
-	// вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
+	 * 12<<st d: :endl;
+
+	AS SE RT_TRUE(da
+	ze() == n  *  12);
+ 	/ / вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
 }
 TEST(Fifo_many_potoc, 3)
 {
@@ -264,7 +269,7 @@ TEST(Fifo_many_potoc, 3)
 	client2.setReadHandler(getterRead);
 
 	client2.setConnectionHandlerRead(connect);
-	client2.setConnectionHandlerWrite(connect);
+	client2.se tConnectionHandlerWrite(connect);
 
 	client2.setDisconnectionHandlerRead(connect);
 	client2.setDisconnectionHandlerWrite(connect);
@@ -275,7 +280,11 @@ TEST(Fifo_many_potoc, 3)
     sleep(2);
 	std::string a0(n, '0');
 	std::thread t([&client2, &a0, &n]() {
-		client2.write((void*)a0.data(), n);
+
+
+	nt2.write((void*
+
+	ta(), n);
 	});
 
 	std::string a(n, '1');
