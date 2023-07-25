@@ -2,22 +2,38 @@
 #define SERVER_H
 
 #include "list"
+#include "map"
 #include "Fifo/Fifo.h"
 
-struct FifoFiles{
+struct FifoCfg {
 	std::string directFile;
 	std::string reverseFile;
+
+
+	bool operator== (const FifoCfg&other) const
+	{
+		return (this->directFile == other.directFile &&
+		        this->reverseFile == other.reverseFile);
+	}
+	bool operator< (const FifoCfg&other) const
+	{
+		return (directFile < other.directFile );
+
+	}
+
 };
-using ServedFiles = std::list<FifoFiles>;
+
 
 class Server {
 public:
-	using ConnectionId          = std::unordered_map<FifoFiles, std::shared_ptr<Fifo>>;
-	using ConnChangeHandler     = std::function<void(ConnectionId)>;
-	using ReadHandler           = std::function<void(ConnectionId, FifoRead::Data&&)>;
-	using IdDistributionHandler = std::function<ConnectionId()>;
+	using ServedFiles = std::list<FifoCfg>;
 
-	Server( ServedFiles && nameChannelsFifo);
+	using ConnectionsTable      = std::map<FifoCfg, std::shared_ptr<Fifo>>;
+	using ConnChangeHandler     = std::function<void(ConnectionsTable)>;
+	using ReadHandler           = std::function<void(ConnectionsTable, FifoRead::Data&&)>;
+	using IdDistributionHandler = std::function<ConnectionsTable()>;
+
+	Server( ServedFiles  nameChannelsFifo);
 
 	void setReadHandler(ReadHandler h);
 
@@ -28,15 +44,14 @@ public:
 
 	void start();
 	void stop();
-	ConnectionId connectionId;
 
+	ConnectionsTable connectionTable;
 private:
+
 	void getter(FifoRead::Data&& data);
-
 	void logicConnect(std::shared_ptr<Fifo> object);
-	void logicDisconnect(std::shared_ptr<Fifo> object);
 
-	ServedFiles nameChannelsFifo;
+	void logicDisconnect(std::shared_ptr<Fifo> object);
 
 	ReadHandler readHandler;
 
@@ -47,8 +62,8 @@ private:
 // virtual ~Server() = default;
 // virtual void start()                                             = 0;
 // virtual void stop()                                              = 0;
-// virtual void write(ConnectionId id, const void* data, size_t sz) = 0;
-// virtual void disconnect(ConnectionId id)                         = 0;
+// virtual void write(ConnectionsTable id, const void* data, size_t sz) = 0;
+// virtual void disconnect(ConnectionsTable id)                         = 0;
 // void setNewConnectionHandler(ConnChangeHandler h)
 //{
 //	newHandler = h;

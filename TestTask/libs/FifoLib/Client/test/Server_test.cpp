@@ -34,7 +34,7 @@ TEST(Fifo, start)
 
 	std::string eqq(n, 'a');
 
-	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
+	a.write(a.connectionTable.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
 
 	a.start();
 
@@ -71,7 +71,7 @@ TEST(Fifo, empty)
 
 	std::string eqq(n, 'a');
 
-	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
+	a.write(a.connectionTable.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
 
 	a.start();
 

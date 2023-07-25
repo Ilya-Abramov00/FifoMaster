@@ -23,10 +23,7 @@ public:
 	void pushData(const void* data, size_t sizeN);
 
 	bool const getWaitDisconnect() const;
-	bool const getWaitConnect() const
-	{
-		return waitConnect;
-	}
+	bool const getWaitConnect() const;
 
 	std::string const getName()const;
 

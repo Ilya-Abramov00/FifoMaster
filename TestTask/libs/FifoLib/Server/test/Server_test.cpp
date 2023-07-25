@@ -3,11 +3,11 @@
 #include "Server/Server.h"
 
 using namespace std;
-void c(Server::ConnectionId w)
+void c(Server::ConnectionsTable w)
 {
 	std::cout << "CloseConnectionHandler\n";
 };
-void q(Server::ConnectionId w)
+void q(Server::ConnectionsTable w)
 {
 	std::cout << "NewConnectionHandler\n";
 };
@@ -21,7 +21,7 @@ TEST(Fifo, start)
 	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto e = [&](Server::ConnectionId, FifoRead::Data&& dataq) {
+	auto e = [&](Server::ConnectionsTable, FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 		std::cout << "пришли данные\n";
 	};
@@ -34,7 +34,7 @@ TEST(Fifo, start)
 
 	std::string eqq(n, 'a');
 
-	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
+	a.write(a.connectionTable.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
 
 	a.start();
 
@@ -58,7 +58,7 @@ TEST(Fifo, empty)
 	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto e = [&](Server::ConnectionId, FifoRead::Data&& dataq) {
+	auto e = [&](Server::ConnectionsTable, FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 		std::cout << "пришли данные\n";
 	};
@@ -71,7 +71,7 @@ TEST(Fifo, empty)
 
 	std::string eqq(n, 'a');
 
-	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
+	a.write(a.connectionTable.at(FIFO1), (void*)eqq.data(), n);//надо  уметь сигнализировать о том, что данные не отправились
 
 	a.start();
 

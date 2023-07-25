@@ -5,11 +5,11 @@
 
 #include <thread>
 #include <iostream>
-void c(Server::ConnectionId w)
+void c(Server::ConnectionsTable w)
 {
 	std::cout << "CloseConnectionHandler\n";
 };
-void q(Server::ConnectionId w)
+void q(Server::ConnectionsTable w)
 {
 	std::cout << "NewConnectionHandler\n";
 };
@@ -24,14 +24,18 @@ std::cout<<"Server\n\n";
 	std::string data = "";
 	data.reserve(n * 1024);
 
-	auto e = [&](Server::ConnectionId, FifoRead::Data&& dataq) {
+	auto e = [&](Server::ConnectionsTable, FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 		std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 		std::cout << "пришли данные\n";
 	};
+FifoCfg a1={FIFO1,FIFO1};
+FifoCfg a2={FIFO2,FIFO2};
+FifoCfg a3={FIFO3,FIFO3};
 
-	Server a(std::vector<std::string>{FIFO1,FIFO2,FIFO3});
+	std::list<FifoCfg> z={a1,a2,a3};
 
+	Server a(z);
 	a.setReadHandler(e);
 	a.setCloseConnectionHandler(c);
 	a.setNewConnectionHandler(q);
@@ -40,9 +44,9 @@ std::cout<<"Server\n\n";
 	auto x=2;
 	for(int i = 0; i != 4; i++) {
 		std::string eqq(x, 'a');
-	a.write(a.connectionId.at(FIFO1), (void*)eqq.data(), x);
-	a.write(a.connectionId.at(FIFO2), (void*)eqq.data(), x);
-	a.write(a.connectionId.at(FIFO3), (void*)eqq.data(), x);
+	a.write(a.connectionTable.at(a1), (void*)eqq.data(), x);
+	a.write(a.connectionTable.at(a2), (void*)eqq.data(), x);
+	a.write(a.connectionTable.at(a3), (void*)eqq.data(), x);
 		sleep(1);
 	}
 

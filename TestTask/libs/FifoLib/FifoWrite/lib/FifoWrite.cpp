@@ -116,3 +116,7 @@ long const& FifoWrite::getFifoFd() const
 {
 	return fifoFd;
 }
+bool const FifoWrite::getWaitConnect() const
+{
+	return waitConnect;
+}

@@ -3,7 +3,7 @@
 
 void Server::getter(FifoRead::Data&& data)
 {
-	readHandler(connectionId, std::move(data));
+	readHandler(connectionTable, std::move(data));
 };
 
 void Server::logicConnect(std::shared_ptr<Fifo> object)
@@ -19,32 +19,32 @@ void Server::logicDisconnect(std::shared_ptr<Fifo> object)
 	}
 };
 
-Server::Server( ServedFiles&& nameChannelsfifo) : nameChannelsFifo(nameChannelsfifo)
+Server::Server(  ServedFiles nameChannelsfifo)
 {
-	for(auto name: nameChannelsfifo) {
+	for(auto  const& name: nameChannelsfifo) {
 
-		connectionId[name] = std::make_unique<Fifo>(name.directFile, name.reverseFile);
+		connectionTable.insert({name, std::make_unique<Fifo>(name.directFile, name.reverseFile)});
 
-		connectionId[name]->setReadHandler([this](FifoRead::Data&& data) {
+		connectionTable[name]->setReadHandler([this](FifoRead::Data&& data) {
 			this->getter(std::move(data));
 		});
 
-		connectionId[name]->setConnectionHandlerRead([this, name]() {
-			this->logicConnect(connectionId[name]);
+		connectionTable[name]->setConnectionHandlerRead([this, name]() {
+			this->logicConnect(connectionTable[name]);
 		});
 
-		connectionId[name]->setDisConnectionHandlerRead([this, name]() {
-			connectionId[name]->closeWrite();
-		this->logicDisconnect(connectionId[name]);
+		connectionTable[name]->setDisConnectionHandlerRead([this, name]() {
+			connectionTable[name]->closeWrite();
+		this->logicDisconnect(connectionTable[name]);
 		});
 
-		connectionId[name]->setConnectionHandlerWrite([this, name]() {
-			this->logicConnect(connectionId[name]);
+		connectionTable[name]->setConnectionHandlerWrite([this, name]() {
+			this->logicConnect(connectionTable[name]);
 		});
 
-		connectionId[name]->setDisConnectionHandlerWrite([this, name]() {
-			connectionId[name]->closeRead();
-			this->logicDisconnect(connectionId[name]);
+		connectionTable[name]->setDisConnectionHandlerWrite([this, name]() {
+			connectionTable[name]->closeRead();
+			this->logicDisconnect(connectionTable[name]);
 		});
 	}
 }
@@ -60,13 +60,13 @@ void Server::start()
 		throw std::runtime_error("callback readHandler not set");
 	}
 
-	for(const auto& Fifo: connectionId) {
+	for(const auto& Fifo: connectionTable) {
 		Fifo.second->start();
 	}
 }
 void Server::stop()
 {
-	for(const auto& Fifo: connectionId) {
+	for(const auto& Fifo: connectionTable) {
 		Fifo.second->stop();
 
 	}

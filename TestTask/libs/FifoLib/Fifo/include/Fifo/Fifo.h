@@ -47,8 +47,8 @@ private:
 // virtual ~Server() = default;
 // virtual void start()                                             = 0;
 // virtual void stop()                                              = 0;
-// virtual void write(ConnectionId id, const void* data, size_t sz) = 0;
-// virtual void disconnect(ConnectionId id)                         = 0;
+// virtual void write(ConnectionsTable id, const void* data, size_t sz) = 0;
+// virtual void disconnect(ConnectionsTable id)                         = 0;
 // void setNewConnectionHandler(ConnChangeHandler h)
 //{
 //	newHandler = h;
