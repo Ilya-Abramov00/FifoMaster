@@ -3,62 +3,51 @@
 
 #include "FifoRead/FifoRead.h"
 #include "FifoWrite/FifoWrite.h"
+namespace Ipc {
+    struct FifoCfg {
+        std::string directFile;
+        std::string reverseFile;
+    };
 
-struct FifoCfg {
-	std::string directFile;
-	std::string reverseFile;
-};
+    class Fifo {
+    public:
+        Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
 
-class Fifo {
-public:
-	Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
+        void setConnectionHandlerRead(FifoBase::ConnectionHandler handler);
 
-	void setConnectionHandlerRead(FifoBase::ConnectionHandler handler);
-	void setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler);
+        void setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler);
 
-	void setConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
-	void setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler);
+        void setConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
 
-	void setReadHandler(FifoRead::ReadHandler handler);
+        void setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler);
 
-	bool const getWaitDisconnectRead() const;
+        void setReadHandler(FifoRead::ReadHandler handler);
 
-	bool const getWaitConnectRead() const;
+        bool const getWaitDisconnectRead() const;
 
-	bool const getWaitDisconnectWrite() const;
+        bool const getWaitConnectRead() const;
 
-	bool const getWaitConnectWrite() const;
+        bool const getWaitDisconnectWrite() const;
 
-	void write(const void* data, size_t sizeInBytes);
+        bool const getWaitConnectWrite() const;
 
-	void start();
+        void write(const void *data, size_t sizeInBytes);
 
-	void stop();
+        void start();
 
-	std::string const getNameRead() const;
-	std::string const getNameWrite() const;
+        void stop();
 
-	void closeRead();
-	void closeWrite();
+        std::string const getNameRead() const;
 
-private:
-	FifoWrite fifoWrite;
-	FifoRead fifoRead;
-};
+        std::string const getNameWrite() const;
 
-// virtual ~Server() = default;
-// virtual void start()                                             = 0;
-// virtual void stop()                                              = 0;
-// virtual void write(ConnectionsTable id, const void* data, size_t sz) = 0;
-// virtual void disconnect(ConnectionsTable id)                         = 0;
-// void setNewConnectionHandler(ConnChangeHandler h)
-//{
-//	newHandler = h;
-// }
-// void setCloseConnectionHandler(ConnChangeHandler h)
-//{
-//	closeHandler = h;
-// }
+        void closeRead();
 
-// virtual void setIdDistributionHandler(IdDistributionHandler h) = 0;
+        void closeWrite();
+
+    private:
+        FifoWrite fifoWrite;
+        FifoRead fifoRead;
+    };
+}
 #endif

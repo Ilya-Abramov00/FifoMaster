@@ -26,14 +26,15 @@
 #include <sys/signal.h>
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IRUSR)
+namespace Ipc {
+    class FifoBase {
+    public:
+        using ConnectionHandler = std::function<void()>;
 
-class FifoBase {
-public:
-	using ConnectionHandler = std::function<void()>;
+    protected:
+        long openFifo(const std::string fdFileName, const char flag);
 
-protected:
-	long openFifo(const std::string fdFileName, const char flag);
-	void createFifo(const std::string fdFileName);
-};
-
+        void createFifo(const std::string fdFileName);
+    };
+}
 #endif

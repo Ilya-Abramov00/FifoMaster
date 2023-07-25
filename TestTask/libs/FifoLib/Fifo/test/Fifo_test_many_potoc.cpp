@@ -3,6 +3,8 @@
 #include "Fifo/Fifo.h"
 
 using namespace std;
+using namespace Ipc;
+
 TEST(Fifo_many_potoc, 1)
 {
 	std::string FIFO2 = "fifo2";
@@ -140,7 +142,7 @@ TEST(Fifo_many_potoc, 2)
 
 	client2.setReadHandler(getterRead);
 
-	cli ent2.setConnectionHandlerRead(connect);
+	client2.setConnectionHandlerRead(connect);
 	client2.setConnectionHandlerWrite(connect);
 
 	client2.setDisconnectionHandlerRead(connect);
@@ -150,12 +152,9 @@ TEST(Fifo_many_potoc, 2)
 	client2.start();
 
     sleep(1);
-	std::string a0
+	std::string a0(n,'0');
 
-	'0');
-	std::thre
-
-	&client2, &a0, &n]() {
+    std::thread t([	&client2, &a0, &n]() {
 		client2.write((void*)a0.data(), n);
 	});
 
@@ -243,14 +242,9 @@ TEST(Fifo_many_potoc, 2)
 	t101.join();
 	t111.join();
 
-    std::cout<<data.size()<<std::endl;
-    std::c
 
-	 * 12<<st d: :endl;
 
-	AS SE RT_TRUE(da
-	ze() == n  *  12);
- 	/ / вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
+    ASSERT_TRUE(data.size() == n * 12);
 }
 TEST(Fifo_many_potoc, 3)
 {
@@ -269,7 +263,7 @@ TEST(Fifo_many_potoc, 3)
 	client2.setReadHandler(getterRead);
 
 	client2.setConnectionHandlerRead(connect);
-	client2.se tConnectionHandlerWrite(connect);
+	client2.setConnectionHandlerWrite(connect);
 
 	client2.setDisconnectionHandlerRead(connect);
 	client2.setDisconnectionHandlerWrite(connect);
@@ -280,11 +274,7 @@ TEST(Fifo_many_potoc, 3)
     sleep(2);
 	std::string a0(n, '0');
 	std::thread t([&client2, &a0, &n]() {
-
-
-        nt2.startWriteClient((void *
-
-                              ta(), n);
+        client2.write((void*)a0.data(), n);
 	});
 
 	std::string a(n, '1');

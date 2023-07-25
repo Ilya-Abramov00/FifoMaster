@@ -4,115 +4,114 @@
 #include "Server/Server.h"
 #include "thread"
 
-class ServerClientTest : public ::testing::Test {
-public:
-	void SetUp() override
-	{}
-	void startWriteClient(Client& client, int n)
-	{
-		client.start();
+using namespace Ipc;
+    class ServerClientTest : public ::testing::Test {
+    public:
+        void SetUp() override {}
 
-		std::string data0(n, 'v');
-		for(int i = 0; i != 10; i++) {
-			client.write((void*)data0.data(), n);
-			sleep(1);
-		}
-		sleep(20);
-		client.stop();
-	}
-	void startWriteServer(Server& server, int n)
-	{
-		server.start();
-		std::string data0(n, 'a');
-		for(int i = 0; i != 10; i++) {
-			server.write(0, (void*)data0.data(), n);
-			server.write(1, (void*)data0.data(), n);
-			server.write(2, (void*)data0.data(), n);
-			sleep(1);
-		}
-		sleep(30);
+        void startWriteClient(Client &client, int n) {
+            client.start();
 
-		server.stop();
-	}
-	void TearDown() override
-	{}
+            std::string data0(n, 'v');
+            for (int i = 0; i != 10; i++) {
+                client.write((void *) data0.data(), n);
+                sleep(1);
+            }
+            sleep(20);
+            client.stop();
+        }
 
-private:
-};
+        void startWriteServer(Server &server, int n) {
+            server.start();
+            std::string data0(n, 'a');
+            for (int i = 0; i != 10; i++) {
+                server.write(0, (void *) data0.data(), n);
+                server.write(1, (void *) data0.data(), n);
+                server.write(2, (void *) data0.data(), n);
+                sleep(1);
+            }
+            sleep(30);
 
-std::string FIFO3 = "fifo3";
-std::string FIFO2 = "fifo2";
-std::string FIFO1 = "fifo1";
+            server.stop();
+        }
 
-FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
-FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
-FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
+        void TearDown() override {}
 
-TEST_F(ServerClientTest, Clients3To1ServerConnectin)
-{
-	int n                  = 1024 * 1024;
-	std::string dataServer = "";
+    private:
+    };
 
-	std::mutex mtx0;
+    std::string FIFO3 = "fifo3";
+    std::string FIFO2 = "fifo2";
+    std::string FIFO1 = "fifo1";
 
-	auto getterServer = [&dataServer, &mtx0](FifoCfg name, FifoRead::Data&& dataq) {
-		std::lock_guard<std::mutex> mtx(mtx0);
-		dataServer += std::string(dataq.data(), dataq.data() + dataq.size());
-	};
+    FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
+    FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
+    FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
 
-	Server server({k1, k2, k3});
+    TEST_F(ServerClientTest, Clients3To1ServerConnectin) {
+        int n = 1024 * 1024;
+        std::string dataServer = "";
 
-	server.setReadHandler(getterServer);
-	server.setConnectHandler([](size_t) {
-	});
-	server.setDisconnectHandler([](size_t) {
-	});
+        std::mutex mtx0;
 
-	Client client1(k1);
-	std::string dataClient1 = "";
+        auto getterServer = [&dataServer, &mtx0](FifoCfg name, FifoRead::Data &&dataq) {
+            std::lock_guard<std::mutex> mtx(mtx0);
+            dataServer += std::string(dataq.data(), dataq.data() + dataq.size());
+        };
 
-	auto getterClient1 = [&dataClient1](FifoRead::Data&& dataq) {
-		dataClient1 += std::string(dataq.data(), dataq.data() + dataq.size());
-	};
-	client1.setReadHandler(getterClient1);
+        Server server({k1, k2, k3});
 
-	Client client2(k2);
-	std::string dataClient2 = "";
-	auto getterClient2      = [&dataClient2](FifoRead::Data&& dataq) {
-        dataClient2 += std::string(dataq.data(), dataq.data() + dataq.size());
-	};
-	client2.setReadHandler(getterClient2);
+        server.setReadHandler(getterServer);
+        server.setConnectHandler([](size_t) {
+        });
+        server.setDisconnectHandler([](size_t) {
+        });
 
-	Client client3(k3);
-	std::string dataClient3 = "";
-	auto getterClient3      = [&dataClient3](FifoRead::Data&& dataq) {
-        dataClient3 += std::string(dataq.data(), dataq.data() + dataq.size());
-	};
-	client3.setReadHandler(getterClient3);
+        Client client1(k1);
+        std::string dataClient1 = "";
 
-	std::thread tServer([&server, &n, this]() {
-		startWriteServer(server, n);
-	});
+        auto getterClient1 = [&dataClient1](FifoRead::Data &&dataq) {
+            dataClient1 += std::string(dataq.data(), dataq.data() + dataq.size());
+        };
+        client1.setReadHandler(getterClient1);
 
-	std::thread tClient1([&client1, &n, this]() {
-		startWriteClient(client1, n);
-	});
+        Client client2(k2);
+        std::string dataClient2 = "";
+        auto getterClient2 = [&dataClient2](FifoRead::Data &&dataq) {
+            dataClient2 += std::string(dataq.data(), dataq.data() + dataq.size());
+        };
+        client2.setReadHandler(getterClient2);
 
-	std::thread tClient2([&client2, &n, this]() {
-		startWriteClient(client2, n);
-	});
+        Client client3(k3);
+        std::string dataClient3 = "";
+        auto getterClient3 = [&dataClient3](FifoRead::Data &&dataq) {
+            dataClient3 += std::string(dataq.data(), dataq.data() + dataq.size());
+        };
+        client3.setReadHandler(getterClient3);
 
-	std::thread tClient3([&client3, n, this]() {
-		startWriteClient(client3, n);
-	});
+        std::thread tServer([&server, &n, this]() {
+            startWriteServer(server, n);
+        });
 
-	tClient1.join();
-	tClient2.join();
-	tClient3.join();
-	tServer.join();
+        std::thread tClient1([&client1, &n, this]() {
+            startWriteClient(client1, n);
+        });
 
-	ASSERT_TRUE(dataServer.size() == 3 * n * 10);
-	ASSERT_TRUE(dataClient1.size() == n * 10);
-	ASSERT_TRUE(dataClient2.size() == n * 10);
-	ASSERT_TRUE(dataClient3.size() == n * 10);
-}
+        std::thread tClient2([&client2, &n, this]() {
+            startWriteClient(client2, n);
+        });
+
+        std::thread tClient3([&client3, n, this]() {
+            startWriteClient(client3, n);
+        });
+
+        tClient1.join();
+        tClient2.join();
+        tClient3.join();
+        tServer.join();
+
+        ASSERT_TRUE(dataServer.size() == 3 * n * 10);
+        ASSERT_TRUE(dataClient1.size() == n * 10);
+        ASSERT_TRUE(dataClient2.size() == n * 10);
+        ASSERT_TRUE(dataClient3.size() == n * 10);
+    }

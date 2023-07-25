@@ -5,41 +5,45 @@
 #include "map"
 #include "Fifo/Fifo.h"
 
-class Server {
-public:
-	using FifoCfgTable     = std::map<size_t, FifoCfg>;
-	using ConnectionsTable = std::map<size_t, std::shared_ptr<Fifo>>;
+namespace  Ipc {
+    class Server {
+    public:
+        using FifoCfgTable = std::map<size_t, FifoCfg>;
+        using ConnectionsTable = std::map<size_t, std::shared_ptr<Fifo>>;
 
-	using ReadHandler  = std::function<void(FifoCfg, FifoRead::Data&&)>;
-	using EventHandler = std::function<void(size_t)>;
+        using ReadHandler = std::function<void(FifoCfg, FifoRead::Data &&)>;
+        using EventHandler = std::function<void(size_t)>;
 
-	Server(std::list<FifoCfg> const& nameChannelsFifo);
+        Server(std::list<FifoCfg> const &nameChannelsFifo);
 
-	void setReadHandler(ReadHandler h);
+        void setReadHandler(ReadHandler h);
 
-	void setConnectHandler(EventHandler h);
-	void setDisconnectHandler(EventHandler h);
+        void setConnectHandler(EventHandler h);
 
-	void write(size_t id, const void* data, size_t sizeInBytes);
+        void setDisconnectHandler(EventHandler h);
 
-	void start();
-	void stop();
+        void write(size_t id, const void *data, size_t sizeInBytes);
 
-private:
-	FifoCfgTable fifoCfgTable;
-	ConnectionsTable connectionTable;
+        void start();
 
-	EventHandler connectHandler;
-	EventHandler disconnectHandler;
+        void stop();
 
-	ReadHandler readHandler;
+    private:
+        FifoCfgTable fifoCfgTable;
+        ConnectionsTable connectionTable;
 
-	void getter(FifoCfg object, FifoRead::Data&& data);
-	void connect(size_t id, std::shared_ptr<Fifo> object);
+        EventHandler connectHandler;
+        EventHandler disconnectHandler;
 
-	void disconnect(size_t id, std::shared_ptr<Fifo> object);
-};
+        ReadHandler readHandler;
 
+        void getter(FifoCfg object, FifoRead::Data &&data);
+
+        void connect(size_t id, std::shared_ptr<Fifo> object);
+
+        void disconnect(size_t id, std::shared_ptr<Fifo> object);
+    };
+}
 // virtual ~Server() = default;
 // virtual void start()                                             = 0;
 // virtual void stop()                                              = 0;

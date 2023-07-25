@@ -3,7 +3,7 @@
 #include "Fifo/Fifo.h"
 
 using namespace std;
-
+using namespace Ipc;
 TEST(big_data, 1)
 {
 	std::string FIFO2 = "fifo2";

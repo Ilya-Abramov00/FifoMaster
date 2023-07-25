@@ -8,80 +8,87 @@
 #include <thread>
 #include <mutex>
 #include <queue>
+namespace  Ipc {
+    class FifoWriteQueue : protected FifoBase {
+    public:
+        void setConnectionHandler(FifoBase::ConnectionHandler handler);
 
-class FifoWriteQueue : protected FifoBase {
-public:
-	void setConnectionHandler(FifoBase::ConnectionHandler handler);
-	void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
+        void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
 
-	void startWrite();
-	void stopWrite();
+        void startWrite();
 
-	FifoWriteQueue(const std::string fdFileName);
+        void stopWrite();
 
-	void pushData(const void* data, size_t sizeN);
+        FifoWriteQueue(const std::string fdFileName);
 
-	bool const getWaitDisconnect() const;
-	bool const getWaitConnect() const;
+        void pushData(const void *data, size_t sizeN);
 
-	std::string const getName() const;
+        bool const getWaitDisconnect() const;
 
-	long const& getFifoFd() const;
+        bool const getWaitConnect() const;
 
-private:
-	void waitConnectFifo();
-	void writeFifo();
+        std::string const getName() const;
 
-	struct Params {
-		std::string addrRead;
-		ConnectionHandler connectHandler;
-		ConnectionHandler disconnectHandler;
-	};
-	Params params;
-	bool runWrite{false};
-	bool waitConnect{false};
-	bool waitDisConnect{false};
-	long fifoFd = -1;
-	std::queue<std::vector<uint8_t>> queue;
-	std::mutex mtx;
-	std::unique_ptr<std::thread> threadWriteFifo;
-	std::unique_ptr<std::thread> threadWaitConnectFifo;
-};
+        long const &getFifoFd() const;
 
-class FifoWrite : protected FifoBase {
-public:
-	void setConnectionHandler(FifoBase::ConnectionHandler handler);
-	void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
+    private:
+        void waitConnectFifo();
 
-	void startWrite();
-	void stopWrite();
+        void writeFifo();
 
-	FifoWrite(const std::string fdFileName);
+        struct Params {
+            std::string addrRead;
+            ConnectionHandler connectHandler;
+            ConnectionHandler disconnectHandler;
+        };
+        Params params;
+        bool runWrite{false};
+        bool waitConnect{false};
+        bool waitDisConnect{false};
+        long fifoFd = -1;
+        std::queue<std::vector<uint8_t>> queue;
+        std::mutex mtx;
+        std::unique_ptr<std::thread> threadWriteFifo;
+        std::unique_ptr<std::thread> threadWaitConnectFifo;
+    };
 
-	void pushData(const void* data, size_t sizeN);
+    class FifoWrite : protected FifoBase {
+    public:
+        void setConnectionHandler(FifoBase::ConnectionHandler handler);
 
-	bool const getWaitDisconnect() const;
-	bool const getWaitConnect() const;
+        void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
 
-	std::string const getName() const;
+        void startWrite();
 
-	long const& getFifoFd() const;
+        void stopWrite();
 
-private:
-	void waitConnectFifo();
+        FifoWrite(const std::string fdFileName);
 
-	struct Params {
-		std::string addrRead;
-		ConnectionHandler connectHandler;
-		ConnectionHandler disconnectHandler;
-	};
-	Params params;
-	bool runWrite{false};
-	bool waitConnect{false};
-	bool waitDisConnect{false};
-	long fifoFd = -1;
+        void pushData(const void *data, size_t sizeN);
 
-	std::unique_ptr<std::thread> threadWaitConnectFifo;
-};
+        bool const getWaitDisconnect() const;
 
+        bool const getWaitConnect() const;
+
+        std::string const getName() const;
+
+        long const &getFifoFd() const;
+
+    private:
+        void waitConnectFifo();
+
+        struct Params {
+            std::string addrRead;
+            ConnectionHandler connectHandler;
+            ConnectionHandler disconnectHandler;
+        };
+        Params params;
+        bool runWrite{false};
+        bool waitConnect{false};
+        bool waitDisConnect{false};
+        long fifoFd = -1;
+
+        std::unique_ptr<std::thread> threadWaitConnectFifo;
+    };
+}
 #endif
