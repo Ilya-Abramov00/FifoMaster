@@ -29,11 +29,11 @@ std::cout<<"Server\n\n";
 		std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 		std::cout << "пришли данные\n";
 	};
-FifoCfg a1={FIFO1,FIFO1};
-FifoCfg a2={FIFO2,FIFO2};
-FifoCfg a3={FIFO3,FIFO3};
+	FifoCfg k1{FIFO1,FIFO1+"_reverse"};
+	FifoCfg k2{FIFO2,FIFO2+"_reverse"};
+	FifoCfg k3{FIFO3,FIFO3+"_reverse"};
 
-	std::list<FifoCfg> z={a1,a2,a3};
+	std::list<FifoCfg> z={k1,k2,k3};
 
 	Server a(z);
 	a.setReadHandler(e);
@@ -44,9 +44,9 @@ FifoCfg a3={FIFO3,FIFO3};
 	auto x=2;
 	for(int i = 0; i != 4; i++) {
 		std::string eqq(x, 'a');
-	a.write(a.connectionTable.at(a1), (void*)eqq.data(), x);
-	a.write(a.connectionTable.at(a2), (void*)eqq.data(), x);
-	a.write(a.connectionTable.at(a3), (void*)eqq.data(), x);
+	a.write(k1, (void*)eqq.data(), x);
+	a.write(k2, (void*)eqq.data(), x);
+	a.write(k3, (void*)eqq.data(), x);
 		sleep(1);
 	}
 

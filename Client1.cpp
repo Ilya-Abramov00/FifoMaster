@@ -20,11 +20,13 @@ int main()
 		std::cout << "пришли данные\n";
 	};
 
+FifoCfg k1{FIFO1,FIFO1+"_reverse"};
+FifoCfg k3{FIFO3,FIFO3+"_reverse"};
 
-	Client client2(FIFO1);
+	Client client2(k1);
 	client2.setReadHandler(e);
 
-	Client client1(FIFO3);
+	Client client1(k3);
 	client1.setReadHandler(e);
 
 	client1.start();

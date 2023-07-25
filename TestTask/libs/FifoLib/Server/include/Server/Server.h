@@ -5,23 +5,6 @@
 #include "map"
 #include "Fifo/Fifo.h"
 
-struct FifoCfg {
-	std::string directFile;
-	std::string reverseFile;
-
-
-	bool operator== (const FifoCfg&other) const
-	{
-		return (this->directFile == other.directFile &&
-		        this->reverseFile == other.reverseFile);
-	}
-	bool operator< (const FifoCfg&other) const
-	{
-		return (directFile < other.directFile );
-
-	}
-
-};
 
 
 class Server {
@@ -40,13 +23,13 @@ public:
 	void setNewConnectionHandler(ConnChangeHandler h);
 	void setCloseConnectionHandler(ConnChangeHandler h);
 
-	void write(std::shared_ptr<Fifo> object, const void* data, size_t sizeInBytes);
+	void write(FifoCfg object, const void* data, size_t sizeInBytes);
 
 	void start();
 	void stop();
 
-	ConnectionsTable connectionTable;
 private:
+	ConnectionsTable connectionTable;
 
 	void getter(FifoRead::Data&& data);
 	void logicConnect(std::shared_ptr<Fifo> object);

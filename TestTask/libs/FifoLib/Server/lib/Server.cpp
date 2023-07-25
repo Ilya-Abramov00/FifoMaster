@@ -9,13 +9,13 @@ void Server::getter(FifoRead::Data&& data)
 void Server::logicConnect(std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitConnectWrite() && object->getWaitConnectRead()) {
-		std::cout << "Connect " << object->getNameWrite()<< std::endl;
+		std::cout << "Connect " << object->getNameRead()<< std::endl;
 	}
 };
 void Server::logicDisconnect(std::shared_ptr<Fifo> object)
 {
 	if(object->getWaitDisconnectWrite() || object->getWaitDisconnectRead()) {
-		std::cout << "Disconnect " << object->getNameWrite()<< std::endl;
+		std::cout << "Disconnect " << object->getNameRead()<< std::endl;
 	}
 };
 
@@ -23,7 +23,7 @@ Server::Server(  ServedFiles nameChannelsfifo)
 {
 	for(auto  const& name: nameChannelsfifo) {
 
-		connectionTable.insert({name, std::make_unique<Fifo>(name.directFile, name.reverseFile)});
+		connectionTable.insert({name, std::make_unique<Fifo>(name.reverseFile, name.directFile)});
 
 		connectionTable[name]->setReadHandler([this](FifoRead::Data&& data) {
 			this->getter(std::move(data));
@@ -85,7 +85,7 @@ void Server::setCloseConnectionHandler(Server::ConnChangeHandler h)
 	closeHandler = std::move(h);
 }
 
-void Server::write(std::shared_ptr<Fifo> object, const void* data, size_t sizeInBytes)
+void Server::write(FifoCfg object, const void* data, size_t sizeInBytes)
 {
-	object->write(data, sizeInBytes);
+	connectionTable[object]->write(data, sizeInBytes);
 }

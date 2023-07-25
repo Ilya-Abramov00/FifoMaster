@@ -20,8 +20,9 @@ int main()
 	};
 
 //sleep(10);
+	FifoCfg k2{FIFO2,FIFO2+"_reverse"};
 
-	Client client1(FIFO2);
+	Client client1(k2);
 	client1.setReadHandler(e);
 
 

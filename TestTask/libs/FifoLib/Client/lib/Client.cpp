@@ -1,7 +1,7 @@
 #include "Client/Client.h"
 #include <iostream>
 
-Client::Client(std::string nameChannel) :client(nameChannel+"_reverse",nameChannel){
+Client::Client(FifoCfg name) :client(name.directFile,name.reverseFile){
 
 	client.setReadHandler([this](FifoRead::Data&& data) {
 		this->getter(std::move(data));
@@ -47,12 +47,12 @@ void Client::logicConnect()
 {
 
 	if(client.getWaitConnectWrite() && client.getWaitConnectRead()) {
-		std::cout << "Connect " << client.getNameRead()<< std::endl;
+		std::cout << "Connect " << client.getNameWrite()<< std::endl;
 	}
 };
 void Client::logicDisConnect()
 {
 	if(client.getWaitDisconnectWrite()|| client.getWaitDisconnectRead()) {
-		std::cout << "Disconnect " << client.getNameRead()<< std::endl;
+		std::cout << "Disconnect " << client.getNameWrite()<< std::endl;
 	}
 }

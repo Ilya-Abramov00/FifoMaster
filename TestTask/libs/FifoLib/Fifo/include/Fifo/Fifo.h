@@ -5,6 +5,13 @@
 #include "FifoRead/FifoRead.h"
 #include "FifoWrite/FifoWrite.h"
 
+struct FifoCfg {
+	std::string directFile;
+	std::string reverseFile;
+	bool operator== (const FifoCfg&other) const;
+	bool operator< (const FifoCfg&other) const;
+};
+
 class Fifo {
 public:
 	Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);

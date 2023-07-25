@@ -74,3 +74,12 @@ void Fifo::closeWrite()
 {
 	close(fifoWrite.getFifoFd());
 }
+bool FifoCfg::operator==(const FifoCfg& other) const
+{
+	return (this->directFile == other.directFile &&
+			this->reverseFile == other.reverseFile);
+}
+bool FifoCfg::operator<(const FifoCfg& other) const
+{
+	return (directFile < other.directFile );
+}

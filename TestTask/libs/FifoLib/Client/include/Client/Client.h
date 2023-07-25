@@ -5,13 +5,13 @@
 #include "Fifo/Fifo.h"
 
 class Client {
-public:
 
-	Client(std::string nameChannel);
+public:Client(FifoCfg name);
 void start();
 void stop();
 void write(const void* data, size_t sizeN);
 void setReadHandler(FifoRead::ReadHandler h);
+
 private:
 	void logicConnect();
 	void logicDisConnect();
