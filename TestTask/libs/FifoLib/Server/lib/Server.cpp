@@ -2,8 +2,8 @@
 #include <iostream>
 
 namespace Ipc {
-    void Server::getter(FifoCfg object, FifoRead::Data &&data) {
-        readHandler(object, std::move(data));
+    void Server::getter(size_t id, FifoRead::Data &&data) {
+        readHandler(id, std::move(data));
     };
 
     void Server::connect(size_t id, std::shared_ptr<Fifo> object) {
@@ -28,8 +28,8 @@ namespace Ipc {
 
             connectionTable.insert({id, std::make_unique<Fifo>(name.reverseFile, name.directFile)});
 
-            connectionTable[id]->setReadHandler([this, name](FifoRead::Data &&data) {
-                this->getter(name, std::move(data));
+            connectionTable[id]->setReadHandler([this, id](FifoRead::Data &&data) {
+                this->getter(id, std::move(data));
             });
 
             connectionTable[id]->setConnectionHandlerRead([this, id]() {

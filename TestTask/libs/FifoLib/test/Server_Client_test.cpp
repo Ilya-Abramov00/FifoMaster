@@ -54,7 +54,7 @@ using namespace Ipc;
 
         std::mutex mtx0;
 
-        auto getterServer = [&dataServer, &mtx0](FifoCfg name, FifoRead::Data &&dataq) {
+        auto getterServer = [&dataServer, &mtx0](size_t id, FifoRead::Data &&dataq) {
             std::lock_guard<std::mutex> mtx(mtx0);
             dataServer += std::string(dataq.data(), dataq.data() + dataq.size());
         };

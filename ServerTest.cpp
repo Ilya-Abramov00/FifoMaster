@@ -11,11 +11,13 @@
 //		std::cout << "Disconnect " << object->getNameRead()<< std::endl;
 //	}
 //};
+
 #include "Fifo/Fifo.h"
 #include "Server/Server.h"
 
 #include <thread>
 #include <iostream>
+using namespace Ipc;
 void c(FifoCfg w)
 {
 	std::cout << "CloseConnectionHandler\n";
@@ -40,7 +42,7 @@ std::cout<<"Server\n\n";
 	FifoCfg k2{FIFO2,FIFO2+"_reverse"};
 	FifoCfg k3{FIFO3,FIFO3+"_reverse"};
 
-	auto getter = [&](FifoCfg name, FifoRead::Data&& dataq) {
+	auto getter = [&](size_t id, FifoRead::Data&& dataq) {
 	  data += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 
