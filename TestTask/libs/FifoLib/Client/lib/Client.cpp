@@ -47,12 +47,12 @@ void Client::logicConnect()
 {
 
 	if(client.getWaitConnectWrite() && client.getWaitConnectRead()) {
-		std::cout << "Connect " << client.getNameWrite()<< std::endl;
+		std::cout << "Connect " <<  std::endl;
 	}
 };
 void Client::logicDisConnect()
 {
 	if(client.getWaitDisconnectWrite()|| client.getWaitDisconnectRead()) {
-		std::cout << "Disconnect " << client.getNameWrite()<< std::endl;
+		std::cout << "Disconnect " << std::endl;
 	}
 }

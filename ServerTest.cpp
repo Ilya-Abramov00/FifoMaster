@@ -40,39 +40,43 @@ std::cout<<"Server\n\n";
 	FifoCfg k2{FIFO2,FIFO2+"_reverse"};
 	FifoCfg k3{FIFO3,FIFO3+"_reverse"};
 
-	auto e = [&](FifoCfg name, FifoRead::Data&& dataq) {
-
-	  std::cout << "\n пришли от "<<name.directFile;
+	auto getter = [&](FifoCfg name, FifoRead::Data&& dataq) {
 	  data += std::string(dataq.data(), dataq.data() + dataq.size());
-	  std::cout<<"\n"<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
-	std::list<FifoCfg> z={k1,k2,k3};
 
-	Server a(z);
-	a.setReadHandler(e);
+	Server server({k1,k2,k3});
+	server.setReadHandler(getter);
 
-a.setConnectHandler([](size_t){});
-a.setDisconnectHandler([](size_t){});
-	a.start();
+	server.setConnectHandler([](size_t){});
+	server.setDisconnectHandler([](size_t){});
+
+	server.start();
 
 	auto x=2;
-	std::string eqq(x, 'a');
+	std::string data0(x, 'a');
 	for(int i = 0; i != 4; i++) {
-	a.write(0, (void*)eqq.data(), x);
-	a.write(1, (void*)eqq.data(), x);
-	a.write(2, (void*)eqq.data(), x);
+		server.write(0, (void*)data0.data(), x);
+		server.write(1, (void*)data0.data(), x);
+		server.write(2, (void*)data0.data(), x);
+		sleep(1);
+	}
+	std::string data1(x, 'v');
+	for(int i = 0; i != 4; i++) {
+		server.write(0, (void*)data0.data(), x);
+		server.write(1, (void*)data0.data(), x);
+		server.write(2, (void*)data0.data(), x);
 		sleep(1);
 	}
 
 
 
 
-	sleep(11);
 
-	sleep(10);
+
+	sleep(15);
 
 	std::cout<<"\nstopStart\n";
-	a.stop();
+	server.stop();
 	std::cout<<"\nstop\n";
 	std::cout << data.size();
 	return 1;
