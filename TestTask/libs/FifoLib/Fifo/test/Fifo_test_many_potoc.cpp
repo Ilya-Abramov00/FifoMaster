@@ -282,9 +282,9 @@ TEST(Fifo_many_potoc, 3)
 	std::thread t([&client2, &a0, &n]() {
 
 
-	nt2.write((void*
+        nt2.startWriteClient((void *
 
-	ta(), n);
+                              ta(), n);
 	});
 
 	std::string a(n, '1');

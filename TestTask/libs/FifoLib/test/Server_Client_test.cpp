@@ -8,25 +8,53 @@ class ServerClientTest : public ::testing::Test {
 public:
 	void SetUp() override
 	{}
+	void startWriteClient(Client& client, int n)
+	{
+		client.start();
+
+		std::string data0(n, 'v');
+		for(int i = 0; i != 10; i++) {
+			client.write((void*)data0.data(), n);
+			sleep(1);
+		}
+		sleep(20);
+		client.stop();
+	}
+	void startWriteServer(Server& server, int n)
+	{
+		server.start();
+		std::string data0(n, 'a');
+		for(int i = 0; i != 10; i++) {
+			server.write(0, (void*)data0.data(), n);
+			server.write(1, (void*)data0.data(), n);
+			server.write(2, (void*)data0.data(), n);
+			sleep(1);
+		}
+		sleep(30);
+
+		server.stop();
+	}
 	void TearDown() override
 	{}
 
 private:
 };
+
+std::string FIFO3 = "fifo3";
+std::string FIFO2 = "fifo2";
+std::string FIFO1 = "fifo1";
+
+FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
+FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
+FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
+
 TEST_F(ServerClientTest, Clients3To1ServerConnectin)
 {
-	std::string FIFO3 = "fifo3";
-	std::string FIFO2 = "fifo2";
-	std::string FIFO1 = "fifo1";
-
-	int n            = 1024;
+	int n                  = 1024 * 1024;
 	std::string dataServer = "";
-	dataServer.reserve(n * 10 * 3);
 
-	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
-	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
-	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
 	std::mutex mtx0;
+
 	auto getterServer = [&dataServer, &mtx0](FifoCfg name, FifoRead::Data&& dataq) {
 		using namespace std;
 
@@ -52,72 +80,32 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin)
 
 	Client client2(k2);
 	std::string dataClient2 = "";
-	dataClient2.reserve(n * 20);
-	auto getterClient2 = [&dataClient2](FifoRead::Data&& dataq) {
-		dataClient2 += std::string(dataq.data(), dataq.data() + dataq.size());
+	auto getterClient2      = [&dataClient2](FifoRead::Data&& dataq) {
+        dataClient2 += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	client2.setReadHandler(getterClient2);
 
 	Client client3(k3);
 	std::string dataClient3 = "";
-	dataClient3.reserve(n * 20);
-	auto getterClient3 = [&dataClient3](FifoRead::Data&& dataq) {
-		dataClient3 += std::string(dataq.data(), dataq.data() + dataq.size());
+	auto getterClient3      = [&dataClient3](FifoRead::Data&& dataq) {
+        dataClient3 += std::string(dataq.data(), dataq.data() + dataq.size());
 	};
 	client3.setReadHandler(getterClient3);
 
-	std::thread tServer([&server, &n]() {
-		server.start();
-		std::string data0(n, 'a');
-		for(int i = 0; i != 10; i++) {
-			server.write(0, (void*)data0.data(), n);
-			server.write(1, (void*)data0.data(), n);
-			server.write(2, (void*)data0.data(), n);
-			sleep(1);
-		}
-
-		sleep(30);
-
-		server.stop();
+	std::thread tServer([&server, &n, this]() {
+		startWriteServer(server, n);
 	});
 
-	std::thread tClient1([&client1, &n]() {
-		client1.start();
-
-		std::string data0(n, 'v');
-		for(int i = 0; i != 10; i++) {
-			client1.write((void*)data0.data(), n);
-			sleep(1);
-		}
-
-		sleep(20);
-		client1.stop();
+	std::thread tClient1([&client1, &n, this]() {
+		startWriteClient(client1, n);
 	});
 
-	std::thread tClient2([&client2, &n]() {
-		client2.start();
-
-		std::string data0(n, 'v');
-		for(int i = 0; i != 10; i++) {
-			client2.write((void*)data0.data(), n);
-			sleep(1);
-		}
-
-		sleep(20);
-		client2.stop();
+	std::thread tClient2([&client2, &n, this]() {
+		startWriteClient(client2, n);
 	});
 
-	std::thread tClient3([&client3, &n]() {
-		client3.start();
-
-		std::string data0(n, 'v');
-		for(int i = 0; i != 10; i++) {
-			client3.write((void*)data0.data(), n);
-			sleep(1);
-		}
-		sleep(20);
-
-		client3.stop();
+	std::thread tClient3([&client3, n, this]() {
+		startWriteClient(client3, n);
 	});
 
 	tClient1.join();
