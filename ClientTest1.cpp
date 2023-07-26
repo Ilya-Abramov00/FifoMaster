@@ -8,7 +8,7 @@ int main()
 	using namespace Ipc;
 	std::cout << "клиент" << std::endl << std::endl;
 
-	std::string FIFO3 = "/home/ilya/fifo3";
+	std::string FIFO2 = "/home/ilya/fifo2";
 	std::string FIFO1 = "/home/ilya/fifo1";
 
 	int n            = 10;
@@ -23,7 +23,7 @@ std::mutex mtx;
 	};
 
 	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
-	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
+	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 
 	Client client2(k1, Ipc::Config::QW);
 	client2.setReadHandler(e);
@@ -32,7 +32,7 @@ std::mutex mtx;
 	client2.setConnectHandler([]() {
 	});
 
-	Client client1(k3, Ipc::Config::QW);
+	Client client1(k2, Ipc::Config::QW);
 	client1.setReadHandler(e);
 	client1.setDisconnectHandler([]() {
 	});
@@ -50,12 +50,28 @@ std::mutex mtx;
 		client1.write((void*)z.data(), x);
 		sleep(1);
 	}
-	sleep(15);
+	sleep(8);
 
 	std::cout << "\nstop\n";
 	client1.stop();
 	client2.stop();
 	std::cout << data.size();
 
+
+	client1.start();
+	client2.start();
+	std::cout << "\nstart\n";
+	for(int i = 0; i != 5; i++) {
+		std::string a(x, 'a');
+		client2.write((void*)a.data(), x);
+		std::string z(x, 'z');
+		client1.write((void*)z.data(), x);
+		sleep(1);
+	}
+	sleep(8);
+
+	std::cout << "\nstop\n";
+	client1.stop();
+	client2.stop();
 	return 0;
 }

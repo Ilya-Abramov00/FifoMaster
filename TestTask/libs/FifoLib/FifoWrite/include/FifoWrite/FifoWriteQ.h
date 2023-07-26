@@ -41,6 +41,8 @@ private:
 	bool runWrite{false};
 	bool waitConnect{false};
 	bool waitDisConnect{false};
+	bool waitOpen{false};
+
 	long fifoFd = -1;
 	std::queue<std::vector<uint8_t>> queue;
 	std::mutex mtx;

@@ -48,6 +48,8 @@ namespace Ipc {
         bool runRead{false};
         bool waitConnect{false};
         bool waitDisConnect{false};
+	    bool waitOpen{false};
+
         long fifoFd = -1;
 
         std::unique_ptr<std::thread> threadReadFifo;

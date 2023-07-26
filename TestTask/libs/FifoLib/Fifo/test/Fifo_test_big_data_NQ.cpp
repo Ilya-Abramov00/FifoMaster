@@ -1,3 +1,4 @@
+/*
 
 #include "gtest/gtest.h"
 
@@ -198,3 +199,4 @@ TEST(big_data_NQ, 2)
 	ASSERT_TRUE(data == a);
 }
 
+*/

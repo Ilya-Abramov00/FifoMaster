@@ -11,7 +11,6 @@ using namespace Ipc;
 int main()
 {
 	std::cout << "Server\n\n";
-	std::string FIFO3 = "/home/ilya/fifo3";
 	std::string FIFO2 = "/home/ilya/fifo2";
 	std::string FIFO1 = "/home/ilya/fifo1";
 
@@ -21,7 +20,7 @@ int main()
 
 	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
-	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
+
 	std::mutex mtx;
 	auto getter = [&mtx,&data](size_t id, FifoRead::Data&& dataq) {
 		std::lock_guard<std::mutex>mtx0(mtx);
@@ -30,7 +29,7 @@ int main()
 		std::cout<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
 
-	Server server({k1, k2, k3},Ipc::Config::QW);
+	Server server({k1, k2},Ipc::Config::QW);
 	server.setReadHandler(getter);
 
 	server.setConnectHandler([](size_t) {
@@ -45,12 +44,11 @@ int main()
 	for(int i = 0; i != 5; i++) {
 		server.write(0, (void*)data0.data(), x);
 		server.write(1, (void*)data0.data(), x);
-		server.write(2, (void*)data0.data(), x);
 		sleep(1);
 	}
 
 
-	sleep(20);
+	sleep(30);
 
 	std::cout << "\nstopStart\n";
 	server.stop();

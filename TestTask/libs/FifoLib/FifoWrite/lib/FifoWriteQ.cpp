@@ -10,6 +10,7 @@
 #include <sys/signal.h>
 
 namespace Ipc {
+
 QWriteImpl::QWriteImpl(std::string fdFileName)
 {
 	params.addrRead = fdFileName;
@@ -43,28 +44,32 @@ void QWriteImpl::startWrite()
 
 void QWriteImpl::writeFifo()
 {
-	fifoFd = openFifo(params.addrRead, 'W');
-	if(fifoFd == -1) {
-		throw std::runtime_error(" fail openFifo ");
-	}
-
-	waitConnect = true;
-	params.connectHandler();
-
 	while(runWrite) {
-		{
-			std::lock_guard<std::mutex> mtx_0(mtx);
-			if(!queue.empty()) {
-				signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
-				auto flag = write(fifoFd, queue.front().data(), queue.front().size());
-				if(flag == -1) {
-					waitDisConnect = true;
-				//	waitConnect    = false;
-					params.disconnectHandler();
-					runWrite = false;
-					break;
+		waitOpen = false;
+		fifoFd   = openFifo(params.addrRead, 'W');
+		if(fifoFd == -1) {
+			throw std::runtime_error(" fail openFifo ");
+		}
+		waitOpen    = true;
+		waitDisConnect = false;
+		waitConnect = true;
+		params.connectHandler();
+
+		while(waitConnect && runWrite) {
+			{
+				std::lock_guard<std::mutex> mtx_0(mtx);
+				if(!queue.empty()) {
+					signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
+					auto flag = write(fifoFd, queue.front().data(), queue.front().size());
+					if(flag == -1) {
+						waitConnect    = false;
+						waitDisConnect = true;
+						params.disconnectHandler();
+
+						break;
+					}
+					queue.pop();
 				}
-				queue.pop();
 			}
 		}
 	}
@@ -86,8 +91,10 @@ void QWriteImpl::pushData(const void* data, size_t sizeN)
 
 void QWriteImpl::stopWrite()
 {
-	runWrite = false;
-	if(!waitConnect) {
+	runWrite    = false;
+	waitConnect = false;
+
+	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'R');
 		close(fd);
 	}
@@ -96,8 +103,9 @@ void QWriteImpl::stopWrite()
 	threadWriteFifo->join();
 
 	if(queue.size()) {
-		std::cerr << getName() << "в очереди остались неотправленные сообщения\n";
+		std::cerr << getName() << " в очереди остались неотправленные сообщения\n";
 	}
+	waitDisConnect = false;
 }
 
 bool const QWriteImpl::getWaitDisconnect() const

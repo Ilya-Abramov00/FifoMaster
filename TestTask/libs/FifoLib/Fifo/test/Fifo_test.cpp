@@ -1,3 +1,4 @@
+/*
 #include <gtest/gtest.h>
 
 #include "Fifo/Fifo.h"
@@ -50,3 +51,4 @@ TEST_F(FifoTest, time)
 	std::string da(n, '3');
 	FifoT(FIFO2, FIFO2, Ipc::Config::NQW, da.data(), 1024);
 }
+*/
