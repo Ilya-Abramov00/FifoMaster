@@ -10,12 +10,13 @@ public:
 	void SetUp() override
 	{}
 
-	void clients(FifoCfg e,Config config, int n, int k)
+	void clients(FifoCfg e,Config config, int n, int k,std::mutex& mtx)
 	{
 		Client client(e,config);
 		std::string dataClient1 = "";
 
-		auto getterClient1 = [&dataClient1](FifoRead::Data&& dataq) {
+		auto getterClient1 = [&dataClient1,&mtx](FifoRead::Data&& dataq) {
+			std::lock_guard<std::mutex> mtx0(mtx);
 			dataClient1.insert(dataClient1.begin(), dataq.data(), dataq.data() + dataq.size());
 		};
 		bool clientConnection{false};
@@ -108,27 +109,27 @@ TEST_F(ServerClientTest, Clients5To1ServerConnectin_QW)
 	int sizeN = 1024 * 1024;
 	int n     = 10;
 
+	std::mutex mtx0;
+	std::thread tServer([data, &sizeN, n, this, &mtx0]() {
+		servers(data,Ipc::Config::QW, sizeN, n, data.size(), mtx0);
+	});
 	std::mutex mtx;
-	std::thread tServer([data, &sizeN, n, this, &mtx]() {
-		servers(data,Ipc::Config::QW, sizeN, n, data.size(), mtx);
+	std::thread tClient1([&k1, &sizeN, n, this,&mtx]() {
+		clients(k1,Ipc::Config::QW, sizeN, n,mtx);
 	});
 
-	std::thread tClient1([&k1, &sizeN, n, this]() {
-		clients(k1,Ipc::Config::QW, sizeN, n);
+	std::thread tClient2([&k2, &sizeN, n, this,&mtx]() {
+		clients(k2,Ipc::Config::QW, sizeN, n,mtx);
 	});
 
-	std::thread tClient2([&k2, &sizeN, n, this]() {
-		clients(k2,Ipc::Config::QW, sizeN, n);
+	std::thread tClient3([&k3, &sizeN, n, this,&mtx]() {
+		clients(k3,Ipc::Config::QW, sizeN, n,mtx);
 	});
-
-	std::thread tClient3([&k3, &sizeN, n, this]() {
-		clients(k3,Ipc::Config::QW, sizeN, n);
+	std::thread tClient4([&k4, &sizeN, n, this,&mtx]() {
+		clients(k4,Ipc::Config::QW, sizeN, n,mtx);
 	});
-	std::thread tClient4([&k4, &sizeN, n, this]() {
-		clients(k4,Ipc::Config::QW, sizeN, n);
-	});
-	std::thread tClient5([&k5, &sizeN, n, this]() {
-		clients(k5,Ipc::Config::QW, sizeN, n);
+	std::thread tClient5([&k5, &sizeN, n, this,&mtx] {
+		clients(k5,Ipc::Config::QW, sizeN, n,mtx);
 	});
 
 	tClient1.join();
@@ -152,27 +153,27 @@ TEST_F(ServerClientTest, Clients5To1ServerConnectin_NQW)
 	int sizeN = 1024 * 1024;
 	int n     = 10;
 
+	std::mutex mtx0;
+	std::thread tServer([data, &sizeN, n, this, &mtx0]() {
+		servers(data,Ipc::Config::NQW, sizeN, n, data.size(), mtx0);
+	});
 	std::mutex mtx;
-	std::thread tServer([data, &sizeN, n, this, &mtx]() {
-		servers(data,Ipc::Config::NQW, sizeN, n, data.size(), mtx);
+	std::thread tClient1([&k1, &sizeN, n, this,&mtx]() {
+		clients(k1,Ipc::Config::NQW, sizeN, n,mtx);
 	});
 
-	std::thread tClient1([&k1, &sizeN, n, this]() {
-		clients(k1,Ipc::Config::NQW, sizeN, n);
+	std::thread tClient2([&k2, &sizeN, n, this,&mtx]() {
+		clients(k2,Ipc::Config::NQW, sizeN, n,mtx);
 	});
 
-	std::thread tClient2([&k2, &sizeN, n, this]() {
-		clients(k2,Ipc::Config::NQW, sizeN, n);
+	std::thread tClient3([&k3, &sizeN, n, this,&mtx]() {
+		clients(k3,Ipc::Config::NQW, sizeN, n,mtx);
 	});
-
-	std::thread tClient3([&k3, &sizeN, n, this]() {
-		clients(k3,Ipc::Config::NQW, sizeN, n);
+	std::thread tClient4([&k4, &sizeN, n, this,&mtx]() {
+		clients(k4,Ipc::Config::NQW, sizeN, n,mtx);
 	});
-	std::thread tClient4([&k4, &sizeN, n, this]() {
-		clients(k4,Ipc::Config::NQW, sizeN, n);
-	});
-	std::thread tClient5([&k5, &sizeN, n, this]() {
-		clients(k5,Ipc::Config::NQW, sizeN, n);
+	std::thread tClient5([&k5, &sizeN, n, this,&mtx] {
+		clients(k5,Ipc::Config::NQW, sizeN, n,mtx);
 	});
 
 	tClient1.join();
@@ -196,27 +197,27 @@ TEST_F(ServerClientTest, Clients5To1ServerConnectin_QW_NQW)
 	int sizeN = 1024 * 1024;
 	int n     = 10;
 
+	std::mutex mtx0;
+	std::thread tServer([data, &sizeN, n, this, &mtx0]() {
+		servers(data,Ipc::Config::NQW, sizeN, n, data.size(), mtx0);
+	});
 	std::mutex mtx;
-	std::thread tServer([data, &sizeN, n, this, &mtx]() {
-		servers(data,Ipc::Config::NQW, sizeN, n, data.size(), mtx);
+	std::thread tClient1([&k1, &sizeN, n, this,&mtx]() {
+		clients(k1,Ipc::Config::QW, sizeN, n,mtx);
 	});
 
-	std::thread tClient1([&k1, &sizeN, n, this]() {
-		clients(k1,Ipc::Config::QW, sizeN, n);
+	std::thread tClient2([&k2, &sizeN, n, this,&mtx]() {
+		clients(k2,Ipc::Config::NQW, sizeN, n,mtx);
 	});
 
-	std::thread tClient2([&k2, &sizeN, n, this]() {
-		clients(k2,Ipc::Config::NQW, sizeN, n);
+	std::thread tClient3([&k3, &sizeN, n, this,&mtx]() {
+		clients(k3,Ipc::Config::QW, sizeN, n,mtx);
 	});
-
-	std::thread tClient3([&k3, &sizeN, n, this]() {
-		clients(k3,Ipc::Config::QW, sizeN, n);
+	std::thread tClient4([&k4, &sizeN, n, this,&mtx]() {
+		clients(k4,Ipc::Config::QW, sizeN, n,mtx);
 	});
-	std::thread tClient4([&k4, &sizeN, n, this]() {
-		clients(k4,Ipc::Config::NQW, sizeN, n);
-	});
-	std::thread tClient5([&k5, &sizeN, n, this]() {
-		clients(k5,Ipc::Config::QW, sizeN, n);
+	std::thread tClient5([&k5, &sizeN, n, this,&mtx] {
+		clients(k5,Ipc::Config::NQW, sizeN, n,mtx);
 	});
 
 	tClient1.join();
