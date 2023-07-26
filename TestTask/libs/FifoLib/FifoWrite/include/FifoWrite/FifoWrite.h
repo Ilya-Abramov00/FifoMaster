@@ -8,87 +8,109 @@
 #include <thread>
 #include <mutex>
 #include <queue>
-namespace  Ipc {
-    class FifoWriteQueue : protected FifoBase {
-    public:
-        void setConnectionHandler(FifoBase::ConnectionHandler handler);
+namespace Ipc {
 
-        void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
+class IWriter {
+	virtual void setConnectionHandler(FifoBase::ConnectionHandler handler) = 0;
 
-        void startWrite();
+	virtual void setDisConnectionHandler(FifoBase::ConnectionHandler handler) = 0;
 
-        void stopWrite();
+	virtual void startWrite() = 0;
 
-        FifoWriteQueue(const std::string fdFileName);
+	virtual void stopWrite() = 0;
 
-        void pushData(const void *data, size_t sizeN);
+	virtual void pushData(const void* data, size_t sizeN) = 0;
 
-        bool const getWaitDisconnect() const;
+	virtual bool const getWaitDisconnect() const = 0;
 
-        bool const getWaitConnect() const;
+	virtual bool const getWaitConnect() const = 0;
 
-        std::string const getName() const;
+	virtual std::string const getName() const = 0;
 
-        long const &getFifoFd() const;
+	virtual long const& getFifoFd() const = 0;
+};
 
-    private:
-        void waitConnectFifo();
+class QWriteImpl : public IWriter, protected FifoBase {
+public:
+	QWriteImpl(const std::string fdFileName);
 
-        void writeFifo();
+	void setConnectionHandler(FifoBase::ConnectionHandler handler) override;
 
-        struct Params {
-            std::string addrRead;
-            ConnectionHandler connectHandler;
-            ConnectionHandler disconnectHandler;
-        };
-        Params params;
-        bool runWrite{false};
-        bool waitConnect{false};
-        bool waitDisConnect{false};
-        long fifoFd = -1;
-        std::queue<std::vector<uint8_t>> queue;
-        std::mutex mtx;
-        std::unique_ptr<std::thread> threadWriteFifo;
-        std::unique_ptr<std::thread> threadWaitConnectFifo;
-    };
+	void setDisConnectionHandler(FifoBase::ConnectionHandler handler) override;
 
-    class FifoWrite : protected FifoBase {
-    public:
-        void setConnectionHandler(FifoBase::ConnectionHandler handler);
+	void startWrite() override;
 
-        void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
+	void stopWrite() override;
 
-        void startWrite();
+	void pushData(const void* data, size_t sizeN) override;
 
-        void stopWrite();
+	bool const getWaitDisconnect() const override;
 
-        FifoWrite(const std::string fdFileName);
+	bool const getWaitConnect() const override;
 
-        void pushData(const void *data, size_t sizeN);
+	std::string const getName() const override;
 
-        bool const getWaitDisconnect() const;
+	long const& getFifoFd() const override;
 
-        bool const getWaitConnect() const;
+private:
+	void waitConnectFifo();
 
-        std::string const getName() const;
+	void writeFifo();
 
-        long const &getFifoFd() const;
+	struct Params {
+		std::string addrRead;
+		ConnectionHandler connectHandler;
+		ConnectionHandler disconnectHandler;
+	};
+	Params params;
+	bool runWrite{false};
+	bool waitConnect{false};
+	bool waitDisConnect{false};
+	long fifoFd = -1;
+	std::queue<std::vector<uint8_t>> queue;
+	std::mutex mtx;
+	std::unique_ptr<std::thread> threadWriteFifo;
+	std::unique_ptr<std::thread> threadWaitConnectFifo;
+};
 
-    private:
-        void waitConnectFifo();
+class NQWriteImpl : public IWriter, protected FifoBase {
+public:
+	NQWriteImpl(const std::string fdFileName);
 
-        struct Params {
-            std::string addrRead;
-            ConnectionHandler connectHandler;
-            ConnectionHandler disconnectHandler;
-        };
-        Params params;
-        bool runWrite{false};
-        bool waitConnect{false};
-        bool waitDisConnect{false};
-        long fifoFd = -1;
+	void setConnectionHandler(FifoBase::ConnectionHandler handler) override;
 
-        std::unique_ptr<std::thread> threadWaitConnectFifo;
-    };
-}
+	void setDisConnectionHandler(FifoBase::ConnectionHandler handler) override;
+
+	void startWrite() override;
+
+	void stopWrite() override;
+
+	void pushData(const void* data, size_t sizeN) override;
+
+	bool const getWaitDisconnect() const override;
+
+	bool const getWaitConnect() const override;
+
+	std::string const getName() const override;
+
+	long const& getFifoFd() const override;
+
+private:
+	void waitConnectFifo();
+
+	struct Params {
+		std::string addrRead;
+		ConnectionHandler connectHandler;
+		ConnectionHandler disconnectHandler;
+	};
+	Params params;
+	bool runWrite{false};
+	bool waitConnect{false};
+	bool waitDisConnect{false};
+	long fifoFd = -1;
+
+	std::unique_ptr<std::thread> threadWaitConnectFifo;
+};
+
+} // namespace Ipc
 #endif

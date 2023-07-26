@@ -12,20 +12,20 @@
 #include <sys/signal.h>
 
 namespace Ipc {
-    FifoWriteQueue::FifoWriteQueue(std::string fdFileName) {
+    QWriteImpl::QWriteImpl(std::string fdFileName) {
         params.addrRead = fdFileName;
         createFifo(params.addrRead);
     }
 
-    void FifoWriteQueue::setConnectionHandler(FifoBase::ConnectionHandler handler) {
+    void QWriteImpl::setConnectionHandler(FifoBase::ConnectionHandler handler) {
         params.connectHandler = std::move(handler);
     }
 
-    void FifoWriteQueue::setDisConnectionHandler(FifoBase::ConnectionHandler handler) {
+    void QWriteImpl::setDisConnectionHandler(FifoBase::ConnectionHandler handler) {
         params.disconnectHandler = std::move(handler);
     }
 
-    void FifoWriteQueue::startWrite() {
+    void QWriteImpl::startWrite() {
         if (!params.connectHandler) {
             throw std::runtime_error("callback Write connectHandler not set");
         }
@@ -39,7 +39,7 @@ namespace Ipc {
         }));
     }
 
-    void FifoWriteQueue::waitConnectFifo() {
+    void QWriteImpl::waitConnectFifo() {
         fifoFd = openFifo(params.addrRead, 'W');
         if (runWrite) {
             waitConnect = true;
@@ -50,7 +50,7 @@ namespace Ipc {
         }
     }
 
-    void FifoWriteQueue::stopWrite() {
+    void QWriteImpl::stopWrite() {
         runWrite = false;
         if (!waitConnect) {
             auto fd = openFifo(params.addrRead.c_str(), 'R');
@@ -68,7 +68,7 @@ namespace Ipc {
         }
     }
 
-    void FifoWriteQueue::writeFifo() {
+    void QWriteImpl::writeFifo() {
         if (fifoFd == -1) {
             throw std::runtime_error(" fail openFifo ");
         }
@@ -89,7 +89,7 @@ namespace Ipc {
         }
     }
 
-    void FifoWriteQueue::pushData(const void *data, size_t sizeN) {
+    void QWriteImpl::pushData(const void *data, size_t sizeN) {
         if (!data) {
             std::cerr << "\n null ptr is pushData \n";
             return;
@@ -102,37 +102,37 @@ namespace Ipc {
         }
     }
 
-    bool const FifoWriteQueue::getWaitDisconnect() const {
+    bool const QWriteImpl::getWaitDisconnect() const {
         return waitDisConnect;
     }
 
-    std::string const FifoWriteQueue::getName() const {
+    std::string const QWriteImpl::getName() const {
         return params.addrRead;
     }
 
-    long const &FifoWriteQueue::getFifoFd() const {
+    long const &QWriteImpl::getFifoFd() const {
         return fifoFd;
     }
 
-    bool const FifoWriteQueue::getWaitConnect() const {
+    bool const QWriteImpl::getWaitConnect() const {
         return waitConnect;
     }
 
 
-    FifoWrite::FifoWrite(std::string fdFileName) {
+    NQWriteImpl:: NQWriteImpl(std::string fdFileName) {
         params.addrRead = fdFileName;
         createFifo(params.addrRead);
     }
 
-    void FifoWrite::setConnectionHandler(FifoBase::ConnectionHandler handler) {
+    void  NQWriteImpl::setConnectionHandler(FifoBase::ConnectionHandler handler) {
         params.connectHandler = std::move(handler);
     }
 
-    void FifoWrite::setDisConnectionHandler(FifoBase::ConnectionHandler handler) {
+    void  NQWriteImpl::setDisConnectionHandler(FifoBase::ConnectionHandler handler) {
         params.disconnectHandler = std::move(handler);
     }
 
-    void FifoWrite::startWrite() {
+    void  NQWriteImpl::startWrite() {
         if (!params.connectHandler) {
             throw std::runtime_error("callback Write connectHandler not set");
         }
@@ -146,7 +146,7 @@ namespace Ipc {
         }));
     }
 
-    void FifoWrite::waitConnectFifo() {
+    void  NQWriteImpl::waitConnectFifo() {
         fifoFd = openFifo(params.addrRead, 'W');
         if (runWrite) {
             waitConnect = true;
@@ -154,7 +154,7 @@ namespace Ipc {
         }
     }
 
-    void FifoWrite::stopWrite() {
+    void  NQWriteImpl::stopWrite() {
         runWrite = false;
         if (!waitConnect) {
             auto fd = openFifo(params.addrRead.c_str(), 'R');
@@ -165,7 +165,7 @@ namespace Ipc {
     }
 
 
-    void FifoWrite::pushData(const void *data, size_t sizeN) {
+    void  NQWriteImpl::pushData(const void *data, size_t sizeN) {
         if (!data) {
             std::cerr << "\n null ptr is pushData \n";
             return;
@@ -181,19 +181,19 @@ namespace Ipc {
         }
     }
 
-    bool const FifoWrite::getWaitDisconnect() const {
+    bool const  NQWriteImpl::getWaitDisconnect() const {
         return waitDisConnect;
     }
 
-    std::string const FifoWrite::getName() const {
+    std::string const  NQWriteImpl::getName() const {
         return params.addrRead;
     }
 
-    long const &FifoWrite::getFifoFd() const {
+    long const &NQWriteImpl::getFifoFd() const {
         return fifoFd;
     }
 
-    bool const FifoWrite::getWaitConnect() const {
+    bool const  NQWriteImpl::getWaitConnect() const {
         return waitConnect;
     }
 }

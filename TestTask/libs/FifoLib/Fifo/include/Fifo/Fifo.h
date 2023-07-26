@@ -4,50 +4,50 @@
 #include "FifoRead/FifoRead.h"
 #include "FifoWrite/FifoWrite.h"
 namespace Ipc {
-    struct FifoCfg {
-        std::string directFile;
-        std::string reverseFile;
-    };
+struct FifoCfg {
+	std::string directFile;
+	std::string reverseFile;
+};
 
-    class Fifo {
-    public:
-        Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
+class Fifo {
+public:
+	Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
 
-        void setConnectionHandlerRead(FifoBase::ConnectionHandler handler);
+	void setConnectionHandlerRead(FifoBase::ConnectionHandler handler);
 
-        void setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler);
+	void setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler);
 
-        void setConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
+	void setConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
 
-        void setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler);
+	void setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler);
 
-        void setReadHandler(FifoRead::ReadHandler handler);
+	void setReadHandler(FifoRead::ReadHandler handler);
 
-        bool const getWaitDisconnectRead() const;
+	bool const getWaitDisconnectRead() const;
 
-        bool const getWaitConnectRead() const;
+	bool const getWaitConnectRead() const;
 
-        bool const getWaitDisconnectWrite() const;
+	bool const getWaitDisconnectWrite() const;
 
-        bool const getWaitConnectWrite() const;
+	bool const getWaitConnectWrite() const;
 
-        void write(const void *data, size_t sizeInBytes);
+	void write(const void* data, size_t sizeInBytes);
 
-        void start();
+	void start();
 
-        void stop();
+	void stop();
 
-        std::string const getNameRead() const;
+	std::string const getNameRead() const;
 
-        std::string const getNameWrite() const;
+	std::string const getNameWrite() const;
 
-        void closeRead();
+	void closeRead();
 
-        void closeWrite();
+	void closeWrite();
 
-    private:
-        FifoWrite fifoWrite;
-        FifoRead fifoRead;
-    };
-}
+private:
+	FifoWrite fifoWrite;
+	FifoRead fifoRead;
+};
+} // namespace Ipc
 #endif

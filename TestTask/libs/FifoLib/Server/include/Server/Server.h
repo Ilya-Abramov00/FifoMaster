@@ -5,45 +5,57 @@
 #include "map"
 #include "Fifo/Fifo.h"
 
-namespace  Ipc {
-    class Server {
-    public:
-        using FifoCfgTable = std::map<size_t, FifoCfg>;
-        using ConnectionsTable = std::map<size_t, std::shared_ptr<Fifo>>;
+namespace Ipc {
+class Server {
+public:
+	using FifoCfgTable     = std::map<size_t, FifoCfg>;
+	using ConnectionsTable = std::map<size_t, std::shared_ptr<Fifo>>;
 
-        using ReadHandler = std::function<void(size_t, FifoRead::Data &&)>;
-        using EventHandler = std::function<void(size_t)>;
+	using ReadHandler  = std::function<void(size_t, FifoRead::Data&&)>;
+	using EventHandler = std::function<void(size_t)>;
 
-        Server(std::list<FifoCfg> const &nameChannelsFifo);
+	Server(std::list<FifoCfg> const& nameChannelsFifo);
 
-        void setReadHandler(ReadHandler h);
+	void setReadHandler(ReadHandler h);
 
-        void setConnectHandler(EventHandler h);
+	void setConnectHandler(EventHandler h);
 
-        void setDisconnectHandler(EventHandler h);
+	void setDisconnectHandler(EventHandler h);
 
-        void write(size_t id, const void *data, size_t sizeInBytes);
+	void write(size_t id, const void* data, size_t sizeInBytes);
 
-        void start();
+	void start();
 
-        void stop();
+	void stop();
 
-    private:
-        FifoCfgTable fifoCfgTable;
-        ConnectionsTable connectionTable;
+private:
+	FifoCfgTable fifoCfgTable;
+	ConnectionsTable connectionTable;
 
-        EventHandler connectHandler;
-        EventHandler disconnectHandler;
+	EventHandler connectHandler;
+	EventHandler disconnectHandler;
 
-        ReadHandler readHandler;
+	ReadHandler readHandler;
 
-        void getter(size_t id, FifoRead::Data &&data);
+	void getter(size_t id, FifoRead::Data&& data);
 
-        void connect(size_t id, std::shared_ptr<Fifo> object);
+	void connect(size_t id, std::shared_ptr<Fifo> object);
 
-        void disconnect(size_t id, std::shared_ptr<Fifo> object);
-    };
-}
+	void disconnect(size_t id, std::shared_ptr<Fifo> object);
+	enum Config { WQ, WNQ };
+	class writerFactory {
+		void create(Config a)
+		{
+			switch(a) {
+			case(Config::WQ):
+				break;
+			case(Config::WNQ):
+				break;
+			}
+		}
+	};
+};
+} // namespace Ipc
 // virtual ~Server() = default;
 // virtual void start()                                             = 0;
 // virtual void stop()                                              = 0;
