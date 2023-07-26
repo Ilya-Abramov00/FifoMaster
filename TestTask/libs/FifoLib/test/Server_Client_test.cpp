@@ -66,6 +66,7 @@ private:
 	void startWriteServer(Server& server, int n, int k, size_t client)
 	{
 		server.start();
+		sleep(5);
 		std::string data0(n, 'a');
 		for(int i = 0; i != k; i++) {
 			for(int k = 0; k != client; k++) {
@@ -79,7 +80,7 @@ private:
 	void startWriteClient(Client& client, int n, int k)
 	{
 		client.start();
-
+sleep(4);
 		std::string data0(n, 'v');
 		for(int i = 0; i != k; i++) {
 			client.write((void*)data0.data(), n);
@@ -94,7 +95,7 @@ std::string FIFO3 = "fifo3";
 std::string FIFO2 = "fifo2";
 std::string FIFO1 = "fifo1";
 
-TEST_F(ServerClientTest, Clients5To1ServerConnectin)
+TEST_F(ServerClientTest, Clients5To1ServerConnectin_QW)
 {
 	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
@@ -138,3 +139,93 @@ TEST_F(ServerClientTest, Clients5To1ServerConnectin)
 
 	tServer.join();
 }
+TEST_F(ServerClientTest, Clients5To1ServerConnectin_NQW)
+{
+	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
+	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
+	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
+	FifoCfg k4{FIFO4, FIFO4 + "_reverse"};
+	FifoCfg k5{FIFO5, FIFO5 + "_reverse"};
+
+	std::list<FifoCfg> data = {k1, k2, k3, k4, k5};
+
+	int sizeN = 1024 * 1024;
+	int n     = 10;
+
+	std::mutex mtx;
+	std::thread tServer([data, &sizeN, n, this, &mtx]() {
+		servers(data,Ipc::Config::NQW, sizeN, n, data.size(), mtx);
+	});
+
+	std::thread tClient1([&k1, &sizeN, n, this]() {
+		clients(k1,Ipc::Config::NQW, sizeN, n);
+	});
+
+	std::thread tClient2([&k2, &sizeN, n, this]() {
+		clients(k2,Ipc::Config::NQW, sizeN, n);
+	});
+
+	std::thread tClient3([&k3, &sizeN, n, this]() {
+		clients(k3,Ipc::Config::NQW, sizeN, n);
+	});
+	std::thread tClient4([&k4, &sizeN, n, this]() {
+		clients(k4,Ipc::Config::NQW, sizeN, n);
+	});
+	std::thread tClient5([&k5, &sizeN, n, this]() {
+		clients(k5,Ipc::Config::NQW, sizeN, n);
+	});
+
+	tClient1.join();
+	tClient2.join();
+	tClient3.join();
+	tClient4.join();
+	tClient5.join();
+
+	tServer.join();
+}
+TEST_F(ServerClientTest, Clients5To1ServerConnectin_QW_NQW)
+{
+	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
+	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
+	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
+	FifoCfg k4{FIFO4, FIFO4 + "_reverse"};
+	FifoCfg k5{FIFO5, FIFO5 + "_reverse"};
+
+	std::list<FifoCfg> data = {k1, k2, k3, k4, k5};
+
+	int sizeN = 1024 * 1024;
+	int n     = 10;
+
+	std::mutex mtx;
+	std::thread tServer([data, &sizeN, n, this, &mtx]() {
+		servers(data,Ipc::Config::NQW, sizeN, n, data.size(), mtx);
+	});
+
+	std::thread tClient1([&k1, &sizeN, n, this]() {
+		clients(k1,Ipc::Config::QW, sizeN, n);
+	});
+
+	std::thread tClient2([&k2, &sizeN, n, this]() {
+		clients(k2,Ipc::Config::NQW, sizeN, n);
+	});
+
+	std::thread tClient3([&k3, &sizeN, n, this]() {
+		clients(k3,Ipc::Config::QW, sizeN, n);
+	});
+	std::thread tClient4([&k4, &sizeN, n, this]() {
+		clients(k4,Ipc::Config::NQW, sizeN, n);
+	});
+	std::thread tClient5([&k5, &sizeN, n, this]() {
+		clients(k5,Ipc::Config::QW, sizeN, n);
+	});
+
+	tClient1.join();
+	tClient2.join();
+	tClient3.join();
+	tClient4.join();
+	tClient5.join();
+
+	tServer.join();
+}
+
+
