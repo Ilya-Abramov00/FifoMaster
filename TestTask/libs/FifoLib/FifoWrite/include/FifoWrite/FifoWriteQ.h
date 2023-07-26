@@ -45,7 +45,7 @@ private:
 	std::queue<std::vector<uint8_t>> queue;
 	std::mutex mtx;
 	std::unique_ptr<std::thread> threadWriteFifo;
-	std::unique_ptr<std::thread> threadWaitConnectFifo;
+
 };
 
 } // namespace Ipc

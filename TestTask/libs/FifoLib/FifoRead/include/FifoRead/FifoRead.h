@@ -33,8 +33,6 @@ namespace Ipc {
 
         long const &getFifoFd() const;
 
-        ~FifoRead();
-
     private:
         void waitConnectFifo();
 
@@ -51,7 +49,7 @@ namespace Ipc {
         bool waitConnect{false};
         bool waitDisConnect{false};
         long fifoFd = -1;
-        std::unique_ptr<std::thread> threadWaitConnectFifo;
+
         std::unique_ptr<std::thread> threadReadFifo;
     };
 }

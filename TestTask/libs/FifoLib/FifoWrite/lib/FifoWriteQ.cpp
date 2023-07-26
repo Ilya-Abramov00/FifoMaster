@@ -36,47 +36,21 @@ void QWriteImpl::startWrite()
 	}
 	runWrite = true;
 
-	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
-		waitConnectFifo();
+	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
+		writeFifo();
 	}));
-}
-
-void QWriteImpl::waitConnectFifo()
-{
-	fifoFd = openFifo(params.addrRead, 'W');
-	if(runWrite) {
-		waitConnect = true;
-		params.connectHandler();
-		threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
-			writeFifo();
-		}));
-	}
-}
-
-void QWriteImpl::stopWrite()
-{
-	runWrite = false;
-	if(!waitConnect) {
-		auto fd = openFifo(params.addrRead.c_str(), 'R');
-		close(fd);
-	}
-
-	threadWaitConnectFifo->join();
-	close(fifoFd);
-
-	if(waitConnect) {
-		threadWriteFifo->join();
-	}
-	if(queue.size()) {
-		std::cerr << getName() << " канал не смог отправить данные в полном размере\n";
-	}
 }
 
 void QWriteImpl::writeFifo()
 {
+	fifoFd = openFifo(params.addrRead, 'W');
 	if(fifoFd == -1) {
 		throw std::runtime_error(" fail openFifo ");
 	}
+
+	waitConnect = true;
+	params.connectHandler();
+
 	while(runWrite) {
 		{
 			std::lock_guard<std::mutex> mtx_0(mtx);
@@ -85,8 +59,9 @@ void QWriteImpl::writeFifo()
 				auto flag = write(fifoFd, queue.front().data(), queue.front().size());
 				if(flag == -1) {
 					waitDisConnect = true;
+					waitConnect    = false;
 					params.disconnectHandler();
-					return;
+					break;
 				}
 				queue.pop();
 			}
@@ -105,6 +80,22 @@ void QWriteImpl::pushData(const void* data, size_t sizeN)
 	{
 		std::lock_guard<std::mutex> mtx_0(mtx);
 		queue.push(std::move(buffer));
+	}
+}
+
+void QWriteImpl::stopWrite()
+{
+	runWrite = false;
+	if(!waitConnect) {
+		auto fd = openFifo(params.addrRead.c_str(), 'R');
+		close(fd);
+	}
+	close(fifoFd);
+
+	threadWriteFifo->join();
+
+	if(queue.size()) {
+		std::cerr << getName() << "в очереди остались неотправленные сообщения\n";
 	}
 }
 
