@@ -59,8 +59,9 @@ void QWriteImpl::writeFifo()
 				auto flag = write(fifoFd, queue.front().data(), queue.front().size());
 				if(flag == -1) {
 					waitDisConnect = true;
-					waitConnect    = false;
+				//	waitConnect    = false;
 					params.disconnectHandler();
+					runWrite = false;
 					break;
 				}
 				queue.pop();

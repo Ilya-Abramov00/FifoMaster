@@ -49,7 +49,8 @@ void FifoRead::readFifo()
 		auto flag = read(fifoFd, buffer.data(), MAXLINE);
 		if(flag == 0) {
 			waitDisConnect = true;
-			waitConnect = false;
+			//waitConnect = false;
+			runRead= false;
 			params.disconnectHandler();
 			break;
 		}

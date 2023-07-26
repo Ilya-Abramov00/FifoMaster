@@ -22,10 +22,12 @@ int main()
 	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
-
-	auto getter = [&](size_t id, FifoRead::Data&& dataq) {
+	std::mutex mtx;
+	auto getter = [&mtx,&data](size_t id, FifoRead::Data&& dataq) {
+		std::lock_guard<std::mutex>mtx0(mtx);
 		data.insert(data.begin(), dataq.data(), dataq.data() + dataq.size());
-		std::cout<<"данные пришли";
+		std::cout<<"данные пришли ";
+		std::cout<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
 
 	Server server({k1, k2, k3},Ipc::Config::QW);
@@ -38,23 +40,17 @@ int main()
 
 	server.start();
 
-	auto x = 2;
+	auto x = 1;
 	std::string data0(x, 'a');
-	for(int i = 0; i != 4; i++) {
-		server.write(0, (void*)data0.data(), x);
-		server.write(1, (void*)data0.data(), x);
-		server.write(2, (void*)data0.data(), x);
-		sleep(1);
-	}
-	std::string data1(x, 'v');
-	for(int i = 0; i != 4; i++) {
+	for(int i = 0; i != 5; i++) {
 		server.write(0, (void*)data0.data(), x);
 		server.write(1, (void*)data0.data(), x);
 		server.write(2, (void*)data0.data(), x);
 		sleep(1);
 	}
 
-	sleep(15);
+
+	sleep(20);
 
 	std::cout << "\nstopStart\n";
 	server.stop();
