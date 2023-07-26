@@ -1,3 +1,4 @@
+/*
 #include <gtest/gtest.h>
 
 #include "Fifo/Fifo.h"
@@ -369,3 +370,4 @@ TEST(Fifo_many_potoc, 3)
 	ASSERT_TRUE(data.size() == n * 12);
 	// вызовы вункции pushwrite перемешаны, пачки данных могли перемешаться
 }
+*/

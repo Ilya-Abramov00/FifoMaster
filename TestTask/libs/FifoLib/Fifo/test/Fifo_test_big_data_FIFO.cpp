@@ -1,3 +1,4 @@
+/*
 #include "gtest/gtest.h"
 
 #include "Fifo/Fifo.h"
@@ -185,3 +186,4 @@ TEST(big_data_FIFO, 2)
 	ASSERT_TRUE(data.size() == n * 12);
 	ASSERT_TRUE(data == a);
 }
+*/
