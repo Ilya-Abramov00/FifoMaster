@@ -68,7 +68,7 @@ void QWriteImpl::stopWrite()
 		threadWriteFifo->join();
 	}
 	if(queue.size()) {
-		std::cerr << getName() << " канал не смог отправить данные в полном размере";
+		std::cerr << getName() << " канал не смог отправить данные в полном размере\n";
 	}
 }
 

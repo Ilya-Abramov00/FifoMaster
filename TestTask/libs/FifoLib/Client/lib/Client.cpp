@@ -2,7 +2,7 @@
 #include <iostream>
 
 namespace Ipc {
-Client::Client(FifoCfg name) : client(name.directFile, name.reverseFile)
+Client::Client(FifoCfg name,Config config) : client( WriterFactory::create(name.directFile,config) ,name.reverseFile)
 {
 	client.setReadHandler([this](FifoRead::Data&& data) {
 		this->getter(std::move(data));

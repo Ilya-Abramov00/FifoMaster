@@ -1,14 +1,11 @@
 #ifndef FIFOWRITEQ_H
 #define FIFOWRITEQ_H
 
-#include "FifoBase/FifoBase.h"
-#include "FifoWrite/IWriter.h"
-
+#include "FifoWrite/FifoIWriter.h"
 
 namespace Ipc {
 
-
-class QWriteImpl : public IWriter, protected FifoBase {
+class QWriteImpl : public FifoIWriter, protected FifoBase {
 public:
 	QWriteImpl(const std::string fdFileName);
 
@@ -50,7 +47,6 @@ private:
 	std::unique_ptr<std::thread> threadWriteFifo;
 	std::unique_ptr<std::thread> threadWaitConnectFifo;
 };
-
 
 } // namespace Ipc
 #endif

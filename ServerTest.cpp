@@ -25,9 +25,10 @@ int main()
 
 	auto getter = [&](size_t id, FifoRead::Data&& dataq) {
 		data.insert(data.begin(), dataq.data(), dataq.data() + dataq.size());
+		std::cout<<"данные пришли";
 	};
 
-	Server server({k1, k2, k3});
+	Server server({k1, k2, k3},Ipc::Config::QW);
 	server.setReadHandler(getter);
 
 	server.setConnectHandler([](size_t) {

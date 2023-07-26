@@ -23,13 +23,13 @@ void Server::disconnect(size_t id, std::shared_ptr<Fifo> object)
 	}
 };
 
-Server::Server(std::list<FifoCfg> const& nameChannelsfifo)
+Server::Server(std::list<FifoCfg> const& nameChannelsfifo,Config config)
 {
 	size_t id = 0;
 	for(auto const& name: nameChannelsfifo) {
 		fifoCfgTable.insert({id, name});
 
-		connectionTable.insert({id, std::make_unique<Fifo>(name.reverseFile, name.directFile)});
+		connectionTable.insert({id, std::make_unique<Fifo>(WriterFactory::create(name.reverseFile,config),name.directFile)});
 
 		connectionTable[id]->setReadHandler([this, id](FifoRead::Data&& data) {
 			this->getter(id, std::move(data));

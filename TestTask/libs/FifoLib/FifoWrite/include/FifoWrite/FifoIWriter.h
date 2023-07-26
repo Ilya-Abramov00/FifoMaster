@@ -6,9 +6,12 @@
 #include <thread>
 #include <mutex>
 #include <queue>
+#include "FifoBase/FifoBase.h"
+
 namespace Ipc {
 
-class IWriter {
+class FifoIWriter {
+public:
 	virtual void setConnectionHandler(FifoBase::ConnectionHandler handler) = 0;
 
 	virtual void setDisConnectionHandler(FifoBase::ConnectionHandler handler) = 0;

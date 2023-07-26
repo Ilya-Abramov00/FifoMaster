@@ -4,8 +4,11 @@
 #include "list"
 #include "map"
 #include "Fifo/Fifo.h"
-
+#include "FifoWrite/FifoWriteQ.h"
+#include "FifoWrite/FifoWriteNQ.h"
+#include "FifoWrite/FifoIWriter.h"
 namespace Ipc {
+
 class Server {
 public:
 	using FifoCfgTable     = std::map<size_t, FifoCfg>;
@@ -14,7 +17,7 @@ public:
 	using ReadHandler  = std::function<void(size_t, FifoRead::Data&&)>;
 	using EventHandler = std::function<void(size_t)>;
 
-	Server(std::list<FifoCfg> const& nameChannelsFifo);
+	Server(std::list<FifoCfg> const& nameChannelsFifo, Config config);
 
 	void setReadHandler(ReadHandler h);
 
@@ -42,15 +45,16 @@ private:
 	void connect(size_t id, std::shared_ptr<Fifo> object);
 
 	void disconnect(size_t id, std::shared_ptr<Fifo> object);
-	enum Config { WQ, WNQ };
-	class writerFactory {
-		void create(Config a)
+
+	class WriterFactory {
+	public:
+		static std::unique_ptr<FifoIWriter> create( std::string filename,Config conf)
 		{
-			switch(a) {
-			case(Config::WQ):
-				break;
-			case(Config::WNQ):
-				break;
+			switch(conf) {
+			case(Config::QW):
+				return std::unique_ptr<FifoIWriter>(new QWriteImpl(filename));
+			case(Config::NQW):
+				return std::unique_ptr<FifoIWriter>(new NQWriteImpl(filename));
 			}
 		}
 	};

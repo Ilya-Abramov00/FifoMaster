@@ -1,15 +1,14 @@
 #ifndef FIFOWRITENQ_H
 #define FIFOWRITENQ_H
 
-#include "FifoBase/FifoBase.h"
-#include "FifoWrite/IWriter.h"
 
+#include "FifoWrite/FifoIWriter.h"
 
 namespace Ipc {
 
 
 
-class NQWriteImpl : public IWriter, protected FifoBase {
+class NQWriteImpl : public FifoIWriter, protected FifoBase {
 public:
 	NQWriteImpl(const std::string fdFileName);
 

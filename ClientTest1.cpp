@@ -24,11 +24,15 @@ int main()
 FifoCfg k1{FIFO1,FIFO1+"_reverse"};
 FifoCfg k3{FIFO3,FIFO3+"_reverse"};
 
-	Client client2(k1);
+	Client client2(k1,Ipc::Config::QW);
 	client2.setReadHandler(e);
+	client2.setDisconnectHandler([](){});
+	client2.setConnectHandler([](){});
 
-	Client client1(k3);
+	Client client1(k3,Ipc::Config::QW);
 	client1.setReadHandler(e);
+	client1.setDisconnectHandler([](){});
+	client1.setConnectHandler([](){});
 
 	client1.start();
 	client2.start();
@@ -47,8 +51,7 @@ auto x=2;
 	std::cout<<"\nstop\n";
 	client1.stop();
 	client2.stop();
-	sleep(9);
 	std::cout << data.size();
-	sleep(2);
+
 	return 0;
 }

@@ -2,16 +2,22 @@
 #define FIFO_H
 
 #include "FifoRead/FifoRead.h"
+#include "FifoWrite/FifoWriteQ.h"
 #include "FifoWrite/FifoWriteNQ.h"
+#include "FifoWrite/FifoIWriter.h"
+
 namespace Ipc {
+
 struct FifoCfg {
 	std::string directFile;
 	std::string reverseFile;
 };
 
+enum class Config { QW, NQW };
+
 class Fifo {
 public:
-	Fifo(const std::string fdFileNameWrite, const std::string fdFileNameRead);
+	Fifo(std::unique_ptr<FifoIWriter> fifoWrite, const std::string fdFileNameRead);
 
 	void setConnectionHandlerRead(FifoBase::ConnectionHandler handler);
 
@@ -46,7 +52,7 @@ public:
 	void closeWrite();
 
 private:
-	FifoWrite fifoWrite;
+	std::unique_ptr<FifoIWriter> fifoWrite;
 	FifoRead fifoRead;
 };
 } // namespace Ipc

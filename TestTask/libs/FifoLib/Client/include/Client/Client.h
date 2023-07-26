@@ -2,11 +2,13 @@
 #define Client_H
 
 #include "Fifo/Fifo.h"
+
+
 namespace Ipc {
     class Client {
         using EventHandler = std::function<void()>;
     public:
-        Client(FifoCfg name);
+        Client(FifoCfg name,Config config);
 
         void start();
 
@@ -32,6 +34,19 @@ namespace Ipc {
 
         Fifo client;
         FifoRead::ReadHandler readHandler;
+
+	    class WriterFactory {
+		public:
+		    static std::unique_ptr<FifoIWriter> create( std::string filename,Config conf)
+		    {
+			    switch(conf) {
+			    case(Config::QW):
+				    return std::unique_ptr<FifoIWriter>(new QWriteImpl(filename));
+			    case(Config::NQW):
+				    return std::unique_ptr<FifoIWriter>(new NQWriteImpl(filename));
+			    }
+		    }
+	    };
     };
 }
 

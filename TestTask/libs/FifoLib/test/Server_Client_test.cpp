@@ -10,9 +10,9 @@ public:
 	void SetUp() override
 	{}
 
-	void clients(FifoCfg e, int n, int k)
+	void clients(FifoCfg e,Config config, int n, int k)
 	{
-		Client client(e);
+		Client client(e,config);
 		std::string dataClient1 = "";
 
 		auto getterClient1 = [&dataClient1](FifoRead::Data&& dataq) {
@@ -34,7 +34,7 @@ public:
 		ASSERT_TRUE(clientDisconnection == true);
 		ASSERT_TRUE(dataClient1.size() == n * k);
 	}
-	void servers(std::list<FifoCfg> s, int n, int k, size_t client, std::mutex& mtx0)
+	void servers(std::list<FifoCfg> s,Config config, int n, int k, size_t client, std::mutex& mtx0)
 	{
 		std::string dataServer = "";
 		auto getterServer      = [&dataServer, &mtx0](size_t id, FifoRead::Data&& dataq) {
@@ -42,7 +42,7 @@ public:
             dataServer.insert(dataServer.end(), dataq.data(), dataq.data() + dataq.size());
 		};
 
-		Server server(s);
+		Server server(s,config);
 		int serverConnection    = 0;
 		int serverDisconnection = 0;
 		server.setReadHandler(getterServer);
@@ -109,25 +109,25 @@ TEST_F(ServerClientTest, Clients5To1ServerConnectin)
 
 	std::mutex mtx;
 	std::thread tServer([data, &sizeN, n, this, &mtx]() {
-		servers(data, sizeN, n, data.size(), mtx);
+		servers(data,Ipc::Config::QW, sizeN, n, data.size(), mtx);
 	});
 
 	std::thread tClient1([&k1, &sizeN, n, this]() {
-		clients(k1, sizeN, n);
+		clients(k1,Ipc::Config::QW, sizeN, n);
 	});
 
 	std::thread tClient2([&k2, &sizeN, n, this]() {
-		clients(k2, sizeN, n);
+		clients(k2,Ipc::Config::QW, sizeN, n);
 	});
 
 	std::thread tClient3([&k3, &sizeN, n, this]() {
-		clients(k3, sizeN, n);
+		clients(k3,Ipc::Config::QW, sizeN, n);
 	});
 	std::thread tClient4([&k4, &sizeN, n, this]() {
-		clients(k4, sizeN, n);
+		clients(k4,Ipc::Config::QW, sizeN, n);
 	});
 	std::thread tClient5([&k5, &sizeN, n, this]() {
-		clients(k5, sizeN, n);
+		clients(k5,Ipc::Config::QW, sizeN, n);
 	});
 
 	tClient1.join();
