@@ -5,7 +5,7 @@
 #include <iostream>
 int main()
 {
-    using namespace Ipc;
+	using namespace Ipc;
 	std::cout << "клиент" << std::endl << std::endl;
 
 	std::string FIFO3 = "/home/ilya/fifo3";
