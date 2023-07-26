@@ -7,17 +7,17 @@ void Server::getter(size_t id, FifoRead::Data&& data)
 	readHandler(id, std::move(data));
 };
 
-void Server::connect(size_t id, std::shared_ptr<Fifo> object)
+void Server::connect(size_t id, const Fifo& object)
 {
-	if(object->getWaitConnectWrite() && object->getWaitConnectRead()) {
+	if(object.getWaitConnectWrite() && object.getWaitConnectRead()) {
 		std::cout << "Connect " << id << std::endl;
 		connectHandler(id);
 	}
 };
 
-void Server::disconnect(size_t id, std::shared_ptr<Fifo> object)
+void Server::disconnect(size_t id, const Fifo& object)
 {
-	if(object->getWaitDisconnectWrite() || object->getWaitDisconnectRead()) {
+	if(object.getWaitDisconnectWrite() || object.getWaitDisconnectRead()) {
 		std::cout << "Disconnect " << id << std::endl;
 		disconnectHandler(id);
 	}
@@ -36,21 +36,21 @@ Server::Server(std::list<FifoCfg> const& nameChannelsfifo,Config config)
 		});
 
 		connectionTable[id]->setConnectionHandlerRead([this, id]() {
-			this->connect(id, connectionTable[id]);
+			this->connect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite(); // чтобы не приходилась ждать stop
-			this->disconnect(id, connectionTable[id]);
+			this->disconnect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
-			this->connect(id, connectionTable[id]);
+			this->connect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
 			connectionTable[id]->closeRead(); // чтобы не приходилась ждать stop
-			this->disconnect(id, connectionTable[id]);
+			this->disconnect(id, *connectionTable[id]);
 		});
 		id++;
 	}

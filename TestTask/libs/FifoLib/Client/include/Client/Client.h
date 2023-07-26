@@ -37,7 +37,7 @@ namespace Ipc {
 
 	    class WriterFactory {
 		public:
-		    static std::unique_ptr<FifoIWriter> create( std::string filename,Config conf)
+		    static std::unique_ptr<FifoIWriter> create(const  std::string& filename,Config conf)
 		    {
 			    switch(conf) {
 			    case(Config::QW):

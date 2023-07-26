@@ -12,7 +12,7 @@ namespace Ipc {
 class Server {
 public:
 	using FifoCfgTable     = std::map<size_t, FifoCfg>;
-	using ConnectionsTable = std::map<size_t, std::shared_ptr<Fifo>>;
+	using ConnectionsTable = std::map<size_t, std::unique_ptr<Fifo>>;
 
 	using ReadHandler  = std::function<void(size_t, FifoRead::Data&&)>;
 	using EventHandler = std::function<void(size_t)>;
@@ -42,13 +42,13 @@ private:
 
 	void getter(size_t id, FifoRead::Data&& data);
 
-	void connect(size_t id, std::shared_ptr<Fifo> object);
+	void connect(size_t id, const Fifo& object);
 
-	void disconnect(size_t id, std::shared_ptr<Fifo> object);
+	void disconnect(size_t id, const Fifo& object);
 
 	class WriterFactory {
 	public:
-		static std::unique_ptr<FifoIWriter> create( std::string filename,Config conf)
+		static std::unique_ptr<FifoIWriter> create( const std::string& filename, Config conf)
 		{
 			switch(conf) {
 			case(Config::QW):
@@ -60,19 +60,5 @@ private:
 	};
 };
 } // namespace Ipc
-// virtual ~Server() = default;
-// virtual void start()                                             = 0;
-// virtual void stop()                                              = 0;
-// virtual void write(ConnectionsTable id, const void* data, size_t sz) = 0;
-// virtual void disconnect(ConnectionsTable id)                         = 0;
-// void setNewConnectionHandler(ConnChangeHandler h)
-//{
-//	newHandler = h;
-// }
-// void setCloseConnectionHandler(ConnChangeHandler h)
-//{
-//	closeHandler = h;
-// }
 
-// virtual void setIdDistributionHandler(IdDistributionHandler h) = 0;
 #endif

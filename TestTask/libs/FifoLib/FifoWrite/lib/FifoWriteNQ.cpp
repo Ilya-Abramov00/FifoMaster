@@ -63,11 +63,12 @@ void NQWriteImpl::stopWrite()
 
 void NQWriteImpl::pushData(const void* data, size_t sizeN)
 {
+	if(waitConnect&&runWrite)
+	{
 	if(!data) {
 		std::cerr << "\n null ptr is pushData \n";
 		return;
 	}
-	if(waitConnect && runWrite) {
 		signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
 		auto flag = write(fifoFd, data, sizeN);
 		if(flag == -1) {
@@ -75,6 +76,9 @@ void NQWriteImpl::pushData(const void* data, size_t sizeN)
 			params.disconnectHandler();
 			return;
 		}
+	}
+	else {
+		throw std::runtime_error("Write in close Fifo");
 	}
 }
 

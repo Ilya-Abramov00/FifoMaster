@@ -38,10 +38,7 @@ TEST(Fifo, null_ptr)
 	using namespace std;
 	using namespace Ipc;
 
-
-	FifoT(FIFO2,FIFO2,Ipc::Config::NQW, nullptr,0);
-
-
+	FifoT(FIFO2, FIFO2, Ipc::Config::NQW, nullptr, 0);
 }
 
 TEST_F(FifoTest, time)
@@ -49,8 +46,7 @@ TEST_F(FifoTest, time)
 	using namespace std;
 	using namespace Ipc;
 
-int n=1024;
+	int n = 1024;
 	std::string da(n, '3');
-	FifoT(FIFO2,FIFO2,Ipc::Config::NQW, da.data(),1024);
-
+	FifoT(FIFO2, FIFO2, Ipc::Config::NQW, da.data(), 1024);
 }

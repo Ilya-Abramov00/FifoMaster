@@ -1,10 +1,10 @@
-/*
+
 #include "gtest/gtest.h"
 
 #include "Fifo/Fifo.h"
 
 
-TEST(big_data, 1)
+TEST(big_data_Q, 1)
 {
     using namespace std;
     using namespace Ipc;
@@ -20,7 +20,8 @@ TEST(big_data, 1)
 
 	};
 	FifoRead client1(FIFO2);
-	FifoWriteQueue client2(FIFO2);
+
+	QWriteImpl client2(FIFO2);
 
 	client1.setReadHandler(getterRead);
 
@@ -100,7 +101,7 @@ TEST(big_data, 1)
 	ASSERT_TRUE(data.size() == n * 12);
 	ASSERT_TRUE(data == a);
 }
-TEST(big_data, 2)
+TEST(big_data_Q, 2)
 {
     using namespace std;
     using namespace Ipc;
@@ -116,7 +117,7 @@ TEST(big_data, 2)
 
 	};
 	FifoRead client1(FIFO2);
-	FifoWriteQueue client2(FIFO2);
+	QWriteImpl client2(FIFO2);
 
 	client1.setReadHandler(getterRead);
 
@@ -196,4 +197,4 @@ TEST(big_data, 2)
 	ASSERT_TRUE(data.size() == n * 12);
 	ASSERT_TRUE(data == a);
 }
-*/
+
