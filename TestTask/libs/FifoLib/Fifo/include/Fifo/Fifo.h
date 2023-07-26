@@ -2,7 +2,7 @@
 #define FIFO_H
 
 #include "FifoRead/FifoRead.h"
-#include "FifoWrite/FifoWrite.h"
+#include "FifoWrite/FifoWriteNQ.h"
 namespace Ipc {
 struct FifoCfg {
 	std::string directFile;
