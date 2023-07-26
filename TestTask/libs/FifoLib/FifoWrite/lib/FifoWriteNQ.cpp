@@ -43,6 +43,7 @@ void NQWriteImpl::startWrite()
 
 void NQWriteImpl::waitConnectFifo()
 {
+	//while(){}чтобы многорузовой сделать
 	fifoFd = openFifo(params.addrRead, 'W');
 	if(runWrite) {
 		waitConnect = true;
