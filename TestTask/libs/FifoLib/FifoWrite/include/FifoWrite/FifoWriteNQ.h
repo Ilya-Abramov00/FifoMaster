@@ -1,12 +1,9 @@
 #ifndef FIFOWRITENQ_H
 #define FIFOWRITENQ_H
 
-
 #include "FifoWrite/FifoIWriter.h"
 
 namespace Ipc {
-
-
 
 class NQWriteImpl : public FifoIWriter, protected FifoBase {
 public:
@@ -25,7 +22,6 @@ public:
 	bool const getWaitDisconnect() const override;
 
 	bool const getWaitConnect() const override;
-
 
 	long const& getFifoFd() const override;
 

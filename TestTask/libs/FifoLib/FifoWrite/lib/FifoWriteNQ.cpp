@@ -43,7 +43,7 @@ void NQWriteImpl::startWrite()
 
 void NQWriteImpl::waitConnectFifo()
 {
-	//while(){}чтобы многорузовой сделать
+	// while(){}чтобы многорузовой сделать
 	fifoFd = openFifo(params.addrRead, 'W');
 	if(runWrite) {
 		waitConnect = true;
@@ -64,12 +64,11 @@ void NQWriteImpl::stopWrite()
 
 void NQWriteImpl::pushData(const void* data, size_t sizeN)
 {
-	if(waitConnect&&runWrite)
-	{
-	if(!data) {
-		std::cerr << "\n null ptr is pushData \n";
-		return;
-	}
+	if(waitConnect && runWrite) {
+		if(!data) {
+			std::cerr << "\n null ptr is pushData \n";
+			return;
+		}
 		signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
 		auto flag = write(fifoFd, data, sizeN);
 		if(flag == -1) {
@@ -87,8 +86,6 @@ bool const NQWriteImpl::getWaitDisconnect() const
 {
 	return waitDisConnect;
 }
-
-
 
 long const& NQWriteImpl::getFifoFd() const
 {

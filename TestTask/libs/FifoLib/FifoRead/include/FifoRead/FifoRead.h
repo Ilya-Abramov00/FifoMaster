@@ -8,50 +8,49 @@
 #include <thread>
 
 namespace Ipc {
-    class FifoRead : protected FifoBase {
-    public:
-        using Data = std::vector<uint8_t>;
-        using ReadHandler = std::function<void(Data &&)>;
+class FifoRead : protected FifoBase {
+public:
+	using Data        = std::vector<uint8_t>;
+	using ReadHandler = std::function<void(Data&&)>;
 
-        FifoRead(const std::string fdFileName);
+	FifoRead(const std::string fdFileName);
 
-        void startRead();
+	void startRead();
 
-        void stopRead();
+	void stopRead();
 
-        void setConnectionHandler(FifoBase::ConnectionHandler handler);
+	void setConnectionHandler(FifoBase::ConnectionHandler handler);
 
-        void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
+	void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
 
-        void setReadHandler(ReadHandler handler);
+	void setReadHandler(ReadHandler handler);
 
-        bool const getWaitDisconnect() const;
+	bool const getWaitDisconnect() const;
 
-        bool const getWaitConnect() const;
+	bool const getWaitConnect() const;
 
+	long const& getFifoFd() const;
 
-        long const &getFifoFd() const;
+private:
+	void waitConnectFifo();
 
-    private:
-        void waitConnectFifo();
+	void readFifo();
 
-        void readFifo();
+	struct Params {
+		std::string addrRead;
+		ReadHandler msgHandler;
+		ConnectionHandler connectHandler;
+		ConnectionHandler disconnectHandler;
+	};
+	Params params;
+	bool runRead{false};
+	bool waitConnect{false};
+	bool waitDisConnect{false};
+	bool waitOpen{false};
 
-        struct Params {
-            std::string addrRead;
-            ReadHandler msgHandler;
-            ConnectionHandler connectHandler;
-            ConnectionHandler disconnectHandler;
-        };
-        Params params;
-        bool runRead{false};
-        bool waitConnect{false};
-        bool waitDisConnect{false};
-	    bool waitOpen{false};
+	long fifoFd = -1;
 
-        long fifoFd = -1;
-
-        std::unique_ptr<std::thread> threadReadFifo;
-    };
-}
+	std::unique_ptr<std::thread> threadReadFifo;
+};
+} // namespace Ipc
 #endif

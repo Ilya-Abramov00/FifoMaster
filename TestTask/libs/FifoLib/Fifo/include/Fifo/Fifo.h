@@ -43,7 +43,6 @@ public:
 
 	void stop();
 
-
 	void closeRead();
 
 	void closeWrite();

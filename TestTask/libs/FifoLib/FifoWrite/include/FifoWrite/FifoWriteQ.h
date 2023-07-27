@@ -23,7 +23,6 @@ public:
 
 	bool const getWaitConnect() const override;
 
-
 	long const& getFifoFd() const override;
 
 private:
@@ -46,7 +45,6 @@ private:
 	std::queue<std::vector<uint8_t>> queue;
 	std::mutex mtx;
 	std::unique_ptr<std::thread> threadWriteFifo;
-
 };
 
 } // namespace Ipc

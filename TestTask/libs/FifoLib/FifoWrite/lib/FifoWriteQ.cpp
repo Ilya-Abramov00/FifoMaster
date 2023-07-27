@@ -50,9 +50,9 @@ void QWriteImpl::writeFifo()
 		if(fifoFd == -1) {
 			throw std::runtime_error(" fail openFifo ");
 		}
-		waitOpen    = true;
+		waitOpen       = true;
 		waitDisConnect = false;
-		waitConnect = true;
+		waitConnect    = true;
 		params.connectHandler();
 
 		while(waitConnect && runWrite) {
@@ -112,7 +112,6 @@ bool const QWriteImpl::getWaitDisconnect() const
 {
 	return waitDisConnect;
 }
-
 
 long const& QWriteImpl::getFifoFd() const
 {

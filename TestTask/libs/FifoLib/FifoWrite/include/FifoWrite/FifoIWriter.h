@@ -26,7 +26,6 @@ public:
 
 	virtual bool const getWaitConnect() const = 0;
 
-
 	virtual long const& getFifoFd() const = 0;
 };
 }; // namespace Ipc

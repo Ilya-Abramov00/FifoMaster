@@ -43,9 +43,9 @@ void FifoRead::readFifo()
 		if(fifoFd == -1) {
 			throw std::runtime_error(" fail openFifo ");
 		}
-		waitOpen    = true;
+		waitOpen       = true;
 		waitDisConnect = false;
-		waitConnect = true;
+		waitConnect    = true;
 		params.connectHandler();
 
 		while(waitConnect && runRead) {
@@ -106,8 +106,6 @@ bool const FifoRead::getWaitConnect() const
 {
 	return waitConnect;
 }
-
-
 
 long const& FifoRead::getFifoFd() const
 {
