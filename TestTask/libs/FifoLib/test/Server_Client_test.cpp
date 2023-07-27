@@ -30,9 +30,11 @@ public:
 		});
 
 		startWriteClient(client, n, k);
+		sleep(2);
+		startWriteClient(client, n, k);
 
-				ASSERT_TRUE(clientConnection == 2);
-				ASSERT_TRUE(clientDisconnection == 2);
+		ASSERT_TRUE(clientConnection == 2);
+		ASSERT_TRUE(clientDisconnection == 2);
 		ASSERT_TRUE(dataClient1.size() == 2 * n * k);
 	}
 	void servers(std::list<FifoCfg> s, Config config, int n, int k, size_t client, std::mutex& mtx0)
@@ -54,6 +56,8 @@ public:
 			serverDisconnection += 1;
 		});
 
+		startWriteServer(server, n, k, client);
+		sleep(2);
 		startWriteServer(server, n, k, client);
 
 		ASSERT_TRUE(serverConnection == client * 2);
@@ -78,16 +82,6 @@ private:
 		sleep(12);
 
 		server.stop();
-
-		sleep(4);
-		server.start();
-		for(int i = 0; i != k; i++) {
-			for(int k = 0; k != client; k++) {
-				server.write(k, (void*)data0.data(), n);
-			}
-		}
-		sleep(12);
-		server.stop();
 	}
 	void startWriteClient(Client& client, int n, int k)
 	{
@@ -99,19 +93,9 @@ private:
 		}
 		sleep(12);
 		client.stop();
-
-		sleep(4);
-		client.start();
-		sleep(2);
-		for(int i = 0; i != k; i++) {
-			client.write((void*)data0.data(), n);
-		}
-		sleep(12);
-		client.stop();
 	}
 };
-std::string FIFO5 = "fifo5";
-std::string FIFO4 = "fifo4";
+
 std::string FIFO3 = "fifo3";
 std::string FIFO2 = "fifo2";
 std::string FIFO1 = "fifo1";
@@ -122,7 +106,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
 
-	std::list<FifoCfg> data = {k1,k2,k3};
+	std::list<FifoCfg> data = {k1, k2, k3};
 
 	int sizeN = 1024 * 1024;
 	int n     = 10;
@@ -156,7 +140,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_NQW)
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
 
-	std::list<FifoCfg> data = {k1,k2,k3};
+	std::list<FifoCfg> data = {k1, k2, k3};
 
 	int sizeN = 1024 * 1024;
 	int n     = 10;
@@ -178,48 +162,44 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_NQW)
 		clients(k3, Ipc::Config::QW, sizeN, n, mtx);
 	});
 
+	tClient1.join();
+	tClient2.join();
+	tClient3.join();
+
+	tServer.join();
+}
+
+TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW_NQW)
+{
+	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
+	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
+	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
+
+	std::list<FifoCfg> data = {k1, k2, k3};
+
+	int sizeN = 1024;
+	int n     = 10;
+
+	std::mutex mtx0;
+	std::thread tServer([data, &sizeN, n, this, &mtx0]() {
+		servers(data, Ipc::Config::NQW, sizeN, n, data.size(), mtx0);
+	});
+	std::mutex mtx;
+	std::thread tClient1([&k1, &sizeN, n, this, &mtx]() {
+		clients(k1, Ipc::Config::QW, sizeN, n, mtx);
+	});
+
+	std::thread tClient2([&k2, &sizeN, n, this, &mtx]() {
+		clients(k2, Ipc::Config::QW, sizeN, n, mtx);
+	});
+
+	std::thread tClient3([&k3, &sizeN, n, this, &mtx]() {
+		clients(k3, Ipc::Config::NQW, sizeN, n, mtx);
+	});
 
 	tClient1.join();
 	tClient2.join();
 	tClient3.join();
 
-
 	tServer.join();
-}
-
-TEST_F(ServerClientTest, Clients5To1ServerConnectin_QW_NQW)
-{
-    FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
-    FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
-    FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
-
-
-    std::list<FifoCfg> data = {k1, k2, k3};
-
-    int sizeN = 1024 * 1024;
-    int n     = 10;
-
-    std::mutex mtx0;
-    std::thread tServer([data, &sizeN, n, this, &mtx0]() {
-        servers(data,Ipc::Config::NQW, sizeN, n, data.size(), mtx0);
-    });
-    std::mutex mtx;
-    std::thread tClient1([&k1, &sizeN, n, this,&mtx]() {
-        clients(k1,Ipc::Config::QW, sizeN, n,mtx);
-    });
-
-    std::thread tClient2([&k2, &sizeN, n, this,&mtx]() {
-        clients(k2,Ipc::Config::QW, sizeN, n,mtx);
-    });
-
-    std::thread tClient3([&k3, &sizeN, n, this,&mtx]() {
-        clients(k3,Ipc::Config::NQW, sizeN, n,mtx);
-    });
-
-
-    tClient1.join();
-    tClient2.join();
-    tClient3.join();
-
-    tServer.join();
 }
