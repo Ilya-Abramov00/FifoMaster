@@ -16,12 +16,12 @@ QWriteImpl::QWriteImpl(std::string fdFileName) : params(fdFileName)
 	createFifo(params.addrRead);
 }
 
-void QWriteImpl::setConnectionHandler(FifoBase::ConnectionHandler handler)
+void QWriteImpl::setConnectionHandler(ConnectionHandler handler)
 {
 	params.connectHandler = std::move(handler);
 }
 
-void QWriteImpl::setDisConnectionHandler(FifoBase::ConnectionHandler handler)
+void QWriteImpl::setDisConnectionHandler(ConnectionHandler handler)
 {
 	params.disconnectHandler = std::move(handler);
 }
@@ -84,7 +84,7 @@ void QWriteImpl::pushData(const void* data, size_t sizeN)
 	std::vector<uint8_t> buffer(ptr, ptr + sizeN);
 	{
 		std::lock_guard<std::mutex> mtx_0(mtx);
-		queue.push(std::move(buffer));
+		queue.emplace(std::move(buffer));
 	}
 }
 

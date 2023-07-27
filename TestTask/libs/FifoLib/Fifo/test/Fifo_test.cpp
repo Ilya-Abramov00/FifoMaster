@@ -30,8 +30,22 @@ TEST(Fifo, empty)
 
 	sleep(1);
 
-	client1.stop();
-}
+		client1.stop();
+
+		ASSERT_TRUE(data.size() == sizeN);
+	}
+	class WriterFactory {
+	public:
+		static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf)
+		{
+			switch(conf) {
+			case(Config::QW):
+				return std::unique_ptr<IFifoWriter>(new QWriteImpl(filename));
+			case(Config::NQW):
+				return std::unique_ptr<IFifoWriter>(new NQWriteImpl(filename));
+			}
+		}
+	};
 
 TEST(Fifo, null_ptr)
 {

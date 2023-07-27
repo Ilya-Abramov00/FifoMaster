@@ -4,7 +4,7 @@
 #include "FifoRead/FifoRead.h"
 #include "FifoWrite/FifoWriteQ.h"
 #include "FifoWrite/FifoWriteNQ.h"
-#include "FifoWrite/FifoIWriter.h"
+#include "FifoWrite/IFifoWriter.h"
 
 namespace Ipc {
 
@@ -17,15 +17,15 @@ enum class Config { QW, NQW };
 
 class Fifo {
 public:
-	Fifo(std::unique_ptr<FifoIWriter> fifoWrite, const std::string fdFileNameRead);
+	Fifo(std::unique_ptr<IFifoWriter> fifoWrite, const std::string fdFileNameRead);
 
-	void setConnectionHandlerRead(FifoBase::ConnectionHandler handler);
+	void setConnectionHandlerRead(ConnectionHandler handler);
 
-	void setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler);
+	void setDisconnectionHandlerRead(ConnectionHandler handler);
 
-	void setConnectionHandlerWrite(FifoBase::ConnectionHandler handler);
+	void setConnectionHandlerWrite(ConnectionHandler handler);
 
-	void setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler);
+	void setDisconnectionHandlerWrite(ConnectionHandler handler);
 
 	void setReadHandler(FifoRead::ReadHandler handler);
 
@@ -48,7 +48,7 @@ public:
 	void closeWrite();
 
 private:
-	std::unique_ptr<FifoIWriter> fifoWrite;
+	std::unique_ptr<IFifoWriter> fifoWrite;
 	FifoRead fifoRead;
 };
 } // namespace Ipc

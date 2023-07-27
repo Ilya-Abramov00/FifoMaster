@@ -1,17 +1,17 @@
 #ifndef FIFOWRITENQ_H
 #define FIFOWRITENQ_H
 
-#include "FifoWrite/FifoIWriter.h"
+#include "FifoWrite/IFifoWriter.h"
 
 namespace Ipc {
 
-class NQWriteImpl : public FifoIWriter, protected FifoBase {
+class NQWriteImpl : public IFifoWriter {
 public:
 	NQWriteImpl(const std::string fdFileName);
 
-	void setConnectionHandler(FifoBase::ConnectionHandler handler) override;
+	void setConnectionHandler(ConnectionHandler handler) override;
 
-	void setDisConnectionHandler(FifoBase::ConnectionHandler handler) override;
+	void setDisConnectionHandler(ConnectionHandler handler) override;
 
 	void startWrite() override;
 

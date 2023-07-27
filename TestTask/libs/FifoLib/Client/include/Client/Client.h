@@ -37,7 +37,7 @@ private:
 
 	class WriterFactory {
 	public:
-		static std::unique_ptr<FifoIWriter> create(const std::string& filename, Config conf);
+		static std::unique_ptr<IFifoWriter> create(const std::string& filename, Config conf);
 	};
 };
 } // namespace Ipc

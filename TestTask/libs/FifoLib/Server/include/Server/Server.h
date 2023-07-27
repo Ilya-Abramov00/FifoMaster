@@ -6,7 +6,7 @@
 #include "Fifo/Fifo.h"
 #include "FifoWrite/FifoWriteQ.h"
 #include "FifoWrite/FifoWriteNQ.h"
-#include "FifoWrite/FifoIWriter.h"
+#include "FifoWrite/IFifoWriter.h"
 namespace Ipc {
 
 class Server {
@@ -31,6 +31,8 @@ public:
 
 	void stop();
 
+	~Server();
+
 private:
 	FifoCfgTable fifoCfgTable;
 	ConnectionsTable connectionTable;
@@ -39,6 +41,7 @@ private:
 	EventHandler disconnectHandler;
 
 	ReadHandler readHandler;
+	size_t idCount = 0;
 
 	void getter(size_t id, FifoRead::Data&& data);
 
@@ -48,7 +51,7 @@ private:
 
 	class WriterFactory {
 	public:
-		static std::unique_ptr<FifoIWriter> create(std::string filename, Config conf);
+		static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf);
 	};
 };
 } // namespace Ipc

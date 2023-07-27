@@ -10,11 +10,11 @@
 
 namespace Ipc {
 
-class FifoIWriter {
+class IFifoWriter {
 public:
-	virtual void setConnectionHandler(FifoBase::ConnectionHandler handler) = 0;
+	virtual void setConnectionHandler(ConnectionHandler handler) = 0;
 
-	virtual void setDisConnectionHandler(FifoBase::ConnectionHandler handler) = 0;
+	virtual void setDisConnectionHandler(ConnectionHandler handler) = 0;
 
 	virtual void startWrite() = 0;
 
@@ -27,6 +27,8 @@ public:
 	virtual bool const getWaitConnect() const = 0;
 
 	virtual long const& getFifoFd() const = 0;
+
+	virtual ~IFifoWriter() = default;
 };
 }; // namespace Ipc
 #endif

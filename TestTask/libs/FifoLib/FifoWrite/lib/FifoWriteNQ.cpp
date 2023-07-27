@@ -15,12 +15,12 @@ NQWriteImpl::NQWriteImpl(std::string fdFileName) : params(fdFileName)
 	createFifo(params.addrRead);
 }
 
-void NQWriteImpl::setConnectionHandler(FifoBase::ConnectionHandler handler)
+void NQWriteImpl::setConnectionHandler(ConnectionHandler handler)
 {
 	params.connectHandler = std::move(handler);
 }
 
-void NQWriteImpl::setDisConnectionHandler(FifoBase::ConnectionHandler handler)
+void NQWriteImpl::setDisConnectionHandler(ConnectionHandler handler)
 {
 	params.disconnectHandler = std::move(handler);
 }
@@ -35,7 +35,7 @@ void NQWriteImpl::startWrite()
 	}
 	runWrite = true;
 
-	threadWaitConnectFifo =std::make_unique<std::thread>([this]() {
+	threadWaitConnectFifo = std::make_unique<std::thread>([this]() {
 		waitConnectFifo();
 	});
 }

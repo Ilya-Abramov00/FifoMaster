@@ -29,7 +29,11 @@ Server::Server(std::list<FifoCfg> const& nameChannelsfifo,Config config)
 	for(auto const& name: nameChannelsfifo) {
 		fifoCfgTable.insert({id, name});
 
-		connectionTable.insert({id, std::make_unique<Fifo>(WriterFactory::create(name.reverseFile,config),name.directFile)});
+		auto writer = WriterFactory::create(name.reverseFile,config);
+
+		auto fifo = std::make_unique<Fifo>(std::move(writer),name.directFile);
+
+		connectionTable.insert({id, std::move(fifo) });
 
 		connectionTable[id]->setReadHandler([this, id](FifoRead::Data&& data) {
 			this->getter(id, std::move(data));
@@ -54,6 +58,7 @@ Server::Server(std::list<FifoCfg> const& nameChannelsfifo,Config config)
 		});
 		id++;
 	}
+	idCount=id;
 }
 
 void Server::start()
@@ -98,7 +103,15 @@ void Server::write(size_t id, const void* data, size_t sizeInBytes)
 {
 	connectionTable[id]->write(data, sizeInBytes);
 }
-std::unique_ptr<FifoIWriter> Server::WriterFactory::create(std::string filename, Config conf)
+Server::~Server()
+{
+	for(int i=0;i!=idCount;i++){
+		unlink(fifoCfgTable[i].directFile.c_str());
+		unlink(fifoCfgTable[i].reverseFile.c_str());
+	}
+
+}
+std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf)
 {
 	switch(conf) {
 	case(Config::QW):

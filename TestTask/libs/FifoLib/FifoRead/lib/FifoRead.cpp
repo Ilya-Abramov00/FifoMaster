@@ -9,7 +9,7 @@
 #include <queue>
 
 namespace Ipc {
-FifoRead::FifoRead(const std::string fdFileName):params(fdFileName)
+FifoRead::FifoRead(const std::string fdFileName) : params(fdFileName)
 {
 	createFifo(params.addrRead);
 }
@@ -81,12 +81,12 @@ void FifoRead::stopRead()
 	waitDisConnect = false;
 }
 
-void FifoRead::setConnectionHandler(FifoBase::ConnectionHandler handler)
+void FifoRead::setConnectionHandler(ConnectionHandler handler)
 {
 	params.connectHandler = std::move(handler);
 }
 
-void FifoRead::setDisConnectionHandler(FifoBase::ConnectionHandler handler)
+void FifoRead::setDisConnectionHandler(ConnectionHandler handler)
 {
 	params.disconnectHandler = std::move(handler);
 }

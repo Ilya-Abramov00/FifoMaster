@@ -8,7 +8,7 @@
 #include <thread>
 
 namespace Ipc {
-class FifoRead : protected FifoBase {
+class FifoRead {
 public:
 	using Data        = std::vector<uint8_t>;
 	using ReadHandler = std::function<void(Data&&)>;
@@ -19,9 +19,9 @@ public:
 
 	void stopRead();
 
-	void setConnectionHandler(FifoBase::ConnectionHandler handler);
+	void setConnectionHandler(ConnectionHandler handler);
 
-	void setDisConnectionHandler(FifoBase::ConnectionHandler handler);
+	void setDisConnectionHandler(ConnectionHandler handler);
 
 	void setReadHandler(ReadHandler handler);
 

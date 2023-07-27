@@ -81,7 +81,7 @@ void Client::logicDisConnect()
 		disconnectionHandler();
 	}
 }
-std::unique_ptr<FifoIWriter> Client::WriterFactory::create(const std::string& filename, Config conf)
+std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& filename, Config conf)
 {
     switch(conf) {
         case(Config::QW):

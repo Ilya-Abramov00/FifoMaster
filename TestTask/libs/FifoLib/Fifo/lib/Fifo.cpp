@@ -1,7 +1,7 @@
 #include "Fifo/Fifo.h"
 
 namespace Ipc {
-Fifo::Fifo(std::unique_ptr<FifoIWriter> fifoWrite, const std::string fdFileNameRead) :
+Fifo::Fifo(std::unique_ptr<IFifoWriter> fifoWrite, const std::string fdFileNameRead) :
     fifoRead(fdFileNameRead), fifoWrite(std::move(fifoWrite))
 {}
 
@@ -10,29 +10,29 @@ void Fifo::setReadHandler(FifoRead::ReadHandler handler)
 	fifoRead.setReadHandler(std::move(handler));
 }
 
-void Fifo::setConnectionHandlerRead(FifoBase::ConnectionHandler handler)
+void Fifo::setConnectionHandlerRead(ConnectionHandler handler)
 {
 	fifoRead.setConnectionHandler(std::move(handler));
 }
 
-void Fifo::setDisconnectionHandlerRead(FifoBase::ConnectionHandler handler)
+void Fifo::setDisconnectionHandlerRead(ConnectionHandler handler)
 {
 	fifoRead.setDisConnectionHandler(std::move(handler));
 }
 
-void Fifo::setConnectionHandlerWrite(FifoBase::ConnectionHandler handler)
+void Fifo::setConnectionHandlerWrite(ConnectionHandler handler)
 {
 	fifoWrite->setConnectionHandler(std::move(handler));
 }
 
-void Fifo::setDisconnectionHandlerWrite(FifoBase::ConnectionHandler handler)
+void Fifo::setDisconnectionHandlerWrite(ConnectionHandler handler)
 {
 	fifoWrite->setDisConnectionHandler(std::move(handler));
 }
 
 void Fifo::write(const void* data, size_t sizeInBytes)
 {
-	fifoWrite->pushData(std::move(data), sizeInBytes);
+	fifoWrite->pushData(data, sizeInBytes);
 }
 
 void Fifo::stop()
