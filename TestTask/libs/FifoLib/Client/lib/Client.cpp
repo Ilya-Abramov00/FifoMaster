@@ -2,7 +2,7 @@
 #include <iostream>
 
 namespace Ipc {
-Client::Client(FifoCfg name,Config config) : client( WriterFactory::create(name.directFile,config) ,name.reverseFile)
+Client::Client(FifoCfg name, Config config) : client(WriterFactory::create(name.directFile, config), name.reverseFile)
 {
 	client.setReadHandler([this](FifoRead::Data&& data) {
 		this->getter(std::move(data));
@@ -12,12 +12,14 @@ Client::Client(FifoCfg name,Config config) : client( WriterFactory::create(name.
 		this->logicConnect();
 	});
 	client.setDisconnectionHandlerRead([this]() {
+		client.closeWrite();
 		this->logicDisConnect();
 	});
 	client.setConnectionHandlerWrite([this]() {
 		this->logicConnect();
 	});
 	client.setDisconnectionHandlerWrite([this]() {
+		client.closeRead();
 		this->logicDisConnect();
 	});
 }
@@ -68,7 +70,7 @@ void Client::getter(FifoRead::Data&& data)
 
 void Client::logicConnect()
 {
-	if(client.getWaitConnectWrite() && client.getWaitConnectRead()) {
+	if((client.getWaitConnectWrite() && client.getWaitConnectRead())) {
 		std::cout << "Connect " << std::endl;
 		connectionHandler();
 	}
@@ -76,18 +78,18 @@ void Client::logicConnect()
 
 void Client::logicDisConnect()
 {
-	if(client.getWaitDisconnectWrite() || client.getWaitDisconnectRead()) {
+	if((client.getWaitDisconnectWrite() || client.getWaitDisconnectRead())) {
 		std::cout << "Disconnect " << std::endl;
 		disconnectionHandler();
 	}
 }
 std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& filename, Config conf)
 {
-    switch(conf) {
-        case(Config::QW):
-            return std::make_unique<QWriteImpl>((filename));
-        case(Config::NQW):
-            return std::make_unique<NQWriteImpl>((filename));
-    }
+	switch(conf) {
+	case(Config::QW):
+		return std::make_unique<QWriteImpl>((filename));
+	case(Config::NQW):
+		return std::make_unique<NQWriteImpl>((filename));
+	}
 }
 } // namespace Ipc

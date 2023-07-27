@@ -50,6 +50,7 @@ public:
 private:
 	std::unique_ptr<IFifoWriter> fifoWrite;
 	FifoRead fifoRead;
+
 };
 } // namespace Ipc
 #endif

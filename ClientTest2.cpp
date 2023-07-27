@@ -7,7 +7,7 @@ int main()
 {
 	using namespace Ipc;
 	std::cout << "клиент" << std::endl << std::endl;
-	std::string FIFO1 = "/home/ilya/fifo1";
+
 	std::string FIFO2 = "/home/ilya/fifo2";
 
 	int n            = 10;
@@ -20,27 +20,40 @@ int main()
 		std::cout << "пришли данные\n";
 	};
 
-	// sleep(10);
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 
-	Client client1(k2);
-	client1.setReadHandler(e);
+	Client client2(k2, Ipc::Config::QW);
+	client2.setReadHandler(e);
+	client2.setDisconnectHandler([]() {
+	});
+	client2.setConnectHandler([]() {
+	});
 
-	client1.start();
+	client2.start();
 	auto x = 2;
 	for(int i = 0; i != 4; i++) {
-		std::string a(x, 'a');
-		client1.write((void*)a.data(), x);
+		std::string a("2 канал ");
+		client2.write((void*)a.data(), a.size());
 		sleep(1);
 	}
 	sleep(2);
-	std::cout << "\nstopStart\n";
-	client1.stop();
-
 	std::cout << "\nstop\n";
+	client2.stop();
 
-	std::cout << data.size();
+	std::cout << "\nStart\n";
+	client2.start();
 
+	for(int i = 0; i != 4; i++) {
+		std::string a("2 канал");
+		client2.write((void*)a.data(), a.size());
+		sleep(1);
+	}
+	sleep(35);
+	std::cout << "\nstop\n";
+	client2.stop();
+
+	std::cout <<"пришло "<< data.size();
+	std::cout << "\nдолжно быть "<<30;
 	sleep(2);
 	return 0;
 }

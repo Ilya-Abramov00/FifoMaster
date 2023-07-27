@@ -35,6 +35,11 @@ private:
 	Fifo client;
 	FifoRead::ReadHandler readHandler;
 
+	enum class Condition{
+		Disconnect=0,
+		Connect
+	};
+	Condition flag=Condition::Disconnect;
 	class WriterFactory {
 	public:
 		static std::unique_ptr<IFifoWriter> create(const std::string& filename, Config conf);

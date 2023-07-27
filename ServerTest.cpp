@@ -11,6 +11,7 @@ using namespace Ipc;
 int main()
 {
 	std::cout << "Server\n\n";
+
 	std::string FIFO2 = "/home/ilya/fifo2";
 	std::string FIFO1 = "/home/ilya/fifo1";
 
@@ -37,6 +38,7 @@ int main()
 	server.setDisconnectHandler([](size_t) {
 	});
 
+
 	server.start();
 
 	auto x = 1;
@@ -48,11 +50,16 @@ int main()
 	}
 
 
-	sleep(30);
+	sleep(10);
+	for(int i = 0; i != 25; i++) {
+		server.write(0, (void*)data0.data(), x);
+		server.write(1, (void*)data0.data(), x);
+		sleep(1);
+	}
+	sleep(23);
 
-	std::cout << "\nstopStart\n";
+
 	server.stop();
-	std::cout << "\nstop\n";
-	std::cout << data.size();
+
 	return 1;
 }

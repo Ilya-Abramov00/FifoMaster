@@ -23,29 +23,30 @@ void Server::disconnect(size_t id, const Fifo& object)
 	}
 };
 
-Server::Server(std::list<FifoCfg> const& nameChannelsfifo,Config config)
+Server::Server(std::list<FifoCfg> const& nameChannelsfifo, Config config)
 {
 	size_t id = 0;
 	for(auto const& name: nameChannelsfifo) {
 		fifoCfgTable.insert({id, name});
 
-		auto writer = WriterFactory::create(name.reverseFile,config);
+		auto writer = WriterFactory::create(name.reverseFile, config);
 
-		auto fifo = std::make_unique<Fifo>(std::move(writer),name.directFile);
+		auto fifo = std::make_unique<Fifo>(std::move(writer), name.directFile);
 
-		connectionTable.insert({id, std::move(fifo) });
+		connectionTable.insert({id, std::move(fifo)});
 
 		connectionTable[id]->setReadHandler([this, id](FifoRead::Data&& data) {
 			this->getter(id, std::move(data));
 		});
 
 		connectionTable[id]->setConnectionHandlerRead([this, id]() {
-			this->connect(id, *connectionTable[id]);
+				this->connect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
-			connectionTable[id]->closeWrite(); // чтобы не приходилась ждать stop
-			this->disconnect(id, *connectionTable[id]);
+			// чтобы не приходилась ждать stop
+			connectionTable[id]->closeWrite();
+				this->disconnect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
@@ -58,7 +59,7 @@ Server::Server(std::list<FifoCfg> const& nameChannelsfifo,Config config)
 		});
 		id++;
 	}
-	idCount=id;
+	idCount = id;
 }
 
 void Server::start()
@@ -105,11 +106,10 @@ void Server::write(size_t id, const void* data, size_t sizeInBytes)
 }
 Server::~Server()
 {
-	for(int i=0;i!=idCount;i++){
+	for(int i = 0; i != idCount; i++) {
 		unlink(fifoCfgTable[i].directFile.c_str());
 		unlink(fifoCfgTable[i].reverseFile.c_str());
 	}
-
 }
 std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf)
 {

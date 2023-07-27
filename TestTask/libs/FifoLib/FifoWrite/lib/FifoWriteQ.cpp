@@ -35,7 +35,7 @@ void QWriteImpl::startWrite()
 		throw std::runtime_error("callback Write disconnectHandler not set");
 	}
 	runWrite = true;
-
+waitDisConnect=false;
 	threadWriteFifo = std::make_unique<std::thread>([this]() {
 		writeFifo();
 	});
@@ -45,16 +45,17 @@ void QWriteImpl::writeFifo()
 {
 	while(runWrite) {
 		waitOpen = false;
-		fifoFd   = openFifo(params.addrRead, 'W');
-		if(fifoFd == -1) {
-			throw std::runtime_error(" fail openFifo ");
+		do {
+			fifoFd = openFifo(params.addrRead, 'W');
 		}
+		while(fifoFd == -1) ;
+
 		waitOpen       = true;
 		waitDisConnect = false;
 		waitConnect    = true;
 		params.connectHandler();
 
-		while(waitConnect && runWrite) {
+		while(waitConnect && runWrite&&(fifoFd!=-1)) {
 			{
 				std::lock_guard<std::mutex> mtx_0(mtx);
 				if(!queue.empty()) {
@@ -100,11 +101,11 @@ void QWriteImpl::stopWrite()
 	close(fifoFd);
 
 	threadWriteFifo->join();
-
+	waitDisConnect = true;
 	if(queue.size()) {
 		std::cerr << params.addrRead << " в очереди остались неотправленные сообщения\n";
 	}
-	waitDisConnect = false;
+
 }
 
 bool const QWriteImpl::getWaitDisconnect() const
