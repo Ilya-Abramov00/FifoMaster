@@ -43,9 +43,6 @@ public:
 
 	void stop();
 
-	std::string const getNameRead() const;
-
-	std::string const getNameWrite() const;
 
 	void closeRead();
 

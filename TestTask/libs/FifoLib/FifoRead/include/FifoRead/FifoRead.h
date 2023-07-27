@@ -29,7 +29,6 @@ namespace Ipc {
 
         bool const getWaitConnect() const;
 
-        std::string const getName() const;
 
         long const &getFifoFd() const;
 

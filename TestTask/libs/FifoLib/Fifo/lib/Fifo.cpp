@@ -54,13 +54,6 @@ namespace Ipc {
         return fifoWrite->getWaitConnect();
     }
 
-    std::string const Fifo::getNameRead() const {
-        return fifoRead.getName();
-    }
-
-    std::string const Fifo::getNameWrite() const {
-        return fifoWrite->getName();
-    }
 
     void Fifo::closeRead() {
         close(fifoRead.getFifoFd());

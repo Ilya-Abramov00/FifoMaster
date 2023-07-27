@@ -107,10 +107,7 @@ bool const FifoRead::getWaitConnect() const
 	return waitConnect;
 }
 
-std::string const FifoRead::getName() const
-{
-	return params.addrRead;
-}
+
 
 long const& FifoRead::getFifoFd() const
 {

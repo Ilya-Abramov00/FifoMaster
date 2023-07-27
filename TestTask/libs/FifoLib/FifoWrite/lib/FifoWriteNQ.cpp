@@ -88,10 +88,7 @@ bool const NQWriteImpl::getWaitDisconnect() const
 	return waitDisConnect;
 }
 
-std::string const NQWriteImpl::getName() const
-{
-	return params.addrRead;
-}
+
 
 long const& NQWriteImpl::getFifoFd() const
 {

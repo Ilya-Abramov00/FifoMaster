@@ -103,7 +103,7 @@ void QWriteImpl::stopWrite()
 	threadWriteFifo->join();
 
 	if(queue.size()) {
-		std::cerr << getName() << " в очереди остались неотправленные сообщения\n";
+		std::cerr << params.addrRead << " в очереди остались неотправленные сообщения\n";
 	}
 	waitDisConnect = false;
 }
@@ -113,10 +113,6 @@ bool const QWriteImpl::getWaitDisconnect() const
 	return waitDisConnect;
 }
 
-std::string const QWriteImpl::getName() const
-{
-	return params.addrRead;
-}
 
 long const& QWriteImpl::getFifoFd() const
 {

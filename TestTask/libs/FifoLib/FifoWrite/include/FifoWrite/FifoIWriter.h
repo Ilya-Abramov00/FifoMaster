@@ -26,7 +26,6 @@ public:
 
 	virtual bool const getWaitConnect() const = 0;
 
-	virtual std::string const getName() const = 0;
 
 	virtual long const& getFifoFd() const = 0;
 };

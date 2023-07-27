@@ -23,7 +23,6 @@ public:
 
 	bool const getWaitConnect() const override;
 
-	std::string const getName() const override;
 
 	long const& getFifoFd() const override;
 
