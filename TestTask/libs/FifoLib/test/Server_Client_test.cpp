@@ -72,26 +72,26 @@ private:
 	void startWriteServer(Server& server, int n, int k, size_t client)
 	{
 		server.start();
-		sleep(5);
+		sleep(2);
 		std::string data0(n, 'a');
 		for(int i = 0; i != k; i++) {
 			for(int k = 0; k != client; k++) {
 				server.write(k, (void*)data0.data(), n);
 			}
 		}
-		sleep(12);
+		sleep(8);
 
 		server.stop();
 	}
 	void startWriteClient(Client& client, int n, int k)
 	{
 		client.start();
-		sleep(4);
+		sleep(2);
 		std::string data0(n, 'v');
 		for(int i = 0; i != k; i++) {
 			client.write((void*)data0.data(), data0.size() * sizeof(std::string::value_type));
 		}
-		sleep(12);
+		sleep(8);
 		client.stop();
 	}
 };
