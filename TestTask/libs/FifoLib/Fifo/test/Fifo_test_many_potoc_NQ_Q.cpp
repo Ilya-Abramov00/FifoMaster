@@ -132,9 +132,6 @@ public:
 		t101.join();
 		t111.join();
 
-		std::cout << data.size() << std::endl;
-		std::cout << n * 12 << std::endl;
-
 		ASSERT_TRUE(data.size() == n * 12);
 		// вызовы вункции pushwrite перемешаны, пачки данных  перемешаться
 	}

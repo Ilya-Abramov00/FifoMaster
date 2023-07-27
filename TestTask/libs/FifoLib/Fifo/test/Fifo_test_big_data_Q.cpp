@@ -98,6 +98,7 @@ TEST(big_data_Q, 1)
 	a += t10;
 	a += t11;
 
+
 	ASSERT_TRUE(data.size() == n * 12);
 	ASSERT_TRUE(data == a);
 }
