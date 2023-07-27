@@ -10,9 +10,8 @@
 
 namespace Ipc {
 
-NQWriteImpl::NQWriteImpl(std::string fdFileName)
+NQWriteImpl::NQWriteImpl(std::string fdFileName) : params(fdFileName)
 {
-	params.addrRead = fdFileName;
 	createFifo(params.addrRead);
 }
 
@@ -36,9 +35,9 @@ void NQWriteImpl::startWrite()
 	}
 	runWrite = true;
 
-	threadWaitConnectFifo = std::make_unique<std::thread>(std::thread([this]() {
+	threadWaitConnectFifo = std::move(std::make_unique<std::thread>(std::thread([this]() {
 		waitConnectFifo();
-	}));
+	})));
 }
 
 void NQWriteImpl::waitConnectFifo()

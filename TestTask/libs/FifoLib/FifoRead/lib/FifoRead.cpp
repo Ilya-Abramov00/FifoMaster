@@ -9,9 +9,8 @@
 #include <queue>
 
 namespace Ipc {
-FifoRead::FifoRead(const std::string fdFileName)
+FifoRead::FifoRead(const std::string fdFileName):params(fdFileName)
 {
-	params.addrRead = fdFileName;
 	createFifo(params.addrRead);
 }
 
@@ -27,9 +26,9 @@ void FifoRead::startRead()
 		throw std::runtime_error("callback Read disconnectHandler not set");
 	}
 	runRead        = true;
-	threadReadFifo = std::make_unique<std::thread>(std::thread([this]() {
+	threadReadFifo = std::move(std::make_unique<std::thread>(std::thread([this]() {
 		readFifo();
-	}));
+	})));
 }
 
 void FifoRead::readFifo()

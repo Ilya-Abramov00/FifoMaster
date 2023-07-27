@@ -11,9 +11,8 @@
 
 namespace Ipc {
 
-QWriteImpl::QWriteImpl(std::string fdFileName)
+QWriteImpl::QWriteImpl(std::string fdFileName) : params(fdFileName)
 {
-	params.addrRead = fdFileName;
 	createFifo(params.addrRead);
 }
 
@@ -37,9 +36,9 @@ void QWriteImpl::startWrite()
 	}
 	runWrite = true;
 
-	threadWriteFifo = std::make_unique<std::thread>(std::thread([this]() {
+	threadWriteFifo = std::move(std::make_unique<std::thread>(std::thread([this]() {
 		writeFifo();
-	}));
+	})));
 }
 
 void QWriteImpl::writeFifo()
