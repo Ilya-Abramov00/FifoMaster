@@ -35,9 +35,9 @@ void NQWriteImpl::startWrite()
 	}
 	runWrite = true;
 
-	threadWaitConnectFifo = std::move(std::make_unique<std::thread>(std::thread([this]() {
+	threadWaitConnectFifo =std::make_unique<std::thread>([this]() {
 		waitConnectFifo();
-	})));
+	});
 }
 
 void NQWriteImpl::waitConnectFifo()

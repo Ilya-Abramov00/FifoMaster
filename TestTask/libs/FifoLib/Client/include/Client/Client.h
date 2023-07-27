@@ -3,51 +3,43 @@
 
 #include "Fifo/Fifo.h"
 
-
 namespace Ipc {
-    class Client {
-        using EventHandler = std::function<void()>;
-    public:
-        Client(FifoCfg name,Config config);
+class Client {
+	using EventHandler = std::function<void()>;
 
-        void start();
+public:
+	Client(FifoCfg name, Config config);
 
-        void stop();
+	void start();
 
-        void write(const void *data, size_t sizeN);
+	void stop();
 
-        void setReadHandler(FifoRead::ReadHandler h);
+	void write(const void* data, size_t sizeN);
 
-        void setConnectHandler(EventHandler h);
+	void setReadHandler(FifoRead::ReadHandler h);
 
-        void setDisconnectHandler(EventHandler h);
+	void setConnectHandler(EventHandler h);
 
-    private:
-        void logicConnect();
+	void setDisconnectHandler(EventHandler h);
 
-        void logicDisConnect();
+private:
+	void logicConnect();
 
-        void getter(FifoRead::Data &&data);
+	void logicDisConnect();
 
-        EventHandler connectionHandler;
-        EventHandler disconnectionHandler;
+	void getter(FifoRead::Data&& data);
 
-        Fifo client;
-        FifoRead::ReadHandler readHandler;
+	EventHandler connectionHandler;
+	EventHandler disconnectionHandler;
 
-	    class WriterFactory {
-		public:
-		    static std::unique_ptr<FifoIWriter> create(const  std::string& filename,Config conf)
-		    {
-			    switch(conf) {
-			    case(Config::QW):
-				    return std::unique_ptr<FifoIWriter>(new QWriteImpl(filename));
-			    case(Config::NQW):
-				    return std::unique_ptr<FifoIWriter>(new NQWriteImpl(filename));
-			    }
-		    }
-	    };
-    };
-}
+	Fifo client;
+	FifoRead::ReadHandler readHandler;
+
+	class WriterFactory {
+	public:
+		static std::unique_ptr<FifoIWriter> create(const std::string& filename, Config conf);
+	};
+};
+} // namespace Ipc
 
 #endif

@@ -48,15 +48,7 @@ private:
 
 	class WriterFactory {
 	public:
-		static std::unique_ptr<FifoIWriter> create( const std::string& filename, Config conf)
-		{
-			switch(conf) {
-			case(Config::QW):
-				return std::unique_ptr<FifoIWriter>(new QWriteImpl(filename));
-			case(Config::NQW):
-				return std::unique_ptr<FifoIWriter>(new NQWriteImpl(filename));
-			}
-		}
+		static std::unique_ptr<FifoIWriter> create(std::string filename, Config conf);
 	};
 };
 } // namespace Ipc

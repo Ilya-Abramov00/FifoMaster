@@ -36,9 +36,9 @@ void QWriteImpl::startWrite()
 	}
 	runWrite = true;
 
-	threadWriteFifo = std::move(std::make_unique<std::thread>(std::thread([this]() {
+	threadWriteFifo = std::make_unique<std::thread>([this]() {
 		writeFifo();
-	})));
+	});
 }
 
 void QWriteImpl::writeFifo()

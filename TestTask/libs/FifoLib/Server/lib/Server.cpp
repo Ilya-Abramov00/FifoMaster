@@ -98,4 +98,13 @@ void Server::write(size_t id, const void* data, size_t sizeInBytes)
 {
 	connectionTable[id]->write(data, sizeInBytes);
 }
+std::unique_ptr<FifoIWriter> Server::WriterFactory::create(std::string filename, Config conf)
+{
+	switch(conf) {
+	case(Config::QW):
+		return std::make_unique<QWriteImpl>((filename));
+	case(Config::NQW):
+		return std::make_unique<NQWriteImpl>((filename));
+	}
+}
 } // namespace Ipc

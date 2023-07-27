@@ -10,9 +10,9 @@ public:
 	{
 		switch(conf) {
 		case(Config::QW):
-			return std::unique_ptr<FifoIWriter>(new QWriteImpl(filename));
+			return std::make_unique<QWriteImpl>( (filename));
 		case(Config::NQW):
-			return std::unique_ptr<FifoIWriter>(new NQWriteImpl(filename));
+			return std::make_unique<NQWriteImpl>( (filename));
 		}
 	}
 };
@@ -103,7 +103,7 @@ public:
 			client2.write((void*)t11.data(), n);
 		});
 
-		sleep(3);
+		sleep(10);
 
 		client2.stop();
 
@@ -225,7 +225,7 @@ public:
 			client2.write((void*)t11.data(), n);
 		});
 
-		sleep(5);
+	    sleep(10);
 
 		client2.stop();
 
@@ -343,7 +343,7 @@ public:
 			client2.write((void*)t11.data(), n);
 		});
 
-		sleep(3);
+	    sleep(10);
 
 		client2.stop();
 

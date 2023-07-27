@@ -81,4 +81,13 @@ void Client::logicDisConnect()
 		disconnectionHandler();
 	}
 }
+std::unique_ptr<FifoIWriter> Client::WriterFactory::create(const std::string& filename, Config conf)
+{
+    switch(conf) {
+        case(Config::QW):
+            return std::make_unique<QWriteImpl>((filename));
+        case(Config::NQW):
+            return std::make_unique<NQWriteImpl>((filename));
+    }
+}
 } // namespace Ipc
