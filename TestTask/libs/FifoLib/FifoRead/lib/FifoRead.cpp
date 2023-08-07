@@ -26,7 +26,7 @@ void FifoRead::startRead()
 		throw std::runtime_error("callback Read disconnectHandler not set");
 	}
 	runRead        = true;
-	waitDisConnect=false;
+	waitDisсonnect = false;
 	threadReadFifo = std::make_unique<std::thread>([this]() {
 		readFifo();
 	});
@@ -41,18 +41,17 @@ void FifoRead::readFifo()
 		waitOpen = false;
 		do {
 			fifoFd = openFifo(params.addrRead, 'R');
-		}
-		while(fifoFd == -1) ;
+		} while(fifoFd == -1);
 		waitOpen       = true;
-		waitDisConnect = false;
+		waitDisсonnect = false;
 		waitConnect    = true;
 		params.connectHandler();
 
-		while(waitConnect && runRead && (fifoFd!=-1)) {
+		while(waitConnect && runRead && (fifoFd != -1)) {
 			auto flag = read(fifoFd, buffer.data(), MAXLINE);
 			if(flag == 0) {
 				waitConnect    = false;
-				waitDisConnect = true;
+				waitDisсonnect = true;
 				params.disconnectHandler();
 				break;
 			}
@@ -73,13 +72,12 @@ void FifoRead::stopRead()
 
 	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'W');
-
 		close(fd);
 	}
 	close(fifoFd);
 
 	threadReadFifo->join();
-	waitDisConnect = true;
+	waitDisсonnect = true;
 }
 
 void FifoRead::setConnectionHandler(ConnectionHandler handler)
@@ -99,7 +97,7 @@ void FifoRead::setReadHandler(FifoRead::ReadHandler handler)
 
 bool const FifoRead::getWaitDisconnect() const
 {
-	return waitDisConnect;
+	return waitDisсonnect;
 }
 
 bool const FifoRead::getWaitConnect() const
