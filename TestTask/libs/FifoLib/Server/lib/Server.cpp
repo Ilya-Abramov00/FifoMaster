@@ -118,6 +118,9 @@ std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename,
 		return std::make_unique<QWriteImpl>((filename));
 	case(Config::NQW):
 		return std::make_unique<NQWriteImpl>((filename));
+	default:
+		throw std::runtime_error("no Config WriteFactory");
 	}
+
 }
 } // namespace Ipc
