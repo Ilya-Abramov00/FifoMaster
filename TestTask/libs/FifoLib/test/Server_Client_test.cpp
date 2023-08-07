@@ -7,7 +7,6 @@
 using namespace Ipc;
 class ServerClientTest : public ::testing::Test {
 public:
-
 	void clients(FifoCfg name, Config config, int nBates, int nWrite, std::mutex& mtx)
 	{
 		Client client(name, config);
@@ -20,26 +19,24 @@ public:
 		int clientConnection    = 0;
 		int clientDisconnection = 0;
 		client.setReadHandler(getterClient1);
+
 		client.setConnectHandler([&clientConnection]() {
-			//			std::thread::id this_id = std::this_thread::get_id();
-			//			std::cout<<"\nclientCon id "<<this_id<<std::endl;
 			clientConnection++;
 		});
 		client.setDisconnectHandler([&clientDisconnection]() {
-			//			std::thread::id this_id = std::this_thread::get_id();
-			//			std::cout<<"\nclientDis id "<<this_id<<std::endl;
 			clientDisconnection++;
 		});
 
 		startWriteClient(client, nBates, nWrite);
-		sleep(5);
+		sleep(8);
 		startWriteClient(client, nBates, nWrite);
-		sleep(5);
+		sleep(8);
+
 		ASSERT_TRUE(clientConnection == 2);
 		ASSERT_TRUE(clientDisconnection == 2);
-		ASSERT_TRUE(dataClient1.size() == nBates * nWrite);
+		ASSERT_TRUE(dataClient1.size() == nBates * 2 * nWrite);
 	}
-	void servers(std::list<FifoCfg> s, Config config, int n, int k, size_t nClient, std::mutex& mtx0)
+	void servers(std::list<FifoCfg> s, Config config, int nBates, int nWrite, size_t nClient, std::mutex& mtx0)
 	{
 		std::string dataServer = "";
 		auto getterServer      = [&dataServer, &mtx0](size_t id, FifoRead::Data&& dataq) {
@@ -53,40 +50,35 @@ public:
 		server.setReadHandler(getterServer);
 
 		server.setConnectHandler([&serverConnection](size_t) {
-			//			std::thread::id this_id = std::this_thread::get_id();
-			//			std::cout<<"\nserverCon id "<<this_id<<std::endl;
-			serverConnection ++;
+			serverConnection++;
 		});
 
 		server.setDisconnectHandler([&serverDisconnection](size_t) {
-			//			std::thread::id this_id = std::this_thread::get_id();
-			//			std::cout<<"\nserverDis id "<<this_id<<std::endl;
-			serverDisconnection ++;
+			serverDisconnection++;
 		});
 
-		startWriteServer(server, n, k, nClient);
-		sleep(5);
-		startWriteServer(server, n, k, nClient);
+		server.start();
+
+		WriteServer(server, nBates, nWrite, nClient);
+
+		sleep(25);
+
+		server.stop();
 
 		ASSERT_TRUE(serverConnection == nClient * 2);
 		ASSERT_TRUE(serverDisconnection == nClient * 2);
-		ASSERT_TRUE(dataServer.size() == nClient * 2 * n * k);
+		ASSERT_TRUE(dataServer.size() == nClient * 2 * nBates * nWrite);
 	}
 
 private:
-	void startWriteServer(Server& server, int nBates, int nWrite, size_t client)
+	void WriteServer(Server& server, int nBates, int nWrite, size_t client)
 	{
-		server.start();
-		sleep(2);
 		std::string data0(nBates, 'a');
 		for(int i = 0; i != nWrite; i++) {
 			for(int k = 0; k != client; k++) {
 				server.write(k, (void*)data0.data(), nBates);
 			}
 		}
-		sleep(3);
-
-		server.stop();
 	}
 	void startWriteClient(Client& client, int nBates, int nWrite)
 	{
@@ -113,24 +105,26 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 
 	std::list<FifoCfg> data = {k1, k2, k3};
 
-	int sizeN = 1024 * 1024;
-	int nWrite = 10;
+	int sizeNClient  = 1024 * 256;
+	int nWriteClient = 10;
+	int sizeNServer  = 1024;
+	int nWriteServer = 256 * 10;
 
 	std::mutex mtx0;
-	std::thread tServer([data, &sizeN, nWrite, this, &mtx0]() {
-		servers(data, Ipc::Config::QW, sizeN, nWrite, data.size(), mtx0);
+	std::thread tServer([data, &sizeNServer, nWriteServer, this, &mtx0]() {
+		servers(data, Ipc::Config::QW, sizeNServer, nWriteServer, data.size(), mtx0);
 	});
 	std::mutex mtx;
-	std::thread tClient1([&k1, &sizeN, nWrite, this, &mtx]() {
-		clients(k1, Ipc::Config::QW, sizeN, nWrite, mtx);
+	std::thread tClient1([&k1, &sizeNClient, nWriteClient, this, &mtx]() {
+		clients(k1, Ipc::Config::QW, sizeNClient, nWriteClient, mtx);
 	});
-
-	std::thread tClient2([&k2, &sizeN, nWrite, this, &mtx]() {
-		clients(k2, Ipc::Config::QW, sizeN, nWrite, mtx);
+	sleep(1);
+	std::thread tClient2([&k2, &sizeNClient, nWriteClient, this, &mtx]() {
+		clients(k2, Ipc::Config::QW, sizeNClient, nWriteClient, mtx);
 	});
-
-	std::thread tClient3([&k3, &sizeN, nWrite, this, &mtx]() {
-		clients(k3, Ipc::Config::QW, sizeN, nWrite, mtx);
+	sleep(1);
+	std::thread tClient3([&k3, &sizeNClient, nWriteClient, this, &mtx]() {
+		clients(k3, Ipc::Config::QW, sizeNClient, nWriteClient, mtx);
 	});
 
 	tClient1.join();

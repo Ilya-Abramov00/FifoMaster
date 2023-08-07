@@ -45,14 +45,13 @@ void QWriteImpl::writeFifo()
 {
 	while(runWrite) {
 		waitOpen = false;
-		do {
-			fifoFd = openFifo(params.addrRead, 'W');
-		} while(fifoFd == -1);
+
+		fifoFd = openFifo(params.addrRead, 'W');
 
 		waitOpen       = true;
 		waitDisConnect = false;
 		waitConnect    = true;
-		params.connectHandler();
+		if(waitConnect && runWrite && (fifoFd != -1)){params.connectHandler();};
 
 		while(waitConnect && runWrite && (fifoFd != -1)) {
 			{

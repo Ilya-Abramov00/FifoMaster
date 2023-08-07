@@ -9,21 +9,30 @@ void Server::getter(size_t id, FifoRead::Data&& data)
 
 void Server::connect(size_t id, const Fifo& object)
 {
+	std::lock_guard<std::mutex> mtx(mtxConnect);
 	if(object.getWaitConnectWrite() && object.getWaitConnectRead()) {
-		std::cout << "Connect " << id << std::endl;
-		connectHandler(id);
+		if(stateClient.at(id) == State::disconnect) {
+			stateClient.at(id) = State::connect;
+			std::cout << "Connect " << id << std::endl;
+			connectHandler(id);
+		}
 	}
 };
 
 void Server::disconnect(size_t id, const Fifo& object)
 {
+	std::lock_guard<std::mutex> mtx(mtxDisconnect);
 	if(object.getWaitDisconnectWrite() || object.getWaitDisconnectRead()) {
-		std::cout << "Disconnect " << id << std::endl;
-		disconnectHandler(id);
+		if(stateClient.at(id) == State::connect) {
+			stateClient.at(id) = State::disconnect;
+			std::cout << "Disconnect " << id << std::endl;
+			disconnectHandler(id);
+		}
 	}
 };
 
-Server::Server(std::list<FifoCfg> const& nameChannelsfifo, Config config)
+Server::Server(std::list<FifoCfg> const& nameChannelsfifo, Config config) :
+    stateClient(nameChannelsfifo.size(), State::disconnect)
 {
 	size_t id = 0;
 	for(auto const& name: nameChannelsfifo) {
@@ -40,13 +49,13 @@ Server::Server(std::list<FifoCfg> const& nameChannelsfifo, Config config)
 		});
 
 		connectionTable[id]->setConnectionHandlerRead([this, id]() {
-				this->connect(id, *connectionTable[id]);
+			this->connect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			// чтобы не приходилась ждать stop
 			connectionTable[id]->closeWrite();
-				this->disconnect(id, *connectionTable[id]);
+			this->disconnect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
@@ -121,6 +130,5 @@ std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename,
 	default:
 		throw std::runtime_error("no Config WriteFactory");
 	}
-
 }
 } // namespace Ipc

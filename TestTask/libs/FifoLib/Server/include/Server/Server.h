@@ -37,6 +37,11 @@ private:
 	FifoCfgTable fifoCfgTable;
 	ConnectionsTable connectionTable;
 
+	enum class State { disconnect, connect };
+	std::vector<State> stateClient;
+
+	std::mutex mtxConnect;
+	std::mutex mtxDisconnect;
 	EventHandler connectHandler;
 	EventHandler disconnectHandler;
 

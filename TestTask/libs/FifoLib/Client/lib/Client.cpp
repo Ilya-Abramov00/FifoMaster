@@ -70,17 +70,24 @@ void Client::getter(FifoRead::Data&& data)
 
 void Client::logicConnect()
 {
+
 	if((client.getWaitConnectRead() && client.getWaitConnectWrite())) {
-		std::cout << "Connect " << std::endl;
-		connectionHandler();
+		if(state == State::disconnect) {
+			state = State::connect;
+			std::cout << "Connect " << std::endl;
+			connectionHandler();
+		}
 	}
 };
 
 void Client::logicDisConnect()
 {
 	if((client.getWaitDisconnectRead()) || client.getWaitDisconnectWrite()) {
-		std::cout << "Disconnect " << std::endl;
-		disconnectionHandler();
+		if(state == State::connect) {
+			state = State::disconnect;
+			std::cout << "Disconnect " << std::endl;
+			disconnectionHandler();
+		}
 	}
 }
 std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& filename, Config conf)
@@ -93,6 +100,5 @@ std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& fi
 	default:
 		throw std::runtime_error("no Config WriteFactory");
 	}
-
 }
 } // namespace Ipc

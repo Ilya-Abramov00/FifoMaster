@@ -48,9 +48,11 @@ int main()
 		client2.write((void*)a.data(), a.size());
 		sleep(1);
 	}
-	sleep(35);
 	std::cout << "\nstop\n";
 	client2.stop();
+	sleep(5);
+
+
 
 	std::cout <<"пришло "<< data.size();
 	std::cout << "\nдолжно быть "<<30;

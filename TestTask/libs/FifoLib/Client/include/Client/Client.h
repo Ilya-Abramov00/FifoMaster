@@ -32,6 +32,8 @@ private:
 	EventHandler connectionHandler;
 	EventHandler disconnectionHandler;
 
+	enum class State { disconnect, connect };
+	State state{State::disconnect};
 	Fifo client;
 	FifoRead::ReadHandler readHandler;
 

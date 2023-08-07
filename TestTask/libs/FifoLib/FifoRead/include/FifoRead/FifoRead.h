@@ -45,7 +45,7 @@ private:
 	Params params;
 	bool runRead{false};
 	bool waitConnect{false};
-	bool waitDisConnect{false};
+	bool waitDisconnect{false};
 	bool waitOpen{false};
 
 	long fifoFd = -1;
