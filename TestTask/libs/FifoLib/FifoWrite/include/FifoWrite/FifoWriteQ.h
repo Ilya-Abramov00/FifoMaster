@@ -26,7 +26,6 @@ public:
 	long const& getFifoFd() const override;
 
 private:
-	void waitConnectFifo();
 
 	void writeFifo();
 

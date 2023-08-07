@@ -23,13 +23,13 @@ public:
 		int clientDisconnection = 0;
 		client.setReadHandler(getterClient1);
 		client.setConnectHandler([&clientConnection]() {
-			std::thread::id this_id = std::this_thread::get_id();
-			std::cout<<"\nclientCon id "<<this_id<<std::endl;
+			//			std::thread::id this_id = std::this_thread::get_id();
+			//			std::cout<<"\nclientCon id "<<this_id<<std::endl;
 			clientConnection += 1;
 		});
 		client.setDisconnectHandler([&clientDisconnection]() {
-			std::thread::id this_id = std::this_thread::get_id();
-			std::cout<<"\nclientDis id "<<this_id<<std::endl;
+			//			std::thread::id this_id = std::this_thread::get_id();
+			//			std::cout<<"\nclientDis id "<<this_id<<std::endl;
 			clientDisconnection += 1;
 		});
 
@@ -37,11 +37,11 @@ public:
 		sleep(5);
 		startWriteClient(client, n, k);
 		sleep(5);
-		//ASSERT_TRUE(clientConnection == 2);
-		//ASSERT_TRUE(clientDisconnection == 2);
+		ASSERT_TRUE(clientConnection == 2);
+		ASSERT_TRUE(clientDisconnection == 2);
 		ASSERT_TRUE(dataClient1.size() == n * k);
 	}
-	void servers(std::list<FifoCfg> s, Config config, int n, int k, size_t client, std::mutex& mtx0)
+	void servers(std::list<FifoCfg> s, Config config, int n, int k, size_t nClient, std::mutex& mtx0)
 	{
 		std::string dataServer = "";
 		auto getterServer      = [&dataServer, &mtx0](size_t id, FifoRead::Data&& dataq) {
@@ -55,25 +55,24 @@ public:
 		server.setReadHandler(getterServer);
 
 		server.setConnectHandler([&serverConnection](size_t) {
-
-			std::thread::id this_id = std::this_thread::get_id();
-			std::cout<<"\nserverCon id "<<this_id<<std::endl;
+			//			std::thread::id this_id = std::this_thread::get_id();
+			//			std::cout<<"\nserverCon id "<<this_id<<std::endl;
 			serverConnection += 1;
 		});
 
 		server.setDisconnectHandler([&serverDisconnection](size_t) {
-			std::thread::id this_id = std::this_thread::get_id();
-			std::cout<<"\nserverDis id "<<this_id<<std::endl;
+			//			std::thread::id this_id = std::this_thread::get_id();
+			//			std::cout<<"\nserverDis id "<<this_id<<std::endl;
 			serverDisconnection += 1;
 		});
 
-		startWriteServer(server, n, k, client);
+		startWriteServer(server, n, k, nClient);
 		sleep(5);
 
-	ASSERT_TRUE(serverConnection == client * 2);
-	ASSERT_TRUE(serverDisconnection == client * 2);
+		ASSERT_TRUE(serverConnection == nClient * 2);
+		ASSERT_TRUE(serverDisconnection == nClient * 2);
 
-		ASSERT_TRUE(dataServer.size() == client * 2 * n * k);
+		ASSERT_TRUE(dataServer.size() == nClient * 2 * n * k);
 	}
 
 	void TearDown() override
@@ -86,14 +85,14 @@ private:
 		sleep(2);
 		std::string data0(n, 'a');
 		for(int i = 0; i != k; i++) {
-			for(int k = 0; k != client; k++) {
-				server.write(k, (void*)data0.data(), n);
+			for(int l = 0; l != client; l++) {
+				server.write(l, (void*)data0.data(), n);
 			}
 		}
 		sleep(24);
 
 		server.stop();
-		std::cout<<"\n\n\n\n\n";
+		std::cout << "\n\n\n\n\n";
 	}
 	void startWriteClient(Client& client, int n, int k)
 	{
@@ -118,7 +117,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
 
-	std::list<FifoCfg> data = {k1,k2,k3};
+	std::list<FifoCfg> data = {k1, k2, k3};
 
 	int sizeN = 1024 * 1024;
 	int n     = 10;
@@ -146,7 +145,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 
 	tServer.join();
 }
-//TEST_F(ServerClientTest, Clients3To1ServerConnectin_NQW)
+// TEST_F(ServerClientTest, Clients3To1ServerConnectin_NQW)
 //{
 //	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
 //	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
@@ -179,9 +178,9 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 //	tClient3.join();
 //
 //	tServer.join();
-//}
+// }
 //
-//TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW_NQW)
+// TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW_NQW)
 //{
 //	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
 //	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
@@ -214,4 +213,4 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 //	tClient3.join();
 //
 //	tServer.join();
-//}
+// }
