@@ -26,17 +26,24 @@ public:
 		client.setDisconnectHandler([&clientDisconnection]() {
 			clientDisconnection++;
 		});
+		client.start();
+		WriteClient(client, nBates, nWrite);
+		sleep(8);
+		client.stop();
 
-		startWriteClient(client, nBates, nWrite);
+		sleep(1);
+
+		client.start();
+		WriteClient(client, nBates, nWrite);
 		sleep(8);
-		startWriteClient(client, nBates, nWrite);
-		sleep(8);
+		client.stop();
+		sleep(1);
 
 		ASSERT_TRUE(clientConnection == 2);
 		ASSERT_TRUE(clientDisconnection == 2);
 		ASSERT_TRUE(dataClient1.size() == sizeDataServer*2);
 	}
-	void servers(std::list<FifoCfg> s, Config config, int nBates, int nWrite, size_t nClient,int sizeDataServer, std::mutex& mtx0)
+	void servers(std::list<FifoCfg> s, Config config, int nBates, int nWrite, size_t nClient,int sizeDataClient, std::mutex& mtx0)
 	{
 		std::string dataServer = "";
 		auto getterServer      = [&dataServer, &mtx0](size_t id, FifoRead::Data&& dataq) {
@@ -60,14 +67,14 @@ public:
 		server.start();
 
 		WriteServer(server, nBates, nWrite, nClient);
-
-		sleep(25);
+		WriteServer(server, nBates, nWrite, nClient);
+		sleep(18);
 
 		server.stop();
 
 		ASSERT_TRUE(serverConnection == nClient * 2);
 		ASSERT_TRUE(serverDisconnection == nClient * 2);
-		ASSERT_TRUE(dataServer.size() == sizeDataServer);
+		ASSERT_TRUE(dataServer.size() == sizeDataClient*2*nClient);
 	}
 
 private:
@@ -80,16 +87,12 @@ private:
 			}
 		}
 	}
-	void startWriteClient(Client& client, int nBates, int nWrite)
+	void WriteClient(Client& client, int nBates, int nWrite)
 	{
-		client.start();
-		sleep(2);
 		std::string data0(nBates, 'v');
 		for(int i = 0; i != nWrite; i++) {
 			client.write((void*)data0.data(), data0.size() * sizeof(std::string::value_type));
 		}
-		sleep(6);
-		client.stop();
 	}
 };
 
@@ -108,7 +111,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 	int sizeNClient  = 1024 * 256;
 	int nWriteClient = 10;
 	int sizeNServer  = 1024;
-	int nWriteServer = 256 * 10;
+	int nWriteServer = 256;
 
 	int sizeDataServer=sizeNServer*nWriteServer;
 	int sizeDaraClient=sizeNClient*nWriteClient;
