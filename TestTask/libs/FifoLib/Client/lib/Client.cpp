@@ -46,6 +46,7 @@ void Client::write(const void* data, size_t sizeN)
 void Client::stop()
 {
 	client.stop();
+	logicDisConnect();
 }
 
 void Client::setReadHandler(FifoRead::ReadHandler h)
@@ -71,7 +72,7 @@ void Client::getter(FifoRead::Data&& data)
 void Client::logicConnect()
 {
 
-	if((client.getWaitConnectRead() && client.getWaitConnectWrite())) {
+	if((client.getWaitConnectRead() || client.getWaitConnectWrite())) {
 		if(state == State::disconnect) {
 			state = State::connect;
 			std::cout << "Connect " << std::endl;

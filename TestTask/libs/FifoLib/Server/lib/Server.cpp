@@ -10,7 +10,7 @@ void Server::getter(size_t id, FifoRead::Data&& data)
 void Server::connect(size_t id, const Fifo& object)
 {
 	std::lock_guard<std::mutex> mtx(mtxConnect);
-	if(object.getWaitConnectWrite() && object.getWaitConnectRead()) {
+	if(object.getWaitConnectWrite() || object.getWaitConnectRead()) {
 		if(stateClient.at(id) == State::disconnect) {
 			stateClient.at(id) = State::connect;
 			std::cout << "Connect " << id << std::endl;
