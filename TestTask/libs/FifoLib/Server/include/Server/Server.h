@@ -52,7 +52,7 @@ private:
 
 	void connect(size_t id, const Fifo& object);
 
-	void disconnect(size_t id, const Fifo& object);
+	void disconnect(size_t id, Fifo& object);
 
 	class WriterFactory {
 	public:

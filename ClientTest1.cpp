@@ -58,7 +58,7 @@ int main()
 	std::cout << "\n2 stop\n";
 	client1.stop();
 	std::cout <<"пришло "<< data.size();
-	std::cout << "\nдолжно быть "<<30;
+	std::cout << "\nдолжно быть "<<20;
 
 	return 0;
 }

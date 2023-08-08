@@ -19,7 +19,7 @@ void Server::connect(size_t id, const Fifo& object)
 	}
 };
 
-void Server::disconnect(size_t id, const Fifo& object)
+void Server::disconnect(size_t id, Fifo& object)
 {
 	std::lock_guard<std::mutex> mtx(mtxDisconnect);
 	if(object.getWaitDisconnectWrite() || object.getWaitDisconnectRead()) {

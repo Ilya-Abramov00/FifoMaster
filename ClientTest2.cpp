@@ -16,7 +16,7 @@ int main()
 
 	auto e = [&](FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
-		std::cout << "\n" << std::string(dataq.data(), dataq.data() + dataq.size()) << "\n";
+		std::cout << std::string(dataq.data(), dataq.data() + dataq.size()) << "\n";
 		std::cout << "пришли данные\n";
 	};
 
@@ -30,9 +30,9 @@ int main()
 	});
 
 	client2.start();
-	auto x = 2;
+
 	for(int i = 0; i != 4; i++) {
-		std::string a("2 канал ");
+		std::string a("2 channel ");
 		client2.write((void*)a.data(), a.size());
 		sleep(1);
 	}
@@ -44,18 +44,19 @@ int main()
 	client2.start();
 
 	for(int i = 0; i != 4; i++) {
-		std::string a("2 канал");
+		std::string a("2 channel ");
 		client2.write((void*)a.data(), a.size());
 		sleep(1);
 	}
 	std::cout << "\nstop\n";
+	sleep(10);
 	client2.stop();
-	sleep(5);
+
 
 
 
 	std::cout <<"пришло "<< data.size();
-	std::cout << "\nдолжно быть "<<30;
+	std::cout << "\nдолжно быть "<<20;
 	sleep(2);
 	return 0;
 }

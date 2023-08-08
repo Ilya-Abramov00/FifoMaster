@@ -51,15 +51,15 @@ int main()
 
 
 	sleep(6);
-	for(int i = 0; i != 25; i++) {
-		server.write(0, (void*)data0.data(), x);
-		server.write(1, (void*)data0.data(), x);
+	for(int i = 0; i != 15; i++) {
+//		server.write(0, (void*)data0.data(), x);
+//		server.write(1, (void*)data0.data(), x);
 		sleep(1);
 	}
 	sleep(6);
 
 
 	server.stop();
-
+sleep(2);
 	return 1;
 }

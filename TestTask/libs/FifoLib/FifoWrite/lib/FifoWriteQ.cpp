@@ -51,7 +51,9 @@ void QWriteImpl::writeFifo()
 		waitOpen       = true;
 		waitDisConnect = false;
 		waitConnect    = true;
-		if(waitConnect && runWrite && (fifoFd != -1)){params.connectHandler();};
+		if(waitConnect && runWrite && (fifoFd != -1)) {
+			params.connectHandler();
+		};
 
 		while(waitConnect && runWrite && (fifoFd != -1)) {
 			{
@@ -91,7 +93,7 @@ void QWriteImpl::stopWrite()
 {
 	runWrite    = false;
 	waitConnect = false;
-
+	params.disconnectHandler();
 	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'R');
 		close(fd);
