@@ -53,7 +53,7 @@ int main()
 		client1.write((void*)z.data(), z.size());
 		sleep(1);
 	}
-	sleep(19);
+	sleep(12);
 
 	std::cout << "\n2 stop\n";
 	client1.stop();

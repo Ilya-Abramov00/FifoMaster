@@ -46,7 +46,7 @@ int main()
 	for(int i = 0; i != 5; i++) {
 		server.write(0, (void*)data0.data(), x);
 		server.write(1, (void*)data0.data(), x);
-		sleep(1);
+	//	sleep(1);
 	}
 
 
@@ -54,7 +54,7 @@ int main()
 	for(int i = 0; i != 25; i++) {
 		server.write(0, (void*)data0.data(), x);
 		server.write(1, (void*)data0.data(), x);
-		sleep(1);
+	//	sleep(1);
 	}
 	sleep(6);
 

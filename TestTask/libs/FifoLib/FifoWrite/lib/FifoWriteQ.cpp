@@ -63,8 +63,11 @@ void QWriteImpl::writeFifo()
 						waitConnect    = false;
 						waitDisConnect = true;
 						params.disconnectHandler();
-
-						break;
+						if(runWrite) {
+							break;
+						}
+						else
+							return;
 					}
 					queue.pop();
 				}

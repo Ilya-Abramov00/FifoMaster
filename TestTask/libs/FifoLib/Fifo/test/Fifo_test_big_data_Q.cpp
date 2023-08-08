@@ -1,4 +1,3 @@
-/*
 
 #include "gtest/gtest.h"
 
@@ -75,12 +74,7 @@ TEST(big_data_Q, 1)
 
 	client2.pushData((void*)t9.data(), n);
 
-	std::string t10(n, '0');
 
-	client2.pushData((void*)t10.data(), n);
-
-	std::string t11(n, '1');
-	client2.pushData((void*)t11.data(), n);
 
 	sleep(3);
 
@@ -96,11 +90,10 @@ TEST(big_data_Q, 1)
 	a += t7;
 	a += t8;
 	a += t9;
-	a += t10;
-	a += t11;
 
 
-	ASSERT_TRUE(data.size() == n * 12);
+
+	ASSERT_TRUE(data.size() == n * 10);
 	ASSERT_TRUE(data == a);
 }
 TEST(big_data_Q, 2)
@@ -172,13 +165,6 @@ TEST(big_data_Q, 2)
 
 	client2.pushData((void*)t9.data(), n);
 
-	std::string t10(n, '0');
-
-	client2.pushData((void*)t10.data(), n);
-
-	std::string t11(n, '1');
-	client2.pushData((void*)t11.data(), n);
-
 	sleep(3);
 
 	client2.stopWrite();
@@ -193,11 +179,9 @@ TEST(big_data_Q, 2)
 	a += t7;
 	a += t8;
 	a += t9;
-	a += t10;
-	a += t11;
 
-	ASSERT_TRUE(data.size() == n * 12);
+
+	ASSERT_TRUE(data.size() == n * 10);
 	ASSERT_TRUE(data == a);
 }
 
-*/

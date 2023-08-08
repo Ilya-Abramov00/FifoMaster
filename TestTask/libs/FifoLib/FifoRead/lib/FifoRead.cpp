@@ -45,26 +45,29 @@ void FifoRead::readFifo()
 		waitConnect    = true;
 		if(waitConnect && runRead && (fifoFd != -1)) {
 			params.connectHandler();
-		}
 
-		while(waitConnect && runRead && (fifoFd != -1)) {
-			auto flag = read(fifoFd, buffer.data(), MAXLINE);
-			if(flag == 0 || flag==-1) {
-				waitConnect    = false;
-				waitDisconnect = true;
-				params.disconnectHandler();
-				break;
-			}
-			else if(flag == MAXLINE) {
-				params.msgHandler(std::move(buffer));
-			}
-			else {
-				params.msgHandler(std::vector<uint8_t>(buffer.data(), buffer.data() + flag));
+			while(waitConnect && runRead && (fifoFd != -1)) {
+				auto flag = read(fifoFd, buffer.data(), MAXLINE);
+				if(flag == 0 || flag == -1) {
+					waitConnect    = false;
+					waitDisconnect = true;
+					params.disconnectHandler();
+					if(runRead) {
+						break;
+					}
+					else
+						return;
+				}
+				else if(flag == MAXLINE) {
+					params.msgHandler(std::move(buffer));
+				}
+				else {
+					params.msgHandler(std::vector<uint8_t>(buffer.data(), buffer.data() + flag));
+				}
 			}
 		}
 	}
 }
-
 void FifoRead::stopRead()
 {
 	runRead     = false;
