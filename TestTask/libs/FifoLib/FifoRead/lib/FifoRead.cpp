@@ -9,7 +9,7 @@
 #include <queue>
 
 namespace Ipc {
-FifoRead::FifoRead(const std::string fdFileName) : params(fdFileName)
+FifoRead::FifoRead(const std::string fdFileName) : params{ fdFileName}
 {
 	createFifo(params.addrRead);
 }

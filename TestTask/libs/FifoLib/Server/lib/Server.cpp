@@ -120,7 +120,25 @@ Server::~Server()
 		unlink(fifoCfgTable[i].reverseFile.c_str());
 	}
 }
-std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf)
+
+    void Server::disconnectId(size_t id)
+    {
+if(id<fifoCfgTable.size())
+{
+    connectionTable[id]->stop();
+}
+else throw std::runtime_error("no idClient");
+    }
+
+    void Server::connectId(size_t id) {
+        if(id<fifoCfgTable.size())
+        {
+            connectionTable[id]->start();
+        }
+        else throw std::runtime_error("no idClient");
+    }
+
+    std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf)
 {
 	switch(conf) {
 	case(Config::QW):

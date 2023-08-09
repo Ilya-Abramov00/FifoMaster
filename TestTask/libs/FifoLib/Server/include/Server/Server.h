@@ -30,6 +30,8 @@ public:
 	void start();
 
 	void stop();
+    void connectId(size_t id);
+    void disconnectId(size_t id);
 
 	~Server();
 

@@ -37,14 +37,22 @@ void Fifo::write(const void* data, size_t sizeInBytes)
 
 void Fifo::stop()
 {
-	fifoWrite->stopWrite();
-	fifoRead.stopRead();
+    if(state==State::start)
+    {
+        state=State::stop;
+        fifoWrite->stopWrite();
+        fifoRead.stopRead();
+    }
 }
 
 void Fifo::start()
 {
-	fifoRead.startRead();
-	fifoWrite->startWrite();
+    if(state==State::stop)
+    {
+        state = State::start;
+        fifoRead.startRead();
+        fifoWrite->startWrite();
+    }
 }
 
 bool const Fifo::getWaitDisconnectRead() const

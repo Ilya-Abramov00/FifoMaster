@@ -10,7 +10,7 @@
 
 namespace Ipc {
 
-NQWriteImpl::NQWriteImpl(std::string fdFileName) : params(fdFileName)
+NQWriteImpl::NQWriteImpl(std::string fdFileName) :params{ fdFileName}
 {
 	createFifo(params.addrRead);
 }

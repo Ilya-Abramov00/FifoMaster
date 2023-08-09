@@ -2,7 +2,7 @@
 #define FIFOREAD_H
 
 #include "FifoBase/FifoBase.h"
-
+#include <vector>
 #include <string>
 #include <functional>
 #include <thread>

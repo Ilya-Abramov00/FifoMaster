@@ -42,11 +42,11 @@ int main()
 
 	std::cout << "\nstop\n";
 	client1.stop();
-
+    client1.stop();
 	sleep(1);
 
 	client1.start();
-
+    client1.start();
 	std::cout << "\n2 start\n";
 	for(int i = 0; i != 5; i++) {
 		std::string z("1 канал");
