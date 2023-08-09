@@ -109,7 +109,7 @@ void Server::setConnectHandler(EventHandler h)
 	connectHandler = std::move(h);
 }
 
-void Server::write(size_t id, const void* data, size_t sizeInBytes)
+void Server::writeId(size_t id, const void* data, size_t sizeInBytes)
 {
 	connectionTable[id]->write(data, sizeInBytes);
 }

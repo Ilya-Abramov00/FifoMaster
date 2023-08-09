@@ -25,11 +25,12 @@ public:
 
 	void setDisconnectHandler(EventHandler h);
 
-	void write(size_t id, const void* data, size_t sizeInBytes);
+	void writeId(size_t id, const void* data, size_t sizeInBytes);
 
 	void start();
 
 	void stop();
+
     void connectId(size_t id);
     void disconnectId(size_t id);
 
