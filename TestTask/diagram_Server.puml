@@ -34,6 +34,9 @@ class Fifo {
 	+void stop()
 	+void closeRead()
 	+void closeWrite()
+
+	-FifoRead fifoRead;
+    -std::unique_ptr<IFifoWriter> fifoWrite;
 }
 
 FifoRead o--Fifo

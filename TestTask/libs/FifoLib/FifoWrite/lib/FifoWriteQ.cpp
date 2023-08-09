@@ -44,17 +44,17 @@ void QWriteImpl::startWrite()
 void QWriteImpl::writeFifo()
 {
 	while(runWrite) {
-		waitOpen = false;
+		{
+			waitOpen = false;
+			fifoFd   = openFifo(params.addrRead, 'W');
+			waitOpen = true;
 
-		fifoFd = openFifo(params.addrRead, 'W');
-
-		waitOpen       = true;
-		waitDisConnect = false;
-		waitConnect    = true;
-		if(waitConnect && runWrite && (fifoFd != -1)) {
-			params.connectHandler();
-		};
-
+			waitDisConnect = false;
+			waitConnect    = true;
+			if(waitConnect && runWrite && (fifoFd != -1)) {
+				params.connectHandler();
+			};
+		}
 		while(waitConnect && runWrite && (fifoFd != -1)) {
 			{
 				std::lock_guard<std::mutex> mtx_0(mtx);
