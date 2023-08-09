@@ -42,10 +42,6 @@ IFifoWriter o--Fifo
 
 
 class Server {
-
-	#using ReadHandler  = std::function<void(size_t, FifoRead::Data&&)>
-	#using EventHandler = std::function<void(size_t)>
-
 	+Server(std::list<FifoCfg> const& nameChannelsFifo, Config config)
 
 	+void setReadHandler(ReadHandler h)
@@ -67,13 +63,15 @@ enum class State { disconnect, connect }
 Fifo o--Server
 
 class Client {
-	+Client(FifoCfg name, Config config);
-	+void start();
-	+void stop();
-	+void write(const void* data, size_t sizeN);
-	+void setReadHandler(FifoRead::ReadHandler h);
-	+void setConnectHandler(EventHandler h);
-	+void setDisconnectHandler(EventHandler h);
+	+Client(FifoCfg name, Config config)
+	+void start()
+	+void stop()
+	+void write(const void* data, size_t sizeN)
+	+void setReadHandler(FifoRead::ReadHandler h)
+	+void setConnectHandler(EventHandler h)
+	+void setDisconnectHandler(EventHandler h)
+	enum class State { disconnect, connect }
+	-State state
 }
 
 Fifo o--Client
