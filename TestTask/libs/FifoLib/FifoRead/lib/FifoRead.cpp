@@ -9,7 +9,7 @@
 #include <queue>
 
 namespace Ipc {
-FifoRead::FifoRead(const std::string fdFileName) : params{ fdFileName}
+FifoRead::FifoRead(const std::string fdFileName) : params{fdFileName}
 {
 	createFifo(params.addrRead);
 }
@@ -37,20 +37,13 @@ void FifoRead::readFifo()
 	std::vector<uint8_t> buffer(MAXLINE);
 
 	while(runRead) {
-		waitOpen       = false;
-		fifoFd         = openFifo(params.addrRead, 'R');
-		waitOpen       = true;
-
-		waitConnect    = true;
-		if(waitConnect && runRead && (fifoFd != -1)) {
-			params.connectHandler();
-		}
+		connect();
 
 		while(waitConnect && runRead && (fifoFd != -1)) {
 			auto flag = read(fifoFd, buffer.data(), MAXLINE);
 
 			if(flag == 0 || flag == -1) {
-				waitConnect    = false;
+				waitConnect = false;
 				params.disconnectHandler();
 				break;
 			}
@@ -76,7 +69,7 @@ void FifoRead::stopRead()
 	close(fifoFd);
 
 	threadReadFifo->join();
-	waitConnect= false;
+	waitConnect = false;
 }
 
 void FifoRead::setConnectionHandler(ConnectionHandler handler)
@@ -102,5 +95,16 @@ bool const FifoRead::getWaitConnect() const
 long const& FifoRead::getFifoFd() const
 {
 	return fifoFd;
+}
+void FifoRead::connect()
+{
+	waitOpen = false;
+	fifoFd   = openFifo(params.addrRead, 'R');
+	waitOpen = true;
+
+	if( runRead && (fifoFd != -1)) {
+		waitConnect = true;
+		params.connectHandler();
+	}
 }
 } // namespace Ipc

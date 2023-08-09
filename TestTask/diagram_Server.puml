@@ -5,7 +5,7 @@ interface IFifoWriter {
 	+virtual void stopWrite()
 	+virtual void pushData(const void* data, size_t sizeN)
 	+virtual bool const getWaitConnect()
-	
+
 }
 
 
