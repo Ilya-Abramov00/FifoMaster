@@ -4,8 +4,8 @@ interface IFifoWriter {
 	+virtual void startWrite()
 	+virtual void stopWrite()
 	+virtual void pushData(const void* data, size_t sizeN)
-	+virtual bool const getWaitDisconnect()
 	+virtual bool const getWaitConnect()
+	
 }
 
 
@@ -20,15 +20,12 @@ class FifoRead {
 	+FifoRead(const std::string fdFileName)
 	+void startRead()
 	+void stopRead()
-	+bool const getWaitDisconnect() const
 	+bool const getWaitConnect() const
 }
 
 class Fifo {
-	+bool const getWaitDisconnectRead() const
-	+bool const getWaitConnectRead() const
-	+bool const getWaitDisconnectWrite() const
-	+bool const getWaitConnectWrite() const
+	+bool getWaitConnectRead() const
+	+bool getWaitConnectWrite() const
 	+void write(const void* data, size_t sizeInBytes)
 	+void start()
 	+void stop()

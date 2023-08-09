@@ -14,14 +14,12 @@ public:
 	void setDisConnectionHandler(ConnectionHandler handler) override;
 
 	void startWrite() override;
-
+	void connect();
 	void stopWrite() override;
 
 	void pushData(const void* data, size_t sizeN) override;
 
-	bool const getWaitDisconnect() const override;
-
-	bool const getWaitConnect() const override;
+	bool  getWaitConnect() const override;
 
 	long const& getFifoFd() const override;
 
@@ -36,10 +34,9 @@ private:
 	};
 	Params params;
 	bool runWrite{false};
-	bool waitConnect{false};
-	bool waitDisConnect{false};
 	bool waitOpen{false};
 
+bool waitConnect{false};
 	long fifoFd = -1;
 	std::queue<std::vector<uint8_t>> queue;
 	std::mutex mtx;

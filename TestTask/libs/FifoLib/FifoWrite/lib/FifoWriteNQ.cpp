@@ -44,7 +44,7 @@ void NQWriteImpl::waitConnectFifo()
 {
 	fifoFd = openFifo(params.addrRead, 'W');
 	if(runWrite) {
-		waitConnect = true;
+		state=State::connect;
 		params.connectHandler();
 	}
 }
@@ -52,17 +52,17 @@ void NQWriteImpl::waitConnectFifo()
 void NQWriteImpl::stopWrite()
 {
 	runWrite = false;
-	if(!waitConnect) {
+	//сделать провекру на открытость
 		auto fd = openFifo(params.addrRead.c_str(), 'R');
 		close(fd);
-	}
+
 	threadWaitConnectFifo->join();
 	close(fifoFd);
 }
 
 void NQWriteImpl::pushData(const void* data, size_t sizeN)
 {
-	if(waitConnect && runWrite) {
+	if(state==State::connect && runWrite) {
 		if(!data) {
 			std::cerr << "\n null ptr is pushData \n";
 			return;
@@ -70,7 +70,7 @@ void NQWriteImpl::pushData(const void* data, size_t sizeN)
 		signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
 		auto flag = write(fifoFd, data, sizeN);
 		if(flag == -1) {
-			waitDisConnect = true;
+			state=State::disconnect;
 			params.disconnectHandler();
 			return;
 		}
@@ -80,18 +80,14 @@ void NQWriteImpl::pushData(const void* data, size_t sizeN)
 	}
 }
 
-bool const NQWriteImpl::getWaitDisconnect() const
-{
-	return waitDisConnect;
-}
 
 long const& NQWriteImpl::getFifoFd() const
 {
 	return fifoFd;
 }
 
-bool const NQWriteImpl::getWaitConnect() const
+bool  NQWriteImpl::getWaitConnect() const
 {
-	return waitConnect;
+return (state==State::connect);
 }
 } // namespace Ipc

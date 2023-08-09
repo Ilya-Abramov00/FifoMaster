@@ -19,9 +19,8 @@ public:
 
 	void pushData(const void* data, size_t sizeN) override;
 
-	bool const getWaitDisconnect() const override;
 
-	bool const getWaitConnect() const override;
+	bool  getWaitConnect() const override;
 
 	long const& getFifoFd() const override;
 
@@ -35,8 +34,11 @@ private:
 	};
 	Params params;
 	bool runWrite{false};
-	bool waitConnect{false};
-	bool waitDisConnect{false};
+	enum class State{
+		connect,
+		disconnect
+	};
+	State state=State::disconnect;
 	long fifoFd = -1;
 
 	std::unique_ptr<std::thread> threadWaitConnectFifo;

@@ -22,9 +22,7 @@ public:
 
 	virtual void pushData(const void* data, size_t sizeN) = 0;
 
-	virtual bool const getWaitDisconnect() const = 0;
-
-	virtual bool const getWaitConnect() const = 0;
+	virtual bool getWaitConnect() const = 0;
 
 	virtual long const& getFifoFd() const = 0;
 

@@ -53,22 +53,13 @@ void Fifo::start()
 	}
 }
 
-bool const Fifo::getWaitDisconnectRead() const
-{
-	return fifoRead.getWaitDisconnect();
-}
 
-bool const Fifo::getWaitConnectRead() const
+bool  Fifo::getWaitConnectRead() const
 {
 	return fifoRead.getWaitConnect();
 }
 
-bool const Fifo::getWaitDisconnectWrite() const
-{
-	return fifoWrite->getWaitDisconnect();
-}
-
-bool const Fifo::getWaitConnectWrite() const
+bool  Fifo::getWaitConnectWrite() const
 {
 	return fifoWrite->getWaitConnect();
 }

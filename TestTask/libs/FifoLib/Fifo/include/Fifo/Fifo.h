@@ -29,13 +29,9 @@ public:
 
 	void setReadHandler(FifoRead::ReadHandler handler);
 
-	bool const getWaitDisconnectRead() const;
+	bool getWaitConnectRead() const;
 
-	bool const getWaitConnectRead() const;
-
-	bool const getWaitDisconnectWrite() const;
-
-	bool const getWaitConnectWrite() const;
+	bool getWaitConnectWrite() const;
 
 	void write(const void* data, size_t sizeInBytes);
 
@@ -50,11 +46,8 @@ public:
 private:
 	std::unique_ptr<IFifoWriter> fifoWrite;
 	FifoRead fifoRead;
-	enum class State{
-		start,
-		stop
-	};
-	State state=State::stop;
+	enum class State { start, stop };
+	State state = State::stop;
 };
 } // namespace Ipc
 #endif

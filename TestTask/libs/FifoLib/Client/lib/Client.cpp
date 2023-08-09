@@ -82,7 +82,7 @@ void Client::logicConnect()
 
 void Client::logicDisConnect()
 {
-	if((client.getWaitDisconnectRead()) || client.getWaitDisconnectWrite()) {
+	if((!client.getWaitConnectRead()) || !client.getWaitConnectWrite()) {
 		if(state == State::connect) {
 			state = State::disconnect;
 			std::cout << "Disconnect " << std::endl;

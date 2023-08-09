@@ -25,14 +25,12 @@ public:
 
 	void setReadHandler(ReadHandler handler);
 
-	bool const getWaitDisconnect() const;
-
 	bool const getWaitConnect() const;
 
 	long const& getFifoFd() const;
 
 private:
-	void waitConnectFifo();
+
 
 	void readFifo();
 
@@ -45,7 +43,7 @@ private:
 	Params params;
 	bool runRead{false};
 	bool waitConnect{false};
-	bool waitDisconnect{false};
+
 	bool waitOpen{false};
 
 	long fifoFd = -1;

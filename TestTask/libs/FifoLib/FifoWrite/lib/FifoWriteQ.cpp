@@ -35,7 +35,6 @@ void QWriteImpl::startWrite()
 		throw std::runtime_error("callback Write disconnectHandler not set");
 	}
 	runWrite        = true;
-	waitDisConnect  = false;
 	threadWriteFifo = std::make_unique<std::thread>([this]() {
 		writeFifo();
 	});
@@ -44,17 +43,7 @@ void QWriteImpl::startWrite()
 void QWriteImpl::writeFifo()
 {
 	while(runWrite) {
-		{
-			waitOpen = false;
-			fifoFd   = openFifo(params.addrRead, 'W');
-			waitOpen = true;
-
-			waitDisConnect = false;
-			waitConnect    = true;
-			if(waitConnect && runWrite && (fifoFd != -1)) {
-				params.connectHandler();
-			};
-		}
+		connect();
 		while(waitConnect && runWrite && (fifoFd != -1)) {
 			{
 				std::lock_guard<std::mutex> mtx_0(mtx);
@@ -62,8 +51,7 @@ void QWriteImpl::writeFifo()
 					signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
 					auto flag = write(fifoFd, queue.front().data(), queue.front().size());
 					if(flag == -1) {
-						waitConnect    = false;
-						waitDisConnect = true;
+						waitConnect= false;
 						params.disconnectHandler();
 
 						break;
@@ -75,6 +63,17 @@ void QWriteImpl::writeFifo()
 	}
 }
 
+void QWriteImpl::connect()
+{
+	waitOpen = false;
+	fifoFd   = openFifo(params.addrRead, 'W');
+	waitOpen = true;
+
+	if(runWrite && (fifoFd != -1)) {
+		waitConnect= true;
+		params.connectHandler();
+	};
+}
 void QWriteImpl::pushData(const void* data, size_t sizeN)
 {
 	if(!data) {
@@ -92,7 +91,7 @@ void QWriteImpl::pushData(const void* data, size_t sizeN)
 void QWriteImpl::stopWrite()
 {
 	runWrite    = false;
-	waitConnect = false;
+
 	params.disconnectHandler();
 	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'R');
@@ -101,15 +100,15 @@ void QWriteImpl::stopWrite()
 	close(fifoFd);
 
 	threadWriteFifo->join();
-	waitDisConnect = true;
+	waitConnect= false;
 	if(queue.size()) {
 		std::cerr << params.addrRead << " в очереди остались неотправленные сообщения\n";
 	}
 }
 
-bool const QWriteImpl::getWaitDisconnect() const
+bool  QWriteImpl::getWaitConnect() const
 {
-	return waitDisConnect;
+	return waitConnect;
 }
 
 long const& QWriteImpl::getFifoFd() const
@@ -117,9 +116,6 @@ long const& QWriteImpl::getFifoFd() const
 	return fifoFd;
 }
 
-bool const QWriteImpl::getWaitConnect() const
-{
-	return waitConnect;
-}
+
 
 } // namespace Ipc
