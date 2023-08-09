@@ -71,7 +71,7 @@ void Client::getter(FifoRead::Data&& data)
 
 void Client::logicConnect()
 {
-	if(( client.getWaitConnectWrite())) {
+	if((client.getWaitConnectWrite()) || client.getWaitConnectRead()) {
 		if(state == State::disconnect) {
 			state = State::connect;
 			std::cout << "Connect " << std::endl;

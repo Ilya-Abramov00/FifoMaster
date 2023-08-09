@@ -50,12 +50,11 @@ public:
 private:
 	std::unique_ptr<IFifoWriter> fifoWrite;
 	FifoRead fifoRead;
-
-    enum class State{
-        start,
-        stop
-    };
-State state=State::stop;
+	enum class State{
+		start,
+		stop
+	};
+	State state=State::stop;
 };
 } // namespace Ipc
 #endif

@@ -53,7 +53,6 @@ Server::Server(std::list<FifoCfg> const& nameChannelsfifo, Config config) :
 		});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
-			// чтобы не приходилась ждать stop
 			connectionTable[id]->closeWrite();
 			this->disconnect(id, *connectionTable[id]);
 		});
@@ -63,7 +62,7 @@ Server::Server(std::list<FifoCfg> const& nameChannelsfifo, Config config) :
 		});
 
 		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
-			connectionTable[id]->closeRead(); // чтобы не приходилась ждать stop
+			connectionTable[id]->closeRead();
 			this->disconnect(id, *connectionTable[id]);
 		});
 		id++;
@@ -121,24 +120,25 @@ Server::~Server()
 	}
 }
 
-    void Server::disconnectId(size_t id)
-    {
-if(id<fifoCfgTable.size())
+void Server::stopId(size_t id)
 {
-    connectionTable[id]->stop();
+	if(id < fifoCfgTable.size()) {
+		connectionTable[id]->stop();
+	}
+	else
+		throw std::runtime_error("no idClient");
 }
-else throw std::runtime_error("no idClient");
-    }
 
-    void Server::connectId(size_t id) {
-        if(id<fifoCfgTable.size())
-        {
-            connectionTable[id]->start();
-        }
-        else throw std::runtime_error("no idClient");
-    }
+void Server::startId(size_t id)
+{
+	if(id < fifoCfgTable.size()) {
+		connectionTable[id]->start();
+	}
+	else
+		throw std::runtime_error("no idClient");
+}
 
-    std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf)
+std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf)
 {
 	switch(conf) {
 	case(Config::QW):

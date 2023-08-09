@@ -11,7 +11,7 @@
 
 namespace Ipc {
 
-QWriteImpl::QWriteImpl(std::string fdFileName) : params{ fdFileName}
+QWriteImpl::QWriteImpl(std::string fdFileName) : params{fdFileName}
 {
 	createFifo(params.addrRead);
 }
