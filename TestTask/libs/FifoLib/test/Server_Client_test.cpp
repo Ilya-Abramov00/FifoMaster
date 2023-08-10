@@ -33,7 +33,7 @@ public:
 		sleep(1);
 		client.start();
 		WriteClient(client, nBates, nWrite);
-		sleep(18);
+		sleep(8);
 		client.stop();
 		sleep(2);
 		ASSERT_TRUE(clientConnection == 2);
@@ -67,7 +67,7 @@ public:
 
 		WriteServer(server, nBates, nWrite, nClient);
 
-		sleep(35);
+		sleep(25);
 
 		server.stop();
 
