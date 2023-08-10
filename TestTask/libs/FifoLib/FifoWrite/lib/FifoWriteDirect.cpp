@@ -9,8 +9,16 @@
 #include <future>
 namespace Ipc {
 
-WriteDirectImpl::WriteDirectImpl(std::string fdFileName) : params{fdFileName}
+WriteDirectImpl::WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectMilliSeconds, size_t waitTimeReconnectMilliSeconds) : params{fdFileName}
 {
+	if(!waitTimeConnectMilliSeconds) {
+		throw std::runtime_error(" not waitTime set");
+	}
+	if(!waitTimeReconnectMilliSeconds) {
+		throw std::runtime_error(" not waitTime set");
+	}
+	params.waitConnnectTimeMilliSeconds =waitTimeConnectMilliSeconds;
+	params.waitReconnectTimeMilliSeconds =waitTimeReconnectMilliSeconds;
 	createFifo(params.addrRead);
 }
 
@@ -32,9 +40,10 @@ void WriteDirectImpl::startWrite()
 	if(!params.disconnectHandler) {
 		throw std::runtime_error("callback Write disconnectHandler not set");
 	}
+	waitConnectFifo(params.waitConnnectTimeMilliSeconds);
 }
 
-void WriteDirectImpl::waitConnectFifo()
+void WriteDirectImpl::waitConnectFifo(size_t time)
 {
 	std::future t = std::async([this]() {
 		waitOpen = false;
@@ -42,7 +51,8 @@ void WriteDirectImpl::waitConnectFifo()
 		waitOpen = true;
 	});
 
-	t.wait_for(std::chrono::seconds(2));
+	t.wait_for(std::chrono::milliseconds(time));
+
 	if(waitOpen && fifoFd != -1) {
 		waitConnect = true;
 		params.connectHandler();
@@ -52,7 +62,7 @@ void WriteDirectImpl::waitConnectFifo()
 void WriteDirectImpl::pushData(const void* data, size_t sizeN)
 {
 	if(!waitConnect) {
-		waitConnectFifo();
+		waitConnectFifo(params.waitReconnectTimeMilliSeconds);
 		if(!waitConnect) {
 			throw std::runtime_error("write close Fifo");
 		}

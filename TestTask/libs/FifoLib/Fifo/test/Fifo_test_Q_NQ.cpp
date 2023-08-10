@@ -6,13 +6,13 @@ using namespace std;
 using namespace Ipc;
 class WriterFactory {
 public:
-	static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf)
+	static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf,size_t time)
 	{
 		switch(conf) {
 		case(Config::QW):
 			return std::unique_ptr<IFifoWriter>(new WriteQImpl(filename));
 		case(Config::NQW):
-			return std::unique_ptr<IFifoWriter>(new WriteDirectImpl(filename));
+			return std::unique_ptr<IFifoWriter>(new WriteDirectImpl(filename,time,time));
 		}
 	}
 };
@@ -34,7 +34,7 @@ TEST(Fifo, empty)
 	auto disconnect = [&flagDisconnect]() {
 		flagDisconnect++;
 	};
-	Fifo client1(WriterFactory::create(FIFO2, Ipc::Config::NQW), FIFO2);
+	Fifo client1(WriterFactory::create(FIFO2, Ipc::Config::NQW,2000), FIFO2);
 
 	client1.setReadHandler(getterRead);
 
@@ -76,7 +76,7 @@ TEST(Fifo, empty1)
 	auto disconnect = [&flagDisconnect]() {
 		flagDisconnect++;
 	};
-	Fifo client1(WriterFactory::create(FIFO2, Ipc::Config::QW), FIFO2);
+	Fifo client1(WriterFactory::create(FIFO2, Ipc::Config::QW,0), FIFO2);
 
 	client1.setReadHandler(getterRead);
 

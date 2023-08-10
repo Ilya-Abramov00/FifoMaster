@@ -2,13 +2,14 @@
 #define Client_H
 
 #include "Fifo/Fifo.h"
-
+#include "optional"
 namespace Ipc {
 class Client {
 	using EventHandler = std::function<void()>;
 
 public:
-	Client(FifoCfg name, Config config);
+	Client(FifoCfg name, Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
+	       std::optional<size_t> waitReconnectTimeMilliSeconds);
 
 	void start();
 
@@ -39,7 +40,9 @@ private:
 
 	class WriterFactory {
 	public:
-		static std::unique_ptr<IFifoWriter> create(const std::string& filename, Config conf);
+		static std::unique_ptr<IFifoWriter> create(const std::string& filename, Config conf,
+		                                           size_t waitConnectTimeMilliSeconds,
+		                                           size_t waitReconnectTimeMilliSeconds);
 	};
 };
 } // namespace Ipc

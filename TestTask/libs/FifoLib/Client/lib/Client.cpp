@@ -2,7 +2,10 @@
 #include <iostream>
 
 namespace Ipc {
-Client::Client(FifoCfg name, Config config) : client(WriterFactory::create(name.directFile, config), name.reverseFile)
+
+Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
+               std::optional<size_t> waitReconnectTimeMilliSeconds) :
+    client(WriterFactory::create(name.directFile, config, waitConnectTimeMilliSeconds.value(),waitReconnectTimeMilliSeconds.value()), name.reverseFile)
 {
 	client.setReadHandler([this](FifoRead::Data&& data) {
 		this->getter(std::move(data));
@@ -89,13 +92,15 @@ void Client::logicDisConnect()
 		}
 	}
 }
-std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& filename, Config conf)
+std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& filename, Config conf,
+                                                           size_t waitConnectTimeMilliSeconds,
+                                                           size_t waitReconnectTimeMilliSeconds)
 {
 	switch(conf) {
 	case(Config::QW):
 		return std::make_unique<WriteQImpl>((filename));
 	case(Config::NQW):
-		return std::make_unique<WriteDirectImpl>((filename));
+		return std::make_unique<WriteDirectImpl>(filename, waitConnectTimeMilliSeconds, waitReconnectTimeMilliSeconds);
 	default:
 		throw std::runtime_error("no Config WriteFactory");
 	}

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <list>
 #include <mutex>
 #include <queue>
 #include <sys/signal.h>
@@ -100,7 +99,7 @@ void WriteQImpl::stopWrite()
 	close(fifoFd);
 
 	threadWriteFifo->join();
-    waitConnect = false;
+	waitConnect = false;
 	if(queue.size()) {
 		std::cerr << params.addrRead << " в очереди остались неотправленные сообщения\n";
 	}

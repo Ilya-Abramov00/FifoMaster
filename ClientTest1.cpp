@@ -23,7 +23,7 @@ int main()
 
 	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
 
-	Client client1(k1, Ipc::Config::QW);
+	Client client1(k1, Ipc::Config::QW,0,0);
 	client1.setReadHandler(e);
 	client1.setDisconnectHandler([]() {
 	});

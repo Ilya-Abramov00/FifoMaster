@@ -22,7 +22,7 @@ int main()
 
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 
-	Client client2(k2, Ipc::Config::QW);
+	Client client2(k2, Ipc::Config::NQW,20000,2000);
 	client2.setReadHandler(e);
 	client2.setDisconnectHandler([]() {
 	});

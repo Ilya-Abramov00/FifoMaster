@@ -30,7 +30,7 @@ int main()
 		std::cout<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
 
-	Server server({k1, k2},Ipc::Config::QW);
+	Server server({k1, k2},Ipc::Config::NQW,20000,2000);
 	server.setReadHandler(getter);
 
 	server.setConnectHandler([](size_t) {
@@ -52,8 +52,8 @@ int main()
 
 	sleep(6);
 	for(int i = 0; i != 15; i++) {
-//		server.writeId(0, (void*)data0.data(), x);
-//		server.writeId(1, (void*)data0.data(), x);
+		server.writeId(0, (void*)data0.data(), x);
+		server.writeId(1, (void*)data0.data(), x);
 		sleep(1);
 	}
 	sleep(6);

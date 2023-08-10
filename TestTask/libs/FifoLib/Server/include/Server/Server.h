@@ -1,12 +1,15 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "list"
-#include "map"
 #include "Fifo/Fifo.h"
 #include "FifoWrite/FifoWriteQ.h"
 #include "FifoWrite/FifoWriteDirect.h"
 #include "FifoWrite/IFifoWriter.h"
+
+#include <list>
+#include <map>
+#include <optional>
+
 namespace Ipc {
 
 class Server {
@@ -17,7 +20,8 @@ public:
 	using ReadHandler  = std::function<void(size_t, FifoRead::Data&&)>;
 	using EventHandler = std::function<void(size_t)>;
 
-	Server(std::list<FifoCfg> const& nameChannelsFifo, Config config);
+	Server(std::list<FifoCfg> const& nameChannelsFifo, Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
+	       std::optional<size_t> waitReconnectTimeMilliSeconds);
 
 	void setReadHandler(ReadHandler h);
 
@@ -31,9 +35,8 @@ public:
 
 	void stop();
 
-    void startId(size_t id);
-    void stopId(size_t id);
-
+	void startId(size_t id);
+	void stopId(size_t id);
 
 	~Server();
 
@@ -60,7 +63,9 @@ private:
 
 	class WriterFactory {
 	public:
-		static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf);
+		static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf,
+		                                                                  size_t waitConnectTimeMilliSeconds,
+		                                                                  size_t waitReconnectTimeMilliSeconds);
 	};
 };
 } // namespace Ipc
