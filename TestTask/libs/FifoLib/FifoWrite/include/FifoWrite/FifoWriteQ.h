@@ -14,7 +14,6 @@ public:
 	void setDisConnectionHandler(ConnectionHandler handler) override;
 
 	void startWrite() override;
-	void connect();
 	void stopWrite() override;
 
 	void pushData(const void* data, size_t sizeN) override;
@@ -24,6 +23,7 @@ public:
 	long const& getFifoFd() const override;
 
 private:
+	void connect();
 
 	void writeFifo();
 

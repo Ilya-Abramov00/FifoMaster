@@ -29,9 +29,9 @@ public:
 
 	long const& getFifoFd() const;
 
+private:
 	void connect();
 
-private:
 	void readFifo();
 
 	struct Params {

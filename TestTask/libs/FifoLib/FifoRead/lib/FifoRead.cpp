@@ -39,7 +39,7 @@ void FifoRead::readFifo()
 	while(runRead) {
 		connect();
 
-		while(waitConnect && runRead && (fifoFd != -1)) {
+		while(waitConnect && runRead) {
 			auto flag = read(fifoFd, buffer.data(), MAXLINE);
 
 			if(flag == 0 || flag == -1) {
@@ -59,8 +59,8 @@ void FifoRead::readFifo()
 
 void FifoRead::stopRead()
 {
-	runRead     = false;
-	waitConnect = false;
+	runRead = false;
+
 	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'W');
 
@@ -102,7 +102,7 @@ void FifoRead::connect()
 	fifoFd   = openFifo(params.addrRead, 'R');
 	waitOpen = true;
 
-	if( runRead && (fifoFd != -1)) {
+	if(runRead && (fifoFd != -1)) {
 		waitConnect = true;
 		params.connectHandler();
 	}

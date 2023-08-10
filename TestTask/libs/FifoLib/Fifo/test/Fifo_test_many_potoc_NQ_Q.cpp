@@ -12,7 +12,7 @@ public:
 		case(Config::QW):
 			return std::make_unique<QWriteImpl>( (filename));
 		case(Config::NQW):
-			return std::make_unique<NQWriteImpl>( (filename));
+			return std::make_unique<NQWriteImpl>( filename,1000);
 		}
 	}
 };

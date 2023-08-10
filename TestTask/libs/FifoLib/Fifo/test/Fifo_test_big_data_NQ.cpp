@@ -22,7 +22,7 @@ TEST(big_data_NQ, 1)
 	};
 	FifoRead client1(FIFO2);
 
-	NQWriteImpl client2(FIFO2);
+	NQWriteImpl client2(FIFO2,1000);
 
 	client1.setReadHandler(getterRead);
 
@@ -118,7 +118,7 @@ TEST(big_data_NQ, 2)
 
 	};
 	FifoRead client1(FIFO2);
-	NQWriteImpl client2(FIFO2);
+	NQWriteImpl client2(FIFO2,1000);
 
 	client1.setReadHandler(getterRead);
 

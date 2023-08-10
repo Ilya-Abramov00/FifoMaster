@@ -7,7 +7,7 @@ namespace Ipc {
 
 class NQWriteImpl : public IFifoWriter {
 public:
-	NQWriteImpl(const std::string fdFileName);
+	NQWriteImpl(std::string fdFileName,size_t waitMilliSeconds);
 
 	void setConnectionHandler(ConnectionHandler handler) override;
 
@@ -33,12 +33,8 @@ private:
 		ConnectionHandler disconnectHandler;
 	};
 	Params params;
-	bool runWrite{false};
-	enum class State{
-		connect,
-		disconnect
-	};
-	State state=State::disconnect;
+	bool waitOpen{false};
+	bool waitConnect{false};
 	long fifoFd = -1;
 
 	std::unique_ptr<std::thread> threadWaitConnectFifo;

@@ -3,14 +3,13 @@
 #include <unistd.h>
 #include <iostream>
 #include <string>
-#include <thread>
 #include <list>
 #include <mutex>
 #include <sys/signal.h>
-
+#include <future>
 namespace Ipc {
 
-NQWriteImpl::NQWriteImpl(std::string fdFileName) :params{ fdFileName}
+NQWriteImpl::NQWriteImpl(std::string fdFileName, size_t waitMilliSeconds) : params{fdFileName}
 {
 	createFifo(params.addrRead);
 }
@@ -33,61 +32,59 @@ void NQWriteImpl::startWrite()
 	if(!params.disconnectHandler) {
 		throw std::runtime_error("callback Write disconnectHandler not set");
 	}
-	runWrite = true;
-
-	threadWaitConnectFifo = std::make_unique<std::thread>([this]() {
-		waitConnectFifo();
-	});
+	waitConnectFifo();
 }
 
 void NQWriteImpl::waitConnectFifo()
 {
-	fifoFd = openFifo(params.addrRead, 'W');
-	if(runWrite) {
-		state=State::connect;
+	std::future t = std::async([this]() {
+		waitOpen = false;
+		fifoFd   = openFifo(params.addrRead, 'W');
+		waitOpen = true;
+	});
+
+	t.wait_for(std::chrono::seconds(1));
+	if(waitOpen) {
+		waitConnect = true;
 		params.connectHandler();
 	}
 }
 
 void NQWriteImpl::stopWrite()
 {
-	runWrite = false;
-	//сделать провекру на открытость
+	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'R');
 		close(fd);
+	}
 
-	threadWaitConnectFifo->join();
 	close(fifoFd);
 }
 
 void NQWriteImpl::pushData(const void* data, size_t sizeN)
 {
-	if(state==State::connect && runWrite) {
-		if(!data) {
-			std::cerr << "\n null ptr is pushData \n";
-			return;
-		}
-		signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
-		auto flag = write(fifoFd, data, sizeN);
-		if(flag == -1) {
-			state=State::disconnect;
-			params.disconnectHandler();
-			return;
-		}
+	if(!waitConnect) {
+		throw std::runtime_error("write no connect");
 	}
-	else {
-		throw std::runtime_error("Write in close Fifo");
+	if(!data) {
+		std::cerr << "\n null ptr is pushData \n";
+		return;
+	}
+	signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
+	auto flag = write(fifoFd, data, sizeN);
+	if(flag == -1) {
+		waitConnect = false;
+		params.disconnectHandler();
+
 	}
 }
-
 
 long const& NQWriteImpl::getFifoFd() const
 {
 	return fifoFd;
 }
 
-bool  NQWriteImpl::getWaitConnect() const
+bool NQWriteImpl::getWaitConnect() const
 {
-return (state==State::connect);
+	return waitConnect;
 }
 } // namespace Ipc

@@ -44,14 +44,14 @@ void QWriteImpl::writeFifo()
 {
 	while(runWrite) {
 		connect();
-		while(waitConnect && runWrite && (fifoFd != -1)) {
+		while(waitConnect && runWrite) {
 			{
 				std::lock_guard<std::mutex> mtx_0(mtx);
 				if(!queue.empty()) {
 					signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
 					auto flag = write(fifoFd, queue.front().data(), queue.front().size());
 					if(flag == -1) {
-						waitConnect= false;
+						waitConnect = false;
 						params.disconnectHandler();
 
 						break;
@@ -70,7 +70,7 @@ void QWriteImpl::connect()
 	waitOpen = true;
 
 	if(runWrite && (fifoFd != -1)) {
-		waitConnect= true;
+		waitConnect = true;
 		params.connectHandler();
 	};
 }
@@ -90,7 +90,7 @@ void QWriteImpl::pushData(const void* data, size_t sizeN)
 
 void QWriteImpl::stopWrite()
 {
-	runWrite    = false;
+	runWrite = false;
 
 	params.disconnectHandler();
 	if(!waitOpen) {
@@ -100,13 +100,13 @@ void QWriteImpl::stopWrite()
 	close(fifoFd);
 
 	threadWriteFifo->join();
-	waitConnect= false;
+	waitConnect = false;
 	if(queue.size()) {
 		std::cerr << params.addrRead << " в очереди остались неотправленные сообщения\n";
 	}
 }
 
-bool  QWriteImpl::getWaitConnect() const
+bool QWriteImpl::getWaitConnect() const
 {
 	return waitConnect;
 }
@@ -115,7 +115,5 @@ long const& QWriteImpl::getFifoFd() const
 {
 	return fifoFd;
 }
-
-
 
 } // namespace Ipc
