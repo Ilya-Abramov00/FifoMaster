@@ -90,6 +90,8 @@ TEST(big_data_NQ, 1)
 	a += t8;
 	a += t9;
 
+	ASSERT_TRUE(flagConnect == 2);
+	ASSERT_TRUE(flagDisconnect == 2);
 	ASSERT_TRUE(data.size() == n * 9);
 	ASSERT_TRUE(data == a);
 }
@@ -99,7 +101,7 @@ TEST(big_data_NQ, 2)
 	using namespace Ipc;
 
 	std::string FIFO2 = "fifo2";
-	int n             = 1024 * 1024;
+	int n             = 1024 * 1024*10;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {

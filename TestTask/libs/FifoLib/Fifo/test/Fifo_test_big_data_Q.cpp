@@ -9,30 +9,37 @@ TEST(big_data_Q, 1)
 	using namespace Ipc;
 
 	std::string FIFO2 = "fifo2";
-	int n             = 1024 * 120;
+	int n             = 1024 * 1024;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
 		data.insert(data.end(), dataq.data(), dataq.data() + dataq.size());
 	};
-	auto connect = []() {
 
-	};
 	FifoRead client1(FIFO2);
 
 	WriteQImpl client2(FIFO2);
 
+	int flagConnect    = 0;
+	int flagDisconnect = 0;
+
+	auto connect = [&flagConnect]() {
+		flagConnect++;
+	};
+
+	auto disconnect = [&flagDisconnect]() {
+		flagDisconnect++;
+	};
 	client1.setReadHandler(getterRead);
 
 	client1.setConnectionHandler(connect);
-	client1.setDisconnectionHandler(connect);
-
 	client2.setConnectionHandler(connect);
-	client2.setDisconnectionHandler(connect);
+
+	client1.setDisconnectionHandler(disconnect);
+	client2.setDisconnectionHandler(disconnect);
 
 	client2.startWrite();
 	client1.startRead();
-
 
 	std::string a(n, '1');
 
@@ -87,6 +94,9 @@ TEST(big_data_Q, 1)
 	a += t8;
 	a += t9;
 
+	ASSERT_TRUE(flagConnect == 2);
+	ASSERT_TRUE(flagDisconnect == 2);
+
 	ASSERT_TRUE(data.size() == n * 9);
 	ASSERT_TRUE(data == a);
 }
@@ -96,7 +106,7 @@ TEST(big_data_Q, 2)
 	using namespace Ipc;
 
 	std::string FIFO2 = "fifo2";
-	int n             = 1024 * 1024;
+	int n             = 1024 * 1024*10;
 	std::string data  = "";
 	data.reserve(n * 12);
 	auto getterRead = [&](FifoRead::Data&& dataq) {
