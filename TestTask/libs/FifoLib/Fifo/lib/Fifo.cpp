@@ -17,7 +17,7 @@ void Fifo::setConnectionHandlerRead(ConnectionHandler handler)
 
 void Fifo::setDisconnectionHandlerRead(ConnectionHandler handler)
 {
-	fifoRead.setDisConnectionHandler(std::move(handler));
+	fifoRead.setDisconnectionHandler(std::move(handler));
 }
 
 void Fifo::setConnectionHandlerWrite(ConnectionHandler handler)
@@ -27,7 +27,7 @@ void Fifo::setConnectionHandlerWrite(ConnectionHandler handler)
 
 void Fifo::setDisconnectionHandlerWrite(ConnectionHandler handler)
 {
-	fifoWrite->setDisConnectionHandler(std::move(handler));
+	fifoWrite->setDisconnectionHandler(std::move(handler));
 }
 
 void Fifo::write(const void* data, size_t sizeInBytes)

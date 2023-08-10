@@ -1,4 +1,4 @@
-#include "FifoWrite/FifoWriteNQ.h"
+#include "FifoWrite/FifoWriteDirect.h"
 
 #include <unistd.h>
 #include <iostream>
@@ -9,22 +9,22 @@
 #include <future>
 namespace Ipc {
 
-NQWriteImpl::NQWriteImpl(std::string fdFileName, size_t waitMilliSeconds) : params{fdFileName}
+WriteDirectImpl::WriteDirectImpl(std::string fdFileName) : params{fdFileName}
 {
 	createFifo(params.addrRead);
 }
 
-void NQWriteImpl::setConnectionHandler(ConnectionHandler handler)
+void WriteDirectImpl::setConnectionHandler(ConnectionHandler handler)
 {
 	params.connectHandler = std::move(handler);
 }
 
-void NQWriteImpl::setDisConnectionHandler(ConnectionHandler handler)
+void WriteDirectImpl::setDisconnectionHandler(ConnectionHandler handler)
 {
 	params.disconnectHandler = std::move(handler);
 }
 
-void NQWriteImpl::startWrite()
+void WriteDirectImpl::startWrite()
 {
 	if(!params.connectHandler) {
 		throw std::runtime_error("callback Write connectHandler not set");
@@ -32,10 +32,9 @@ void NQWriteImpl::startWrite()
 	if(!params.disconnectHandler) {
 		throw std::runtime_error("callback Write disconnectHandler not set");
 	}
-	waitConnectFifo();
 }
 
-void NQWriteImpl::waitConnectFifo()
+void WriteDirectImpl::waitConnectFifo()
 {
 	std::future t = std::async([this]() {
 		waitOpen = false;
@@ -43,27 +42,20 @@ void NQWriteImpl::waitConnectFifo()
 		waitOpen = true;
 	});
 
-	t.wait_for(std::chrono::seconds(1));
-	if(waitOpen) {
+	t.wait_for(std::chrono::seconds(2));
+	if(waitOpen && fifoFd != -1) {
 		waitConnect = true;
 		params.connectHandler();
 	}
 }
 
-void NQWriteImpl::stopWrite()
-{
-	if(!waitOpen) {
-		auto fd = openFifo(params.addrRead.c_str(), 'R');
-		close(fd);
-	}
-
-	close(fifoFd);
-}
-
-void NQWriteImpl::pushData(const void* data, size_t sizeN)
+void WriteDirectImpl::pushData(const void* data, size_t sizeN)
 {
 	if(!waitConnect) {
-		throw std::runtime_error("write no connect");
+		waitConnectFifo();
+		if(!waitConnect) {
+			throw std::runtime_error("write close Fifo");
+		}
 	}
 	if(!data) {
 		std::cerr << "\n null ptr is pushData \n";
@@ -74,16 +66,27 @@ void NQWriteImpl::pushData(const void* data, size_t sizeN)
 	if(flag == -1) {
 		waitConnect = false;
 		params.disconnectHandler();
-
 	}
 }
 
-long const& NQWriteImpl::getFifoFd() const
+void WriteDirectImpl::stopWrite()
+{
+	if(!waitOpen) {
+		auto fd = openFifo(params.addrRead.c_str(), 'R');
+		close(fd);
+	}
+
+	close(fifoFd);
+	waitConnect = false;
+	params.disconnectHandler();
+}
+
+long const& WriteDirectImpl::getFifoFd() const
 {
 	return fifoFd;
 }
 
-bool NQWriteImpl::getWaitConnect() const
+bool WriteDirectImpl::getWaitConnect() const
 {
 	return waitConnect;
 }

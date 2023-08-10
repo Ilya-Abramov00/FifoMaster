@@ -5,13 +5,13 @@
 
 namespace Ipc {
 
-class QWriteImpl : public IFifoWriter {
+class WriteQImpl : public IFifoWriter {
 public:
-	explicit QWriteImpl(const std::string fdFileName);
+	explicit WriteQImpl(const std::string fdFileName);
 
 	void setConnectionHandler(ConnectionHandler handler) override;
 
-	void setDisConnectionHandler(ConnectionHandler handler) override;
+	void setDisconnectionHandler(ConnectionHandler handler) override;
 
 	void startWrite() override;
 	void stopWrite() override;

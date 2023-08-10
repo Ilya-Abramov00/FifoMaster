@@ -3,7 +3,7 @@
 
 #include "FifoRead/FifoRead.h"
 #include "FifoWrite/FifoWriteQ.h"
-#include "FifoWrite/FifoWriteNQ.h"
+#include "FifoWrite/FifoWriteDirect.h"
 #include "FifoWrite/IFifoWriter.h"
 
 namespace Ipc {

@@ -69,7 +69,7 @@ void FifoRead::stopRead()
 	close(fifoFd);
 
 	threadReadFifo->join();
-	waitConnect = false;
+    waitConnect = false;
 }
 
 void FifoRead::setConnectionHandler(ConnectionHandler handler)
@@ -77,7 +77,7 @@ void FifoRead::setConnectionHandler(ConnectionHandler handler)
 	params.connectHandler = std::move(handler);
 }
 
-void FifoRead::setDisConnectionHandler(ConnectionHandler handler)
+void FifoRead::setDisconnectionHandler(ConnectionHandler handler)
 {
 	params.disconnectHandler = std::move(handler);
 }

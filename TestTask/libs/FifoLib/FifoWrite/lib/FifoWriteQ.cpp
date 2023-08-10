@@ -11,22 +11,22 @@
 
 namespace Ipc {
 
-QWriteImpl::QWriteImpl(std::string fdFileName) : params{fdFileName}
+WriteQImpl::WriteQImpl(std::string fdFileName) : params{fdFileName}
 {
 	createFifo(params.addrRead);
 }
 
-void QWriteImpl::setConnectionHandler(ConnectionHandler handler)
+void WriteQImpl::setConnectionHandler(ConnectionHandler handler)
 {
 	params.connectHandler = std::move(handler);
 }
 
-void QWriteImpl::setDisConnectionHandler(ConnectionHandler handler)
+void WriteQImpl::setDisconnectionHandler(ConnectionHandler handler)
 {
 	params.disconnectHandler = std::move(handler);
 }
 
-void QWriteImpl::startWrite()
+void WriteQImpl::startWrite()
 {
 	if(!params.connectHandler) {
 		throw std::runtime_error("callback Write connectHandler not set");
@@ -40,7 +40,7 @@ void QWriteImpl::startWrite()
 	});
 }
 
-void QWriteImpl::writeFifo()
+void WriteQImpl::writeFifo()
 {
 	while(runWrite) {
 		connect();
@@ -63,7 +63,7 @@ void QWriteImpl::writeFifo()
 	}
 }
 
-void QWriteImpl::connect()
+void WriteQImpl::connect()
 {
 	waitOpen = false;
 	fifoFd   = openFifo(params.addrRead, 'W');
@@ -74,7 +74,7 @@ void QWriteImpl::connect()
 		params.connectHandler();
 	};
 }
-void QWriteImpl::pushData(const void* data, size_t sizeN)
+void WriteQImpl::pushData(const void* data, size_t sizeN)
 {
 	if(!data) {
 		std::cerr << "\n null ptr is pushData \n";
@@ -88,7 +88,7 @@ void QWriteImpl::pushData(const void* data, size_t sizeN)
 	}
 }
 
-void QWriteImpl::stopWrite()
+void WriteQImpl::stopWrite()
 {
 	runWrite = false;
 
@@ -100,18 +100,18 @@ void QWriteImpl::stopWrite()
 	close(fifoFd);
 
 	threadWriteFifo->join();
-	waitConnect = false;
+    waitConnect = false;
 	if(queue.size()) {
 		std::cerr << params.addrRead << " в очереди остались неотправленные сообщения\n";
 	}
 }
 
-bool QWriteImpl::getWaitConnect() const
+bool WriteQImpl::getWaitConnect() const
 {
 	return waitConnect;
 }
 
-long const& QWriteImpl::getFifoFd() const
+long const& WriteQImpl::getFifoFd() const
 {
 	return fifoFd;
 }

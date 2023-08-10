@@ -21,7 +21,7 @@ public:
 
 	void setConnectionHandler(ConnectionHandler handler);
 
-	void setDisConnectionHandler(ConnectionHandler handler);
+	void setDisconnectionHandler(ConnectionHandler handler);
 
 	void setReadHandler(ReadHandler handler);
 

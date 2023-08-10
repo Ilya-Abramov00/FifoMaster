@@ -142,9 +142,9 @@ std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename,
 {
 	switch(conf) {
 	case(Config::QW):
-		return std::make_unique<QWriteImpl>((filename));
+		return std::make_unique<WriteQImpl>((filename));
 	case(Config::NQW):
-		return std::make_unique<NQWriteImpl>((filename));
+		return std::make_unique<WriteDirectImpl>((filename));
 	default:
 		throw std::runtime_error("no Config WriteFactory");
 	}

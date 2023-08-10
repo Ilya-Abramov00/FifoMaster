@@ -46,7 +46,6 @@ void Client::write(const void* data, size_t sizeN)
 void Client::stop()
 {
 	client.stop();
-	logicDisConnect();
 }
 
 void Client::setReadHandler(FifoRead::ReadHandler h)
@@ -94,9 +93,9 @@ std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& fi
 {
 	switch(conf) {
 	case(Config::QW):
-		return std::make_unique<QWriteImpl>((filename));
+		return std::make_unique<WriteQImpl>((filename));
 	case(Config::NQW):
-		return std::make_unique<NQWriteImpl>((filename));
+		return std::make_unique<WriteDirectImpl>((filename));
 	default:
 		throw std::runtime_error("no Config WriteFactory");
 	}

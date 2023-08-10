@@ -5,13 +5,13 @@
 
 namespace Ipc {
 
-class NQWriteImpl : public IFifoWriter {
+class WriteDirectImpl : public IFifoWriter {
 public:
-	NQWriteImpl(std::string fdFileName,size_t waitMilliSeconds);
+	WriteDirectImpl(std::string fdFileName);
 
 	void setConnectionHandler(ConnectionHandler handler) override;
 
-	void setDisConnectionHandler(ConnectionHandler handler) override;
+	void setDisconnectionHandler(ConnectionHandler handler) override;
 
 	void startWrite() override;
 

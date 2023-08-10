@@ -20,15 +20,15 @@ TEST(big_data_Q, 1)
 	};
 	FifoRead client1(FIFO2);
 
-	QWriteImpl client2(FIFO2);
+	WriteQImpl client2(FIFO2);
 
 	client1.setReadHandler(getterRead);
 
 	client1.setConnectionHandler(connect);
-	client1.setDisConnectionHandler(connect);
+	client1.setDisconnectionHandler(connect);
 
 	client2.setConnectionHandler(connect);
-	client2.setDisConnectionHandler(connect);
+	client2.setDisconnectionHandler(connect);
 
 	client2.startWrite();
 	client1.startRead();
@@ -106,15 +106,15 @@ TEST(big_data_Q, 2)
 
 	};
 	FifoRead client1(FIFO2);
-	QWriteImpl client2(FIFO2);
+	WriteQImpl client2(FIFO2);
 
 	client1.setReadHandler(getterRead);
 
 	client1.setConnectionHandler(connect);
-	client1.setDisConnectionHandler(connect);
+	client1.setDisconnectionHandler(connect);
 
 	client2.setConnectionHandler(connect);
-	client2.setDisConnectionHandler(connect);
+	client2.setDisconnectionHandler(connect);
 
 	client1.startRead();
 	client2.startWrite();

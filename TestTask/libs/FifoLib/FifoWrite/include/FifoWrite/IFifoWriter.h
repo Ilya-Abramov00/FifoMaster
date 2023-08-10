@@ -14,7 +14,7 @@ class IFifoWriter {
 public:
 	virtual void setConnectionHandler(ConnectionHandler handler) = 0;
 
-	virtual void setDisConnectionHandler(ConnectionHandler handler) = 0;
+	virtual void setDisconnectionHandler(ConnectionHandler handler) = 0;
 
 	virtual void startWrite() = 0;
 
