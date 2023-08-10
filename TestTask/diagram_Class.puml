@@ -17,7 +17,6 @@ FifoWriteNQ --|> IFifoWriter
 FifoWriteQ --|> IFifoWriter
 
 class FifoRead {
-	+FifoRead(const std::string fdFileName)
 	+void startRead()
 	+void stopRead()
 	+bool  getWaitConnect() const
@@ -42,7 +41,7 @@ IFifoWriter o--Fifo
 
 
 class Server {
-	+Server(std::list<FifoCfg> const& nameChannelsFifo, Config config)
+
 
 	+void setReadHandler(ReadHandler h)
 	+void setConnectHandler(EventHandler h)
@@ -54,24 +53,21 @@ class Server {
     +void startId(size_t id)
     +void stopId(size_t id)
 
-enum class State { disconnect, connect }
-
 	-std::map<size_t, FifoCfg> fifoCfgTable
 	-std::map<size_t, std::unique_ptr<Fifo>> connectionTable
-    -std::vector<State> stateClient
+
 }
 Fifo o--Server
 
 class Client {
-	+Client(FifoCfg name, Config config)
+
 	+void start()
 	+void stop()
 	+void write(const void* data, size_t sizeN)
 	+void setReadHandler(FifoRead::ReadHandler h)
 	+void setConnectHandler(EventHandler h)
 	+void setDisconnectHandler(EventHandler h)
-	enum class State { disconnect, connect }
-	-State state
+    -std::unique_ptr<Fifo> client
 }
 
 Fifo o--Client
