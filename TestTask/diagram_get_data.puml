@@ -1,0 +1,15 @@
+@startuml
+
+participant "Server/Client" as Server
+participant "Fifo" as Fifo
+
+
+Server<-Fifo: readHandler(size_t id, vector<uint8_t> data)
+activate Server
+
+Fifo <- FifoRead: readHandler(vector<uint8_t> data)
+activate Fifo
+
+FifoRead<-channel: data
+
+@enduml
