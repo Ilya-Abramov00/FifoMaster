@@ -7,26 +7,26 @@ void Server::getter(size_t id, FifoRead::Data&& data)
 	readHandler(id, std::move(data));
 };
 
-void Server::connect(size_t id, const Fifo& object)
+void Server::connectH(ConnectionId id, const Fifo& object)
 {
 	std::lock_guard<std::mutex> mtx(mtxConnect);
 	if(object.getWaitConnectWrite() && object.getWaitConnectRead()) {
 		if(stateClient.at(id) == State::disconnect) {
 			stateClient.at(id) = State::connect;
 			std::cout << "Connect " << id << std::endl;
-			connectHandler(id);
+			newHandler(id);
 		}
 	}
 };
 
-void Server::disconnect(size_t id, Fifo& object)
+void Server::disconnectH(ConnectionId id, Fifo& object)
 {
 	std::lock_guard<std::mutex> mtx(mtxDisconnect);
 	if(!object.getWaitConnectWrite() || !object.getWaitConnectRead()) {
 		if(stateClient.at(id) == State::connect) {
 			stateClient.at(id) = State::disconnect;
 			std::cout << "Disconnect " << id << std::endl;
-			disconnectHandler(id);
+			closeHandler(id);
 		}
 	}
 };
@@ -51,23 +51,23 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config,
 		});
 
 		connectionTable[id]->setConnectionHandlerRead([this, id]() {
-			this->connect(id, *connectionTable[id]);
+			this->connectH(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
-			this->connect(id, *connectionTable[id]);
+			this->connectH(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite();
 			connectionTable[id]->closeRead();
-			this->disconnect(id, *connectionTable[id]);
+			this->disconnectH(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
 			connectionTable[id]->closeRead();
 			connectionTable[id]->closeWrite();
-			this->disconnect(id, *connectionTable[id]);
+			this->disconnectH(id, *connectionTable[id]);
 		});
 		id++;
 	}
@@ -79,11 +79,11 @@ void Server::start()
 	if(!readHandler) {
 		throw std::runtime_error("callback readHandler not set");
 	}
-	if(!connectHandler) {
-		throw std::runtime_error("callback connectHandler not set");
+	if(!newHandler) {
+		throw std::runtime_error("callback newHandler not set");
 	}
-	if(!disconnectHandler) {
-		throw std::runtime_error("callback disconnectHandler not set");
+	if(!closeHandler) {
+		throw std::runtime_error("callback closeHandler not set");
 	}
 	for(const auto& Fifo: connectionTable) {
 		Fifo.second->start();
@@ -102,17 +102,17 @@ void Server::setReadHandler(ReadHandler h)
 	readHandler = std::move(h);
 }
 
-void Server::setDisconnectHandler(EventHandler h)
+void Server::setDisconnectHandler(ConnChangeHandler h)
 {
-	disconnectHandler = std::move(h);
+	closeHandler = std::move(h);
 }
 
-void Server::setConnectHandler(EventHandler h)
+void Server::setConnectHandler(ConnChangeHandler h)
 {
-	connectHandler = std::move(h);
+	newHandler = std::move(h);
 }
 
-void Server::writeId(size_t id, const void* data, size_t sizeInBytes)
+void Server::write(size_t id, const void* data, size_t sizeInBytes)
 {
 	connectionTable[id]->write(data, sizeInBytes);
 }
@@ -124,19 +124,10 @@ Server::~Server()
 	}
 }
 
-void Server::stopId(size_t id)
+void Server::disconnect(size_t id)
 {
 	if(id < fifoCfgTable.size()) {
 		connectionTable[id]->stop();
-	}
-	else
-		throw std::runtime_error("no idClient");
-}
-
-void Server::startId(size_t id)
-{
-	if(id < fifoCfgTable.size()) {
-		connectionTable[id]->start();
 	}
 	else
 		throw std::runtime_error("no idClient");

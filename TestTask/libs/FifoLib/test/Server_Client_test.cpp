@@ -83,7 +83,7 @@ private:
 		std::string data0(nBates, 'a');
 		for(int i = 0; i != nWrite; i++) {
 			for(int k = 0; k != client; k++) {
-				server.writeId(k, (void*)data0.data(), nBates);
+				server.write(k, (void*)data0.data(), nBates);
 			}
 		}
 	}

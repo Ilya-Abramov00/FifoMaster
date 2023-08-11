@@ -5,7 +5,8 @@
 #include "optional"
 namespace Ipc {
 class Client {
-	using EventHandler = std::function<void()>;
+	using ConnChangeHandler = std::function<void()>;
+	using ReadHandler       = std::function<void(FifoRead::Data&&)>;
 
 public:
 	Client(FifoCfg name, Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
@@ -17,11 +18,11 @@ public:
 
 	void write(const void* data, size_t sizeN);
 
-	void setReadHandler(FifoRead::ReadHandler h);
+	void setReadHandler(ReadHandler h);
 
-	void setConnectHandler(EventHandler h);
+	void setConnectHandler(ConnChangeHandler h);
 
-	void setDisconnectHandler(EventHandler h);
+	void setDisconnectHandler(ConnChangeHandler h);
 
 private:
 	void logicConnect();
@@ -30,13 +31,13 @@ private:
 
 	void getter(FifoRead::Data&& data);
 
-	EventHandler connectionHandler;
-	EventHandler disconnectionHandler;
+	ConnChangeHandler newHandler;
+	ConnChangeHandler closeHandler;
+	ReadHandler readHandler;
 
 	enum class State { disconnect, connect };
 	State state{State::disconnect};
 	Fifo client;
-	FifoRead::ReadHandler readHandler;
 
 	class WriterFactory {
 	public:

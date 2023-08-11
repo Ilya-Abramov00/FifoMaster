@@ -28,10 +28,10 @@ void WriteQImpl::setDisconnectionHandler(ConnectionHandler handler)
 void WriteQImpl::startWrite()
 {
 	if(!params.connectHandler) {
-		throw std::runtime_error("callback Write connectHandler not set");
+		throw std::runtime_error("callback Write newHandler not set");
 	}
 	if(!params.disconnectHandler) {
-		throw std::runtime_error("callback Write disconnectHandler not set");
+		throw std::runtime_error("callback Write closeHandler not set");
 	}
 	runWrite        = true;
 	threadWriteFifo = std::make_unique<std::thread>([this]() {

@@ -41,11 +41,11 @@ void Client::start()
 	if(!readHandler) {
 		throw std::runtime_error("callback readHandler not set");
 	}
-	if(!connectionHandler) {
-		throw std::runtime_error("callback connectHandler not set");
+	if(!newHandler) {
+		throw std::runtime_error("callback newHandler not set");
 	}
-	if(!disconnectionHandler) {
-		throw std::runtime_error("callback disconnectHandler not set");
+	if(!closeHandler) {
+		throw std::runtime_error("callback closeHandler not set");
 	}
 	client.start();
 }
@@ -71,19 +71,19 @@ void Client::stop()
 	}
 }
 
-void Client::setReadHandler(FifoRead::ReadHandler h)
+void Client::setReadHandler(ReadHandler h)
 {
 	readHandler = std::move(h);
 };
 
-void Client::setConnectHandler(Ipc::Client::EventHandler h)
+void Client::setConnectHandler(Ipc::Client::ConnChangeHandler h)
 {
-	connectionHandler = std::move(h);
+	newHandler = std::move(h);
 };
 
-void Client::setDisconnectHandler(Ipc::Client::EventHandler h)
+void Client::setDisconnectHandler(Ipc::Client::ConnChangeHandler h)
 {
-	disconnectionHandler = std::move(h);
+	closeHandler = std::move(h);
 };
 
 void Client::getter(FifoRead::Data&& data)
@@ -97,7 +97,7 @@ void Client::logicConnect()
 		if(state == State::disconnect) {
 			state = State::connect;
 			std::cout << "Connect " << std::endl;
-			connectionHandler();
+			newHandler();
 		}
 	}
 };
@@ -108,7 +108,7 @@ void Client::logicDisConnect()
 		if(state == State::connect) {
 			state = State::disconnect;
 			std::cout << "Disconnect " << std::endl;
-			disconnectionHandler();
+			closeHandler();
 		}
 	}
 }

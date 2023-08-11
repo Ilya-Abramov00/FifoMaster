@@ -14,29 +14,29 @@ namespace Ipc {
 
 class Server {
 public:
+	using ConnectionId      = size_t;
+	using ReadHandler       = std::function<void(ConnectionId, FifoRead::Data&&)>;
+	using ConnChangeHandler = std::function<void(ConnectionId)>;
+
 	using FifoCfgTable     = std::map<size_t, FifoCfg>;
 	using ConnectionsTable = std::map<size_t, std::unique_ptr<Fifo>>;
-
-	using ReadHandler  = std::function<void(size_t, FifoRead::Data&&)>;
-	using EventHandler = std::function<void(size_t)>;
 
 	Server(std::list<FifoCfg> const& nameChannelsFifo, Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
 	       std::optional<size_t> waitReconnectTimeMilliSeconds);
 
 	void setReadHandler(ReadHandler h);
 
-	void setConnectHandler(EventHandler h);
+	void setConnectHandler(ConnChangeHandler h);
 
-	void setDisconnectHandler(EventHandler h);
+	void setDisconnectHandler(ConnChangeHandler h);
 
-	void writeId(size_t id, const void* data, size_t sizeInBytes);
+	void write(size_t id, const void* data, size_t sizeInBytes);
 
 	void start();
 
 	void stop();
 
-	void startId(size_t id);
-	void stopId(size_t id);
+	void disconnect(ConnectionId id);
 
 	~Server();
 
@@ -49,23 +49,24 @@ private:
 
 	std::mutex mtxConnect;
 	std::mutex mtxDisconnect;
-	EventHandler connectHandler;
-	EventHandler disconnectHandler;
+
+	ConnChangeHandler newHandler;
+	ConnChangeHandler closeHandler;
 
 	ReadHandler readHandler;
-	size_t idCount = 0;
+	ConnectionId idCount = 0;
 
-	void getter(size_t id, FifoRead::Data&& data);
+	void getter(ConnectionId id, FifoRead::Data&& data);
 
-	void connect(size_t id, const Fifo& object);
+	void connectH(ConnectionId id, const Fifo& object);
 
-	void disconnect(size_t id, Fifo& object);
+	void disconnectH(ConnectionId id, Fifo& object);
 
 	class WriterFactory {
 	public:
 		static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf,
-		                                                                  size_t waitConnectTimeMilliSeconds,
-		                                                                  size_t waitReconnectTimeMilliSeconds);
+		                                           size_t waitConnectTimeMilliSeconds,
+		                                           size_t waitReconnectTimeMilliSeconds);
 	};
 };
 } // namespace Ipc

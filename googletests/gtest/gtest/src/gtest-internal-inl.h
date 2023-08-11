@@ -1067,7 +1067,7 @@ class GTEST_API_ StreamingListener : public EmptyTestEventListener {
     // Sends a string to the socket.
     virtual void Send(const string& message) {
       GTEST_CHECK_(sockfd_ != -1)
-          << "Send() can be called only when there is a connectHandler.";
+          << "Send() can be called only when there is a newHandler.";
 
       const int len = static_cast<int>(message.length());
       if (write(sockfd_, message.c_str(), len) != len) {
@@ -1084,7 +1084,7 @@ class GTEST_API_ StreamingListener : public EmptyTestEventListener {
     // Closes the socket.
     void CloseConnection() {
       GTEST_CHECK_(sockfd_ != -1)
-          << "CloseConnection() can be called only when there is a connectHandler.";
+          << "CloseConnection() can be called only when there is a newHandler.";
 
       close(sockfd_);
       sockfd_ = -1;

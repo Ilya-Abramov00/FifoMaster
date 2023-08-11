@@ -37,10 +37,10 @@ void WriteDirectImpl::setDisconnectionHandler(ConnectionHandler handler)
 void WriteDirectImpl::startWrite()
 {
 	if(!params.connectHandler) {
-		throw std::runtime_error("callback Write connectHandler not set");
+		throw std::runtime_error("callback Write newHandler not set");
 	}
 	if(!params.disconnectHandler) {
-		throw std::runtime_error("callback Write disconnectHandler not set");
+		throw std::runtime_error("callback Write closeHandler not set");
 	}
 	waitConnectFifo(params.waitConnnectTimeMilliSeconds);
 }

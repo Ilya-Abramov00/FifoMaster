@@ -20,10 +20,10 @@ void FifoRead::startRead()
 		throw std::runtime_error("callback ReadHandler not set");
 	}
 	if(!params.connectHandler) {
-		throw std::runtime_error("callback Read connectHandler not set");
+		throw std::runtime_error("callback Read newHandler not set");
 	}
 	if(!params.disconnectHandler) {
-		throw std::runtime_error("callback Read disconnectHandler not set");
+		throw std::runtime_error("callback Read closeHandler not set");
 	}
 	runRead        = true;
 	threadReadFifo = std::make_unique<std::thread>([this]() {
