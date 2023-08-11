@@ -1,11 +1,15 @@
 #include "Client/Client.h"
 #include <iostream>
+#include <future>
+#include <cassert>
 
 namespace Ipc {
 
 Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
                std::optional<size_t> waitReconnectTimeMilliSeconds) :
-    client(WriterFactory::create(name.directFile, config, waitConnectTimeMilliSeconds.value(),waitReconnectTimeMilliSeconds.value()), name.reverseFile)
+    client(WriterFactory::create(name.directFile, config, waitConnectTimeMilliSeconds.value(),
+                                 waitReconnectTimeMilliSeconds.value()),
+           name.reverseFile)
 {
 	client.setReadHandler([this](FifoRead::Data&& data) {
 		this->getter(std::move(data));
@@ -50,7 +54,18 @@ void Client::write(const void* data, size_t sizeN)
 
 void Client::stop()
 {
-	client.stop();
+	bool flag{false};
+	std::future t = std::async([this, &flag]() {
+		client.stop();
+		flag = true;
+	});
+
+	t.wait_for(
+	    std::chrono::seconds(4)); // обработка кейса, когда сервер упал(клиент в таком случае не мог бы отключиться)
+
+	if(!flag) {
+		throw std::runtime_error(" server has shut down ");
+	}
 }
 
 void Client::setReadHandler(FifoRead::ReadHandler h)
