@@ -34,6 +34,7 @@ private:
 
 	void readFifo();
 
+
 	struct Params {
 		std::string addrRead;
 		ReadHandler msgHandler;

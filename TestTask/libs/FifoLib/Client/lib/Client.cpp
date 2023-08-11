@@ -18,14 +18,17 @@ Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> wait
 	client.setConnectionHandlerRead([this]() {
 		this->logicConnect();
 	});
+
+	client.setConnectionHandlerWrite([this]() {
+		this->logicConnect();
+	});
+
 	client.setDisconnectionHandlerRead([this]() {
 		client.closeWrite();
 		client.closeRead();
 		this->logicDisConnect();
 	});
-	client.setConnectionHandlerWrite([this]() {
-		this->logicConnect();
-	});
+
 	client.setDisconnectionHandlerWrite([this]() {
 		client.closeRead();
 		client.closeWrite();
@@ -61,10 +64,10 @@ void Client::stop()
 	});
 
 	t.wait_for(
-	    std::chrono::seconds(4)); // обработка кейса, когда сервер упал(клиент в таком случае не мог бы отключиться)
+	    std::chrono::seconds(3)); // обработка кейса, когда сервер упал(клиент в таком случае не мог бы отключиться)
 
 	if(!flag) {
-		throw std::runtime_error(" server has shut down ");
+		throw std::runtime_error("the server crashed");
 	}
 }
 

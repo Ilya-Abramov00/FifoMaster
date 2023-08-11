@@ -31,15 +31,16 @@ void Server::disconnect(size_t id, Fifo& object)
 	}
 };
 
-Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
-       std::optional<size_t> waitReconnectTimeMilliSeconds) :
+Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config,
+               std::optional<size_t> waitConnectTimeMilliSeconds, std::optional<size_t> waitReconnectTimeMilliSeconds) :
     stateClient(nameChannelsFifo.size(), State::disconnect)
 {
 	size_t id = 0;
 	for(auto const& name: nameChannelsFifo) {
 		fifoCfgTable.insert({id, name});
 
-		auto writer = WriterFactory::create(name.reverseFile, config, waitConnectTimeMilliSeconds.value(),waitReconnectTimeMilliSeconds.value());
+		auto writer = WriterFactory::create(name.reverseFile, config, waitConnectTimeMilliSeconds.value(),
+		                                    waitReconnectTimeMilliSeconds.value());
 
 		auto fifo = std::make_unique<Fifo>(std::move(writer), name.directFile);
 
@@ -53,14 +54,14 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config, std::o
 			this->connect(id, *connectionTable[id]);
 		});
 
+		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
+			this->connect(id, *connectionTable[id]);
+		});
+
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite();
 			connectionTable[id]->closeRead();
 			this->disconnect(id, *connectionTable[id]);
-		});
-
-		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
-			this->connect(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
@@ -142,13 +143,14 @@ void Server::startId(size_t id)
 }
 
 std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf,
-                                                           size_t waitConnectTimeMilliSeconds,size_t waitReconnectTimeMilliSeconds)
+                                                           size_t waitConnectTimeMilliSeconds,
+                                                           size_t waitReconnectTimeMilliSeconds)
 {
 	switch(conf) {
 	case(Config::QW):
 		return std::make_unique<WriteQImpl>((filename));
 	case(Config::NQW):
-		return std::make_unique<WriteDirectImpl>(filename, waitConnectTimeMilliSeconds,waitReconnectTimeMilliSeconds);
+		return std::make_unique<WriteDirectImpl>(filename, waitConnectTimeMilliSeconds, waitReconnectTimeMilliSeconds);
 	default:
 		throw std::runtime_error("no Config WriteFactory");
 	}

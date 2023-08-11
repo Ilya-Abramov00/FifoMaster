@@ -1,14 +1,6 @@
 #include "FifoBase/FifoBase.h"
 
-// FifoException::FifoException(std::string const& msg) : runtime_error(msg.c_str())
-//{}
-//
-// FifoWriteException::FifoWriteException(const std::string& msg) : FifoException(msg)
-//{}
-// FifoReadException::FifoReadException(const std::string& msg) : FifoException(msg)
-//{}
-// FifoAniException::FifoAniException(const std::string& msg) : FifoException(msg)
-#include <string>
+
 #include <iostream>
 #include <sys/stat.h>
 #include <fcntl.h>
