@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(FifoF)
+project(IpcBase)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 20)

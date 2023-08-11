@@ -10,7 +10,7 @@ file(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp ${CMAKE_CUR
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Fifo)
+target_link_libraries(${PROJECT_NAME} PRIVATE IpcBase)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib)

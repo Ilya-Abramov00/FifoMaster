@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.5)
 project(FifoLib LANGUAGES CXX)
 
 
-add_subdirectory(FifoF)
+add_subdirectory(IpcBase)
 add_subdirectory(Server)
 add_subdirectory(Client)
 
