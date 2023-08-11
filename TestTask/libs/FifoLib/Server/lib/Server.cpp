@@ -55,6 +55,7 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config, std::o
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite();
+			connectionTable[id]->closeRead();
 			this->disconnect(id, *connectionTable[id]);
 		});
 
@@ -64,6 +65,7 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config, std::o
 
 		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
 			connectionTable[id]->closeRead();
+			connectionTable[id]->closeWrite();
 			this->disconnect(id, *connectionTable[id]);
 		});
 		id++;

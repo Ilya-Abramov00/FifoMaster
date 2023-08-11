@@ -16,6 +16,7 @@ Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> wait
 	});
 	client.setDisconnectionHandlerRead([this]() {
 		client.closeWrite();
+		client.closeRead();
 		this->logicDisConnect();
 	});
 	client.setConnectionHandlerWrite([this]() {
@@ -23,6 +24,7 @@ Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> wait
 	});
 	client.setDisconnectionHandlerWrite([this]() {
 		client.closeRead();
+		client.closeWrite();
 		this->logicDisConnect();
 	});
 }

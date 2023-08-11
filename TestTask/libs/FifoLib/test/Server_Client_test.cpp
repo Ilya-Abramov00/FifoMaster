@@ -67,7 +67,7 @@ public:
 
 		WriteServer(server, nBates, nWrite, nClient);
 
-		sleep(25);
+		sleep(15);
 
 		server.stop();
 
