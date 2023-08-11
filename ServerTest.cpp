@@ -11,7 +11,7 @@ using namespace Ipc;
 int main()
 {
 	std::cout << "Server\n\n";
-
+//указан прямой путь т.к. собирают main в разные папки
 	std::string FIFO1 = "/home/ilya/fifo1";
 	std::string FIFO2 = "/home/ilya/fifo2";
 
