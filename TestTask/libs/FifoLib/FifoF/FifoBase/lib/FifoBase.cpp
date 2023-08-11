@@ -7,7 +7,7 @@
 
 namespace Ipc {
 
-long openFifo(const std::string fdFileName, const char flag)
+long openFifo(const std::string fdFileName,  char flag)
 {
 	long fd = -1;
 	if(flag == 'W') {

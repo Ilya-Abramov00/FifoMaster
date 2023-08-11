@@ -13,9 +13,7 @@ int main()
 	int n            = 10;
 	std::string data = "";
 	data.reserve(n * 1024);
-	std::mutex mtx;
-	auto e = [&mtx, &data](FifoRead::Data&& dataq) {
-		std::lock_guard<std::mutex> mtx0(mtx);
+	auto e = [ &data](FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 		std::cout << "пришли данные ";
 		std::cout << std::string(dataq.data(), dataq.data() + dataq.size()) << "\n";

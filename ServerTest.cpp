@@ -12,8 +12,8 @@ int main()
 {
 	std::cout << "Server\n\n";
 
-	std::string FIFO2 = "/home/ilya/fifo2";
 	std::string FIFO1 = "/home/ilya/fifo1";
+	std::string FIFO2 = "/home/ilya/fifo2";
 
 	int n            = 10;
 	std::string data = "";
@@ -30,7 +30,7 @@ int main()
 		std::cout<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
 
-	Server server({k1, k2},Ipc::Config::NQW,20000,5000);
+	Server server({k1, k2},Ipc::Config::QW,8000,5000);
 	server.setReadHandler(getter);
 
 	server.setConnectHandler([](size_t) {
@@ -40,6 +40,7 @@ int main()
 
 
 	server.start();
+	std::cout << "\nStart\n";
 
 	auto x = 1;
 	std::string data0(x, 'a');

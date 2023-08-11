@@ -9,7 +9,9 @@
 #include <future>
 namespace Ipc {
 
-WriteDirectImpl::WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectMilliSeconds, size_t waitTimeReconnectMilliSeconds) : params{fdFileName}
+WriteDirectImpl::WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectMilliSeconds,
+                                 size_t waitTimeReconnectMilliSeconds) :
+    params{fdFileName}
 {
 	if(!waitTimeConnectMilliSeconds) {
 		throw std::runtime_error(" not waitTime set");
@@ -17,8 +19,8 @@ WriteDirectImpl::WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectM
 	if(!waitTimeReconnectMilliSeconds) {
 		throw std::runtime_error(" not waitTime set");
 	}
-	params.waitConnnectTimeMilliSeconds =waitTimeConnectMilliSeconds;
-	params.waitReconnectTimeMilliSeconds =waitTimeReconnectMilliSeconds;
+	params.waitConnnectTimeMilliSeconds  = waitTimeConnectMilliSeconds;
+	params.waitReconnectTimeMilliSeconds = waitTimeReconnectMilliSeconds;
 	createFifo(params.addrRead);
 }
 
@@ -45,13 +47,13 @@ void WriteDirectImpl::startWrite()
 
 void WriteDirectImpl::waitConnectFifo(size_t time)
 {
-	std::future t = std::async([this]() {
+	std::future f = std::async([this]() {
 		waitOpen = false;
 		fifoFd   = openFifo(params.addrRead, 'W');
 		waitOpen = true;
 	});
 
-	t.wait_for(std::chrono::milliseconds(time));
+	f.wait_for(std::chrono::milliseconds(time));
 
 	if(waitOpen && fifoFd != -1) {
 		waitConnect = true;
@@ -62,11 +64,9 @@ void WriteDirectImpl::waitConnectFifo(size_t time)
 void WriteDirectImpl::pushData(const void* data, size_t sizeN)
 {
 	if(!waitConnect) {
-		waitConnectFifo(params.waitReconnectTimeMilliSeconds);
-		if(!waitConnect) {
-			throw std::runtime_error("write close Fifo");
-		}
+		throw std::runtime_error("write close Fifo");
 	}
+
 	if(!data) {
 		std::cerr << "\n null ptr is pushData \n";
 		return;
@@ -76,6 +76,7 @@ void WriteDirectImpl::pushData(const void* data, size_t sizeN)
 	if(flag == -1) {
 		waitConnect = false;
 		params.disconnectHandler();
+		waitConnectFifo(params.waitReconnectTimeMilliSeconds);
 	}
 }
 
