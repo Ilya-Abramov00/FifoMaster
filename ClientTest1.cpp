@@ -39,11 +39,9 @@ int main()
 	sleep(8);
 
 	std::cout << "\nstop\n";
-	client1.stop();
     client1.stop();
 	sleep(1);
 
-	client1.start();
     client1.start();
 	std::cout << "\n2 start\n";
 	for(int i = 0; i != 5; i++) {
@@ -51,7 +49,7 @@ int main()
 		client1.write((void*)z.data(), z.size());
 		sleep(1);
 	}
-	sleep(19);
+	sleep(5);
 
 	std::cout << "\n2 stop\n";
 	client1.stop();

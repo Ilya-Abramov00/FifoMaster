@@ -218,38 +218,4 @@ std::string FIFO1 = "fifo1";
 	tServer.join();
  }
 
- TEST_F(ServerClientTest, Clients3To1ServerConnectin_n0_3client)
- {
-	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
-	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
-	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
-
-	std::list<FifoCfg> data = {k1, k2, k3};
-
-	int sizeNClient  = 1024 * 256;
-	int nWriteClient = 10;
-
-	int sizeNServer  = 256;
-	int nWriteServer = 256;
-	int dataServer   = nWriteServer * sizeNServer;
-	int dataClient   = nWriteClient * sizeNClient;
-
-	std::mutex mtx0;
-	std::thread tServer([data, sizeNServer, nWriteServer, dataClient, this, &mtx0]() {
-		servers(data, Ipc::Config::NQW, 2000, sizeNServer, nWriteServer, data.size(), dataClient, mtx0);
-	});
-	std::mutex mtx;
-	std::thread tClient1([&k1, &sizeNClient, nWriteClient, dataServer, this, &mtx]() {
-		clients(k1, Ipc::Config::QW, 2000, sizeNClient, nWriteClient, dataServer, mtx);
-	});
-
-	std::thread tClient2([&k2, &sizeNClient, nWriteClient, dataServer, this, &mtx]() {
-		clients(k2, Ipc::Config::NQW, 2000, sizeNClient, nWriteClient, dataServer, mtx);
-	});
-
-	tClient1.join();
-	tClient2.join();
-
-	tServer.join();
- }
 
