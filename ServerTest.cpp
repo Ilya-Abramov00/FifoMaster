@@ -44,10 +44,12 @@ int main()
 
 	auto x = 1;
 	std::string data0(x, 'a');
-	for(int i = 0; i != 5; i++) {
+	for(int i = 0; i != 15; i++) {
 		server.write(0, (void*)data0.data(), x);
 		server.write(1, (void*)data0.data(), x);
-		sleep(1);
+		if(i % 3) {
+			sleep(1);
+		}
 	}
 
 
@@ -55,7 +57,9 @@ int main()
 	for(int i = 0; i != 15; i++) {
 		server.write(0, (void*)data0.data(), x);
 		server.write(1, (void*)data0.data(), x);
-		sleep(1);
+		if(i % 3) {
+			sleep(1);
+		}
 	}
 	sleep(6);
 

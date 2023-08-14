@@ -31,10 +31,12 @@ int main()
 
 	client2.start();
 	std::cout << "\nStart\n";
-	for(int i = 0; i != 4; i++) {
+	for(int i = 0; i != 15; i++) {
 		std::string a("2 channel ");
 		client2.write((void*)a.data(), a.size());
-		sleep(1);
+		if(i % 3) {
+			sleep(1);
+		}
 	}
 	sleep(2);
 	std::cout << "\nstop\n";
@@ -43,10 +45,12 @@ int main()
 	std::cout << "\nStart\n";
 	client2.start();
 
-	for(int i = 0; i != 4; i++) {
+	for(int i = 0; i != 15; i++) {
 		std::string a("2 channel ");
 		client2.write((void*)a.data(), a.size());
-		sleep(1);
+		if(i % 3) {
+			sleep(1);
+		}
 	}
 	std::cout << "\nstop\n";
 	sleep(10);

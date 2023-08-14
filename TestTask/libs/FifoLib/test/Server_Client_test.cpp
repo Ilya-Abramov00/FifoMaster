@@ -65,9 +65,12 @@ public:
 
 		server.start();
 
-		WriteServer(server, nBates, nWrite, nClient);
-
-		sleep(18);
+		WriteServer(server, nBates/4, nWrite, nClient);
+		sleep(3);
+		WriteServer(server, nBates/4, nWrite, nClient);
+		sleep(2);
+		WriteServer(server, nBates/2, nWrite, nClient);
+		sleep(8);
 
 		server.stop();
 
@@ -196,7 +199,7 @@ std::string FIFO1 = "fifo1";
 
 	std::mutex mtx0;
 	std::thread tServer([data, sizeNServer, nWriteServer, dataClient, this, &mtx0]() {
-		servers(data, Ipc::Config::NQW, 2000, sizeNServer, nWriteServer, data.size(), dataClient, mtx0);
+		servers(data, Ipc::Config::QW, 2000, sizeNServer, nWriteServer, data.size(), dataClient, mtx0);
 	});
 	std::mutex mtx;
 	std::thread tClient1([&k1, &sizeNClient, nWriteClient, dataServer, this, &mtx]() {

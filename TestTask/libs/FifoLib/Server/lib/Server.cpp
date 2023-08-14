@@ -9,7 +9,6 @@ void Server::getter(size_t id, FifoRead::Data&& data)
 
 void Server::connectH(ConnectionId id, const Fifo& object)
 {
-	std::lock_guard<std::mutex> mtx(mtxConnect);
 	if(object.getWaitConnectWrite() && object.getWaitConnectRead()) {
 		if(stateClient.at(id) == State::disconnect) {
 			stateClient.at(id) = State::connect;
@@ -21,7 +20,6 @@ void Server::connectH(ConnectionId id, const Fifo& object)
 
 void Server::disconnectH(ConnectionId id, Fifo& object)
 {
-	std::lock_guard<std::mutex> mtx(mtxDisconnect);
 	if(!object.getWaitConnectWrite() || !object.getWaitConnectRead()) {
 		if(stateClient.at(id) == State::connect) {
 			stateClient.at(id) = State::disconnect;
@@ -60,13 +58,10 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config,
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite();
-			connectionTable[id]->closeRead();
 			this->disconnectH(id, *connectionTable[id]);
 		});
 
 		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
-			connectionTable[id]->closeRead();
-			connectionTable[id]->closeWrite();
 			this->disconnectH(id, *connectionTable[id]);
 		});
 		id++;

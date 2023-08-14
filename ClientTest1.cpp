@@ -31,10 +31,12 @@ int main()
 	client1.start();
 
 	auto x = 1;
-	for(int i = 0; i != 10; i++) {
+	for(int i = 0; i !=12; i++) {
 		std::string z("1 канал");
 		client1.write((void*)z.data(), z.size());
-		sleep(1);
+		if(i % 3) {
+			sleep(1);
+		}
 	}
 	sleep(8);
 
@@ -44,10 +46,12 @@ int main()
 
     client1.start();
 	std::cout << "\n2 start\n";
-	for(int i = 0; i != 5; i++) {
+	for(int i = 0; i != 15; i++) {
 		std::string z("1 канал");
 		client1.write((void*)z.data(), z.size());
-		sleep(1);
+		if(i % 3) {
+			sleep(1);
+		}
 	}
 	sleep(5);
 
