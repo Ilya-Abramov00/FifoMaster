@@ -44,19 +44,19 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo) :
 			this->getter(id, std::move(data));
 		});
 
-		fifo->setConnectionHandlerRead([this, id]() {
+		connectionTable.insert({id, std::move(fifo)});
+
+		connectionTable[id]->setConnectionHandlerRead([this, id]() {
 			this->connectH(id, *connectionTable[id]);
 		});
 
-		fifo->setConnectionHandlerWrite([this, id]() {
+		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
 			this->connectH(id, *connectionTable[id]);
 		});
 
-		fifo->setDisconnectionHandlerWrite([this, id]() {
+		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
 			this->disconnectH(id, *connectionTable[id]);
 		});
-
-		connectionTable.insert({id, std::move(fifo)});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite();

@@ -72,7 +72,7 @@ public:
 		WriteServer(server, nBates / 4, nWrite, nClient);
 		sleep(2);
 		WriteServer(server, nBates / 2, nWrite, nClient);
-		sleep(18);
+		sleep(12);
 
 		server.stop();
 
