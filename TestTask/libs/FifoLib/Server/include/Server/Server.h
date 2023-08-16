@@ -14,9 +14,10 @@ namespace Ipc {
 
 class Server {
 public:
-	using ConnectionId      = size_t;
-	using ReadHandler       = std::function<void(ConnectionId, FifoRead::Data&&)>;
-	using ConnChangeHandler = std::function<void(ConnectionId)>;
+	using ConnectionId          = size_t;
+	using ConnChangeHandler     = std::function<void(ConnectionId)>;
+	using ReadHandler           = std::function<void(ConnectionId, FifoRead::Data&&)>;
+	using IdDistributionHandler = std::function<ConnectionId()>;
 
 	using FifoCfgTable     = std::map<size_t, FifoCfg>;
 	using ConnectionsTable = std::map<size_t, std::unique_ptr<Fifo>>;
@@ -27,7 +28,10 @@ public:
 
 	void setConnectHandler(ConnChangeHandler h);
 
-	void setDisconnectHandler(ConnChangeHandler h);
+	void setIdDistributionHandler(IdDistributionHandler h)
+	{
+		idDistributionHandler = h;
+	}
 
 	void write(ConnectionId id, const void* data, size_t sizeInBytes);
 
@@ -53,6 +57,8 @@ private:
 	ConnChangeHandler closeHandler;
 
 	ReadHandler readHandler;
+	IdDistributionHandler idDistributionHandler;
+
 	ConnectionId idCount = 0;
 
 	void getter(ConnectionId id, FifoRead::Data&& data);
