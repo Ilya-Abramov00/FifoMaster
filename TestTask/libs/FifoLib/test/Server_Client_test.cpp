@@ -53,7 +53,7 @@ public:
             dataServer.insert(dataServer.end(), dataq.data(), dataq.data() + dataq.size());
 		};
 
-		Server server(fifoCfg, config, time, time);
+		Server server(fifoCfg);
 		int serverConnection    = 0;
 		int serverDisconnection = 0;
 		server.setReadHandler(getterServer);

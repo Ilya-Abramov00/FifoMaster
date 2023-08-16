@@ -9,18 +9,14 @@
 #include <future>
 namespace Ipc {
 
-WriteDirectImpl::WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectMilliSeconds,
-                                 size_t waitTimeReconnectMilliSeconds) :
-    params{fdFileName}
+WriteDirectImpl::WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectMilliSeconds) : params{fdFileName}
 {
 	if(!waitTimeConnectMilliSeconds) {
 		throw std::runtime_error(" not waitTime set");
 	}
-	if(!waitTimeReconnectMilliSeconds) {
-		throw std::runtime_error(" not waitTime set");
-	}
-	params.waitConnnectTimeMilliSeconds  = waitTimeConnectMilliSeconds;
-	params.waitReconnectTimeMilliSeconds = waitTimeReconnectMilliSeconds;
+
+	params.waitConnnectTimeMilliSeconds = waitTimeConnectMilliSeconds;
+
 	createFifo(params.addrRead);
 }
 
@@ -55,10 +51,11 @@ void WriteDirectImpl::connect()
 
 	f.wait_for(std::chrono::milliseconds(params.waitConnnectTimeMilliSeconds));
 
-	if(waitOpen && fifoFd != -1) {
-		waitConnect = true;
-		params.connectHandler();
+	if(!waitOpen && fifoFd == -1) {
+		throw std::runtime_error("no connect");
 	}
+	waitConnect = true;
+	params.connectHandler();
 }
 
 void WriteDirectImpl::pushData(const void* data, size_t sizeN)
@@ -99,5 +96,9 @@ long const& WriteDirectImpl::getFifoFd() const
 bool WriteDirectImpl::getWaitConnect() const
 {
 	return waitConnect;
+}
+void WriteDirectImpl::reconnectTrue()
+{
+	throw std::runtime_error("no reconnect WriteDirect");
 }
 } // namespace Ipc

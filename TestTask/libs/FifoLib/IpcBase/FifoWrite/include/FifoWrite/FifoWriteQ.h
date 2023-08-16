@@ -22,14 +22,15 @@ public:
 
 	long const& getFifoFd() const override;
 
-	void connect() override;
 
-	void recoonectTrue() override
+	void reconnectTrue() override
 	{
 		reconnect = true;
 	}
 
 private:
+	void connect() ;
+
 	bool reconnect{false};
 	void writeFifo();
 

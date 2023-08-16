@@ -21,8 +21,7 @@ public:
 	using FifoCfgTable     = std::map<size_t, FifoCfg>;
 	using ConnectionsTable = std::map<size_t, std::unique_ptr<Fifo>>;
 
-	Server(std::list<FifoCfg> const& nameChannelsFifo, Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
-	       std::optional<size_t> waitReconnectTimeMilliSeconds);
+	Server(std::list<FifoCfg> const& nameChannelsFifo);
 
 	void setReadHandler(ReadHandler h);
 
@@ -41,7 +40,6 @@ public:
 	~Server();
 
 private:
-
 	FifoCfgTable fifoCfgTable;
 	ConnectionsTable connectionTable;
 
@@ -65,9 +63,7 @@ private:
 
 	class WriterFactory {
 	public:
-		static std::unique_ptr<IFifoWriter> create(std::string filename, Config conf,
-		                                           size_t waitConnectTimeMilliSeconds,
-		                                           size_t waitReconnectTimeMilliSeconds);
+		static std::unique_ptr<IFifoWriter> create(std::string filename);
 	};
 };
 } // namespace Ipc

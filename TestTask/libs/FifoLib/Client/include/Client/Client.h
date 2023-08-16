@@ -42,8 +42,7 @@ private:
 	class WriterFactory {
 	public:
 		static std::unique_ptr<IFifoWriter> create(const std::string& filename, Config conf,
-		                                           size_t waitConnectTimeMilliSeconds,
-		                                           size_t waitReconnectTimeMilliSeconds);
+		                                           size_t waitConnectTimeMilliSeconds);
 	};
 };
 } // namespace Ipc

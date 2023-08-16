@@ -9,6 +9,7 @@ void Server::getter(size_t id, FifoRead::Data&& data)
 
 void Server::connectH(ConnectionId id, const Fifo& object)
 {
+	std::lock_guard<std::mutex> mtx(mtxConnect);
 	if(object.getWaitConnectWrite() && object.getWaitConnectRead()) {
 		if(stateClient.at(id) == State::disconnect) {
 			stateClient.at(id) = State::connect;
@@ -20,6 +21,7 @@ void Server::connectH(ConnectionId id, const Fifo& object)
 
 void Server::disconnectH(ConnectionId id, Fifo& object)
 {
+	std::lock_guard<std::mutex> mtx(mtxDisconnect);
 	if(!object.getWaitConnectWrite() || !object.getWaitConnectRead()) {
 		if(stateClient.at(id) == State::connect) {
 			stateClient.at(id) = State::disconnect;
@@ -29,22 +31,20 @@ void Server::disconnectH(ConnectionId id, Fifo& object)
 	}
 };
 
-Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config,
-               std::optional<size_t> waitConnectTimeMilliSeconds, std::optional<size_t> waitReconnectTimeMilliSeconds) :
+Server::Server(std::list<FifoCfg> const& nameChannelsFifo) :
     stateClient(nameChannelsFifo.size(), State::disconnect)
 {
 	size_t id = 0;
 	for(auto const& name: nameChannelsFifo) {
 		fifoCfgTable.insert({id, name});
 
-		auto writer = WriterFactory::create(name.reverseFile, config, waitConnectTimeMilliSeconds.value(),
-		                                    waitReconnectTimeMilliSeconds.value());
+		auto writer = WriterFactory::create(name.reverseFile);
 
 		auto fifo = std::make_unique<Fifo>(std::move(writer), name.directFile);
 
 		connectionTable.insert({id, std::move(fifo)});
 
-		connectionTable[id]->recoonectTrue();
+		connectionTable[id]->configReconnect();
 
 		connectionTable[id]->setReadHandler([this, id](FifoRead::Data&& data) {
 			this->getter(id, std::move(data));
@@ -130,17 +130,9 @@ void Server::disconnect(size_t id)
 		throw std::runtime_error("no idClient");
 }
 
-std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename, Config conf,
-                                                           size_t waitConnectTimeMilliSeconds,
-                                                           size_t waitReconnectTimeMilliSeconds)
+std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename)
+
 {
-	switch(conf) {
-	case(Config::QW):
-		return std::make_unique<WriteQImpl>(filename);
-	case(Config::NQW):
-		return std::make_unique<WriteDirectImpl>(filename, waitConnectTimeMilliSeconds, waitReconnectTimeMilliSeconds);
-	default:
-		throw std::runtime_error("no Config WriteFactory");
-	}
+	return std::make_unique<WriteQImpl>(filename);
 }
 } // namespace Ipc

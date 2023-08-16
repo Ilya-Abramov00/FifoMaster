@@ -7,8 +7,7 @@ namespace Ipc {
 
 Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
                std::optional<size_t> waitReconnectTimeMilliSeconds) :
-    client(WriterFactory::create(name.directFile, config, waitConnectTimeMilliSeconds.value(),
-                                 waitReconnectTimeMilliSeconds.value()),
+    client(WriterFactory::create(name.directFile, config, waitConnectTimeMilliSeconds.value()),
            name.reverseFile)
 {
 	client.setReadHandler([this](FifoRead::Data&& data) {
@@ -60,8 +59,8 @@ void Client::stop()
 		flag = true;
 	});
 
-	t.wait_for(
-	    std::chrono::seconds(3)); // обработка кейса, когда сервер удалил каналы(вызвал деструтор)(клиент в таком случае не мог бы отключиться)
+	t.wait_for(std::chrono::seconds(3)); // обработка кейса, когда сервер удалил каналы(вызвал деструтор)(клиент в таком
+	                                     // случае не мог бы отключиться)
 
 	if(!flag) {
 		throw std::runtime_error("the server crashed");
@@ -110,14 +109,13 @@ void Client::logicDisConnect()
 	}
 }
 std::unique_ptr<IFifoWriter> Client::WriterFactory::create(const std::string& filename, Config conf,
-                                                           size_t waitConnectTimeMilliSeconds,
-                                                           size_t waitReconnectTimeMilliSeconds)
+                                                           size_t waitConnectTimeMilliSeconds)
 {
 	switch(conf) {
 	case(Config::QW):
 		return std::make_unique<WriteQImpl>((filename));
 	case(Config::NQW):
-		return std::make_unique<WriteDirectImpl>(filename, waitConnectTimeMilliSeconds, waitReconnectTimeMilliSeconds);
+		return std::make_unique<WriteDirectImpl>(filename, waitConnectTimeMilliSeconds);
 	default:
 		throw std::runtime_error("no Config WriteFactory");
 	}

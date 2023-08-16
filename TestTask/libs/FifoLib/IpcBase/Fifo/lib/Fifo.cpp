@@ -47,19 +47,18 @@ void Fifo::stop()
 void Fifo::start()
 {
 	if(state == State::stop) {
-		state=State::start;
+		state = State::start;
 		fifoRead.startRead();
 		fifoWrite->startWrite();
 	}
 }
 
-
-bool  Fifo::getWaitConnectRead() const
+bool Fifo::getWaitConnectRead() const
 {
 	return fifoRead.getWaitConnect();
 }
 
-bool  Fifo::getWaitConnectWrite() const
+bool Fifo::getWaitConnectWrite() const
 {
 	return fifoWrite->getWaitConnect();
 }
@@ -72,5 +71,11 @@ void Fifo::closeRead()
 void Fifo::closeWrite()
 {
 	close(fifoWrite->getFifoFd());
+}
+
+void Fifo::configReconnect()
+{
+	fifoRead.reconnectTrue();
+	fifoWrite->reconnectTrue();
 }
 } // namespace Ipc

@@ -7,7 +7,7 @@ namespace Ipc {
 
 class WriteDirectImpl : public IFifoWriter {
 public:
-	WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectMilliSeconds, size_t waitTimeReconnectMilliSeconds);
+	WriteDirectImpl(std::string fdFileName, size_t waitTimeConnectMilliSeconds);
 
 	void setConnectionHandler(ConnectionHandler handler) override;
 
@@ -23,16 +23,16 @@ public:
 
 	long const& getFifoFd() const override;
 
-	void connect() override;
-	void recoonectTrue() override{};
+	void reconnectTrue() override;;
 
 private:
+	void connect() ;
+
 	struct Params {
 		std::string addrRead;
 		ConnectionHandler connectHandler;
 		ConnectionHandler disconnectHandler;
 		size_t waitConnnectTimeMilliSeconds;
-		size_t waitReconnectTimeMilliSeconds;
 	};
 	Params params;
 	bool waitOpen{false};

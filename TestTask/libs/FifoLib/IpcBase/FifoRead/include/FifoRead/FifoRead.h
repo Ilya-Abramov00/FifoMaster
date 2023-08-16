@@ -28,13 +28,11 @@ public:
 	bool const getWaitConnect() const;
 
 	long const& getFifoFd() const;
-	void recoonectTrue()
-	{
-		reconnect = true;
-	}
-	void connect();
+
+	void reconnectTrue();
 
 private:
+	void connect();
 	void readFifo();
 
 	bool reconnect{false};

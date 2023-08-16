@@ -73,7 +73,6 @@ void FifoRead::stopRead()
 	reconnect = false;
 	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'W');
-
 		close(fd);
 	}
 	close(fifoFd);
@@ -105,5 +104,9 @@ bool const FifoRead::getWaitConnect() const
 long const& FifoRead::getFifoFd() const
 {
 	return fifoFd;
+}
+void FifoRead::reconnectTrue()
+{
+    reconnect = true;
 }
 } // namespace Ipc

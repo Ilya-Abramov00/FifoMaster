@@ -16,8 +16,6 @@ public:
 
 	virtual void setDisconnectionHandler(ConnectionHandler handler) = 0;
 
-	virtual void connect()                = 0;
-
 	virtual void startWrite() = 0;
 
 	virtual void stopWrite() = 0;
@@ -27,9 +25,9 @@ public:
 	virtual bool getWaitConnect() const = 0;
 
 	virtual long const& getFifoFd() const = 0;
-	virtual  void recoonectTrue()=0;
+	virtual void reconnectTrue()          = 0;
 
-	virtual ~IFifoWriter()                = default;
+	virtual ~IFifoWriter() = default;
 };
 }; // namespace Ipc
 #endif

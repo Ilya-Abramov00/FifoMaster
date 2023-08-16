@@ -12,7 +12,7 @@ public:
 		case(Config::QW):
 			return std::unique_ptr<IFifoWriter>(new WriteQImpl(filename));
 		case(Config::NQW):
-			return std::unique_ptr<IFifoWriter>(new WriteDirectImpl(filename,time,time));
+			return std::unique_ptr<IFifoWriter>(new WriteDirectImpl(filename,time));
 		}
 	}
 };
