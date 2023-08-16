@@ -110,7 +110,7 @@ void Server::initialization()
 
 		fifo->configReconnect();
 
-		fifo->setReadHandler([this, id](FifoRead::Data&& data) {
+		fifo->setReadHandler([ id](FifoRead::Data&& data) {
 			this->getter(id, std::move(data));
 		});
 
