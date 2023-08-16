@@ -38,30 +38,31 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo) :
 	for(auto const& name: nameChannelsFifo) {
 		auto fifo = std::make_unique<Fifo>(WriterFactory::create(name.reverseFile), name.directFile);
 
-		connectionTable.insert({id, std::move(fifo)});
+		fifo->configReconnect();
 
-		connectionTable[id]->configReconnect();
-
-		connectionTable[id]->setReadHandler([this, id](FifoRead::Data&& data) {
+		fifo->setReadHandler([this, id](FifoRead::Data&& data) {
 			this->getter(id, std::move(data));
 		});
 
-		connectionTable[id]->setConnectionHandlerRead([this, id]() {
+		fifo->setConnectionHandlerRead([this, id]() {
 			this->connectH(id, *connectionTable[id]);
 		});
 
-		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
+		fifo->setConnectionHandlerWrite([this, id]() {
 			this->connectH(id, *connectionTable[id]);
 		});
+
+		fifo->setDisconnectionHandlerWrite([this, id]() {
+			this->disconnectH(id, *connectionTable[id]);
+		});
+
+		connectionTable.insert({id, std::move(fifo)});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite();
 			this->disconnectH(id, *connectionTable[id]);
 		});
 
-		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
-			this->disconnectH(id, *connectionTable[id]);
-		});
 		id++;
 	}
 	idCount = id;
