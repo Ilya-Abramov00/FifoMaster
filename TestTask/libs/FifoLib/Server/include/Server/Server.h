@@ -27,6 +27,7 @@ public:
 	void setReadHandler(ReadHandler h);
 
 	void setConnectHandler(ConnChangeHandler h);
+	void setDisconnectHandler(ConnChangeHandler h);
 
 	void setIdDistributionHandler(IdDistributionHandler h)
 	{

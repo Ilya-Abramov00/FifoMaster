@@ -53,8 +53,8 @@ int main()
 	}
 
 
-	server.disconnect(0);
 	sleep(6);
+	server.disconnect(0);
 	for(int i = 0; i != 15; i++) {
 		server.write(0, (void*)data0.data(), x);
 		server.write(1, (void*)data0.data(), x);
