@@ -18,7 +18,7 @@ TEST(big_data_NQ, 1)
 
 	FifoRead client1(FIFO2);
 
-	WriteDirectImpl client2(FIFO2,2000,200);
+	WriteDirectImpl client2(FIFO2,2000);
 
 	int flagConnect    = 0;
 	int flagDisconnect = 0;
@@ -111,7 +111,7 @@ TEST(big_data_NQ, 2)
 
 	};
 	FifoRead client1(FIFO2);
-	WriteDirectImpl client2(FIFO2,2000,2000);
+	WriteDirectImpl client2(FIFO2,2000);
 
 	client1.setReadHandler(getterRead);
 

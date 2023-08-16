@@ -44,8 +44,8 @@ public:
 
 		ASSERT_TRUE(dataClient.size() == nBatesServer);
 	}
-	void servers(std::list<FifoCfg> fifoCfg, Config config, size_t time, int nBates, int nWrite, size_t nClient,
-	             int nBatesClient, std::mutex& mtx0, size_t waitDisconnectTime)
+	void servers(std::list<FifoCfg> fifoCfg, int nBates, int nWrite, size_t nClient, int nBatesClient, std::mutex& mtx0,
+	             size_t waitDisconnectTime)
 	{
 		std::string dataServer = "";
 		auto getterServer      = [&dataServer, &mtx0](size_t id, FifoRead::Data&& dataq) {
@@ -78,8 +78,8 @@ public:
 		ASSERT_TRUE(dataServer.size() == nClient * nBatesClient);
 		sleep(4);
 	}
-	void serversDisconnect(std::list<FifoCfg> fifoCfg, Config config, size_t time, int nBates, int nWrite,
-	                       size_t nClient, int nBatesClient, std::mutex& mtx0, size_t waitDisconnectTime)
+	void serversDisconnect(std::list<FifoCfg> fifoCfg, int nBates, int nWrite, size_t nClient, int nBatesClient,
+	                       std::mutex& mtx0, size_t waitDisconnectTime)
 	{
 		std::string dataServer = "";
 		auto getterServer      = [&dataServer, &mtx0](size_t id, FifoRead::Data&& dataq) {
@@ -132,7 +132,33 @@ private:
 		}
 	}
 };
+TEST_F(ServerClientTestOneConnect, Clients3To1ServerConnectin_QW_No_Сonnect)
+{
+	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
+	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
+	FifoCfg k3{FIFO3, FIFO3 + "_reverse"};
 
+	std::list<FifoCfg> data = {k1, k2, k3};
+	auto getterServer       = [](size_t id, FifoRead::Data&& dataq) {
+    };
+
+	Server server(data);
+
+	server.setReadHandler(getterServer);
+
+	server.setConnectHandler([](size_t) {
+
+	});
+
+	server.setDisconnectHandler([](size_t) {
+
+	});
+
+	server.start();
+	sleep(3);
+
+	server.stop();
+}
 TEST_F(ServerClientTestOneConnect, Clients3To1ServerConnectin_QW_One_Сonnect)
 {
 	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
@@ -151,7 +177,7 @@ TEST_F(ServerClientTestOneConnect, Clients3To1ServerConnectin_QW_One_Сonnect)
 
 	std::mutex mtx0;
 	std::thread tServer([data, sizeNServer, nWriteServer, dataClient, this, &mtx0]() {
-		servers(data, Ipc::Config::QW, 0, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
+		servers(data, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
 	});
 	std::mutex mtx;
 	std::thread tClient1([&k1, &sizeNClient, nWriteClient, dataServer, this, &mtx]() {
@@ -190,7 +216,7 @@ TEST_F(ServerClientTestOneConnect, Clients3To1ServerConnectin_NQW_One_Сonnect)
 
 	std::mutex mtx0;
 	std::thread tServer([data, sizeNServer, nWriteServer, dataClient, this, &mtx0]() {
-		servers(data, Ipc::Config::NQW, 2000, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
+		servers(data, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
 	});
 	std::mutex mtx;
 	std::thread tClient1([&k1, &sizeNClient, nWriteClient, dataServer, this, &mtx]() {
@@ -229,7 +255,7 @@ TEST_F(ServerClientTestOneConnect, Clients3To1ServerConnectin_QW_and_NQW_One_Сo
 
 	std::mutex mtx0;
 	std::thread tServer([data, sizeNServer, nWriteServer, dataClient, this, &mtx0]() {
-		servers(data, Ipc::Config::QW, 2000, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
+		servers(data, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
 	});
 	std::mutex mtx;
 	std::thread tClient1([&k1, &sizeNClient, nWriteClient, dataServer, this, &mtx]() {
@@ -269,7 +295,7 @@ TEST_F(ServerClientTestOneConnect, Clients3To1ServerConnectin_QW_and_NQW_Server_
 
 	std::mutex mtx0;
 	std::thread tServer([data, sizeNServer, nWriteServer, dataClient, this, &mtx0]() {
-		serversDisconnect(data, Ipc::Config::QW, 2000, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
+		serversDisconnect(data, sizeNServer, nWriteServer, data.size(), dataClient, mtx0, 4);
 	});
 	std::mutex mtx;
 	std::thread tClient1([&k1, &sizeNClient, nWriteClient, dataServer, this, &mtx]() {

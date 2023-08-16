@@ -13,7 +13,7 @@ int main()
 	int n            = 10;
 	std::string data = "";
 	data.reserve(n * 1024);
-	auto e = [ &data](FifoRead::Data&& dataq) {
+	auto e = [&data](FifoRead::Data&& dataq) {
 		data += std::string(dataq.data(), dataq.data() + dataq.size());
 		std::cout << "пришли данные ";
 		std::cout << std::string(dataq.data(), dataq.data() + dataq.size()) << "\n";
@@ -21,7 +21,7 @@ int main()
 
 	FifoCfg k1{FIFO1, FIFO1 + "_reverse"};
 
-	Client client1(k1, Ipc::Config::QW,0,0);
+	Client client1(k1, Ipc::Config::QW, 0);
 	client1.setReadHandler(e);
 	client1.setDisconnectHandler([]() {
 	});
@@ -31,34 +31,19 @@ int main()
 	client1.start();
 
 	auto x = 1;
-	for(int i = 0; i !=12; i++) {
+	for(int i = 0; i != 12; i++) {
 		std::string z("1 канал");
 		client1.write((void*)z.data(), z.size());
-		if(i % 3) {
+		if(i % 2) {
 			sleep(1);
 		}
 	}
-	sleep(8);
 
+	sleep(5);
 	std::cout << "\nstop\n";
-    client1.stop();
-	sleep(5);
 
-    client1.start();
-	std::cout << "\n2 start\n";
-	for(int i = 0; i != 15; i++) {
-		std::string z("1 канал");
-		client1.write((void*)z.data(), z.size());
-		if(i % 3) {
-			sleep(1);
-		}
-	}
-	sleep(5);
-
-	std::cout << "\n2 stop\n";
 	client1.stop();
-	std::cout <<"пришло "<< data.size();
-	std::cout << "\nдолжно быть "<<20;
+	std::cout << "пришло " << data.size();
 
 	return 0;
 }

@@ -30,7 +30,7 @@ int main()
 		std::cout<<std::string(dataq.data(), dataq.data() + dataq.size())<<"\n";
 	};
 
-	Server server({k1, k2},Ipc::Config::QW,0,0);
+	Server server({k1, k2});
 	server.setReadHandler(getter);
 
 	server.setConnectHandler([](size_t) {
@@ -53,6 +53,7 @@ int main()
 	}
 
 
+	server.disconnect(0);
 	sleep(6);
 	for(int i = 0; i != 15; i++) {
 		server.write(0, (void*)data0.data(), x);

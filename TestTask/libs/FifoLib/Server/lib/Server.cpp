@@ -124,7 +124,8 @@ Server::~Server()
 void Server::disconnect(size_t id)
 {
 	if(id < fifoCfgTable.size()) {
-		connectionTable[id]->stop();
+		connectionTable[id]->closeWrite();
+		connectionTable[id]->closeRead();
 	}
 	else
 		throw std::runtime_error("no idClient");

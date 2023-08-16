@@ -22,7 +22,7 @@ int main()
 
 	FifoCfg k2{FIFO2, FIFO2 + "_reverse"};
 
-	Client client2(k2, Ipc::Config::NQW, 8000, 2000);
+	Client client2(k2, Ipc::Config::NQW, 8000);
 	client2.setReadHandler(e);
 	client2.setDisconnectHandler([]() {
 	});
@@ -59,7 +59,6 @@ int main()
 	client2.stop();
 
 	std::cout << "пришло " << data.size();
-	std::cout << "\nдолжно быть " << 20;
 	sleep(2);
 	return 0;
 }

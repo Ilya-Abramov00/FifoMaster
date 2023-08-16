@@ -10,8 +10,6 @@ participant "FifoWriteDirect" as NQFifoWrite
 Client->Fifo: void write( const void* data, size_t sizeInBytes)
 activate Fifo
 
-
-
 Fifo -> IFifoWrite: write(const void* data, size_t sizeInBytes)
 activate IFifoWrite
 
