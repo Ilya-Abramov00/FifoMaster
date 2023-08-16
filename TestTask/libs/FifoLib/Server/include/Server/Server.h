@@ -19,7 +19,6 @@ public:
 	using ReadHandler           = std::function<void(ConnectionId, FifoRead::Data&&)>;
 	using IdDistributionHandler = std::function<ConnectionId()>;
 
-	using FifoCfgTable     = std::map<size_t, FifoCfg>;
 	using ConnectionsTable = std::map<size_t, std::unique_ptr<Fifo>>;
 
 	Server(std::list<FifoCfg> const& nameChannelsFifo);
@@ -45,7 +44,9 @@ public:
 	~Server();
 
 private:
-	FifoCfgTable fifoCfgTable;
+	std::list<FifoCfg> const& nameChannelsFifo;
+
+
 	ConnectionsTable connectionTable;
 
 	enum class State { disconnect, connect };

@@ -32,15 +32,11 @@ void Server::disconnectH(ConnectionId id, Fifo& object)
 };
 
 Server::Server(std::list<FifoCfg> const& nameChannelsFifo) :
-    stateClient(nameChannelsFifo.size(), State::disconnect)
+    nameChannelsFifo(nameChannelsFifo), stateClient(nameChannelsFifo.size(), State::disconnect)
 {
 	size_t id = 0;
 	for(auto const& name: nameChannelsFifo) {
-		fifoCfgTable.insert({id, name});
-
-		auto writer = WriterFactory::create(name.reverseFile);
-
-		auto fifo = std::make_unique<Fifo>(std::move(writer), name.directFile);
+		auto fifo = std::make_unique<Fifo>(WriterFactory::create(name.reverseFile), name.directFile);
 
 		connectionTable.insert({id, std::move(fifo)});
 
@@ -115,20 +111,16 @@ void Server::write(size_t id, const void* data, size_t sizeInBytes)
 }
 Server::~Server()
 {
-	for(int i = 0; i != idCount; i++) {
-		unlink(fifoCfgTable[i].directFile.c_str());
-		unlink(fifoCfgTable[i].reverseFile.c_str());
+	for(auto& fifoCfg: nameChannelsFifo) {
+		unlink(fifoCfg.directFile.c_str());
+		unlink(fifoCfg.reverseFile.c_str());
 	}
 }
 
 void Server::disconnect(size_t id)
 {
-	if(id < fifoCfgTable.size()) {
-		connectionTable[id]->closeWrite();
-		connectionTable[id]->closeRead();
-	}
-	else
-		throw std::runtime_error("no idClient");
+	connectionTable[id]->closeWrite();
+	connectionTable[id]->closeRead();
 }
 
 std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename)
