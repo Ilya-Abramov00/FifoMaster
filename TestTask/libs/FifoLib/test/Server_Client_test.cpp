@@ -65,6 +65,11 @@ public:
 			serverDisconnection++;
 		});
 
+		size_t id = 0;
+		server.setIdDistributionHandler([&id]() {
+			return id++;
+		});
+
 		server.start();
 
 		WriteServer(server, nBates / 4, nWrite, nClient);

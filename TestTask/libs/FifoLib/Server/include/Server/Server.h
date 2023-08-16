@@ -28,10 +28,7 @@ public:
 	void setConnectHandler(ConnChangeHandler h);
 	void setDisconnectHandler(ConnChangeHandler h);
 
-	void setIdDistributionHandler(IdDistributionHandler h)
-	{
-		idDistributionHandler = h;
-	}
+	void setIdDistributionHandler(IdDistributionHandler h);
 
 	void write(ConnectionId id, const void* data, size_t sizeInBytes);
 
@@ -44,8 +41,9 @@ public:
 	~Server();
 
 private:
-	std::list<FifoCfg> const& nameChannelsFifo;
+	void initialization();
 
+	std::list<FifoCfg> const& nameChannelsFifo;
 
 	ConnectionsTable connectionTable;
 
@@ -60,8 +58,6 @@ private:
 
 	ReadHandler readHandler;
 	IdDistributionHandler idDistributionHandler;
-
-	ConnectionId idCount = 0;
 
 	void getter(ConnectionId id, FifoRead::Data&& data);
 

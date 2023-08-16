@@ -46,6 +46,7 @@ class Server {
 	+void setReadHandler(ReadHandler h)
 	+void setConnectHandler(EventHandler h)
 	+void setDisconnectHandler(EventHandler h)
+    +void setIdDistributionHandler(IdDistributionHandler h);
 
 	+void write(ConnectionId id, const void* data, size_t sizeInBytes)
 	+void start()
@@ -53,7 +54,7 @@ class Server {
     +void disconnect(ConnectionId id)
 
 
-	-std::map<size_t, FifoCfg> fifoCfgTable
+	-std::list<FifoCfg> const& nameChannelsFifo
 	-std::map<size_t, std::unique_ptr<Fifo>> connectionTable
 
 }

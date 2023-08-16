@@ -37,7 +37,10 @@ int main()
 	});
 	server.setDisconnectHandler([](size_t) {
 	});
-
+	size_t id = 0;
+	server.setIdDistributionHandler([&id]() {
+		return id++;
+	});
 
 	server.start();
 	std::cout << "\nStart\n";

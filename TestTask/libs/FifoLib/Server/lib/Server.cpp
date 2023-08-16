@@ -33,40 +33,7 @@ void Server::disconnectH(ConnectionId id, Fifo& object)
 
 Server::Server(std::list<FifoCfg> const& nameChannelsFifo) :
     nameChannelsFifo(nameChannelsFifo), stateClient(nameChannelsFifo.size(), State::disconnect)
-{
-	size_t id = 0;
-	for(auto const& name: nameChannelsFifo) {
-		auto fifo = std::make_unique<Fifo>(WriterFactory::create(name.reverseFile), name.directFile);
-
-		fifo->configReconnect();
-
-		fifo->setReadHandler([this, id](FifoRead::Data&& data) {
-			this->getter(id, std::move(data));
-		});
-
-		connectionTable.insert({id, std::move(fifo)});
-
-		connectionTable[id]->setConnectionHandlerRead([this, id]() {
-			this->connectH(id, *connectionTable[id]);
-		});
-
-		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
-			this->connectH(id, *connectionTable[id]);
-		});
-
-		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
-			this->disconnectH(id, *connectionTable[id]);
-		});
-
-		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
-			connectionTable[id]->closeWrite();
-			this->disconnectH(id, *connectionTable[id]);
-		});
-
-		id++;
-	}
-	idCount = id;
-}
+{}
 
 void Server::start()
 {
@@ -79,6 +46,10 @@ void Server::start()
 	if(!closeHandler) {
 		throw std::runtime_error("callback closeHandler not set");
 	}
+	if(!idDistributionHandler) {
+		throw std::runtime_error("callback idDistributionHandler not set");
+	}
+	initialization();
 	for(const auto& Fifo: connectionTable) {
 		Fifo.second->start();
 	}
@@ -105,6 +76,10 @@ void Server::setConnectHandler(ConnChangeHandler h)
 {
 	newHandler = std::move(h);
 }
+void Server::setIdDistributionHandler(Server::IdDistributionHandler h)
+{
+	idDistributionHandler = std::move(h);
+}
 
 void Server::write(size_t id, const void* data, size_t sizeInBytes)
 {
@@ -122,6 +97,40 @@ void Server::disconnect(size_t id)
 {
 	connectionTable[id]->closeWrite();
 	connectionTable[id]->closeRead();
+}
+
+void Server::initialization()
+{
+	size_t id = 0;
+	for(auto const& name: nameChannelsFifo) {
+		id        = idDistributionHandler();
+		auto fifo = std::make_unique<Fifo>(WriterFactory::create(name.reverseFile), name.directFile);
+
+		fifo->configReconnect();
+
+		fifo->setReadHandler([this, id](FifoRead::Data&& data) {
+			this->getter(id, std::move(data));
+		});
+
+		connectionTable.insert({id, std::move(fifo)});
+
+		connectionTable[id]->setConnectionHandlerRead([this, id]() {
+			this->connectH(id, *connectionTable[id]);
+		});
+
+		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
+			this->connectH(id, *connectionTable[id]);
+		});
+
+		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
+			this->disconnectH(id, *connectionTable[id]);
+		});
+
+		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
+			connectionTable[id]->closeWrite();
+			this->disconnectH(id, *connectionTable[id]);
+		});
+	}
 }
 
 std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename)

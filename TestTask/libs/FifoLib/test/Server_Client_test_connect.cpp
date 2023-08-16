@@ -65,7 +65,10 @@ public:
 		server.setDisconnectHandler([&serverDisconnection](size_t) {
 			serverDisconnection++;
 		});
-
+		size_t id = 4;
+		server.setIdDistributionHandler([&id]() {
+			return id++;
+		});
 		server.start();
 
 		WriteServer(server, nBates, nWrite, nClient);
@@ -153,7 +156,10 @@ TEST_F(ServerClientTestOneConnect, Clients3To1ServerConnectin_QW_No_Сonnect)
 	server.setDisconnectHandler([](size_t) {
 
 	});
-
+	size_t id = 6;
+	server.setIdDistributionHandler([&id]() {
+		return id++;
+	});
 	server.start();
 	sleep(3);
 
