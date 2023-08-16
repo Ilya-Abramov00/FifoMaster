@@ -19,9 +19,9 @@ public:
 
 	void setReadHandler(ReadHandler h);
 
-	void setConnectHandler(ConnChangeHandler h);
+	void setNewHandler(ConnChangeHandler h);
 
-	void setDisconnectHandler(ConnChangeHandler h);
+	void setCloseHandler(ConnChangeHandler h);
 
 private:
 	void logicConnect();

@@ -23,9 +23,9 @@ int main()
 
 	Client client1(k1, Ipc::Config::QW, 0);
 	client1.setReadHandler(e);
-	client1.setDisconnectHandler([]() {
+	client1.setCloseHandler([]() {
 	});
-	client1.setConnectHandler([]() {
+	client1.setNewHandler([]() {
 	});
 
 	client1.start();

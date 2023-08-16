@@ -23,10 +23,10 @@ public:
 		int clientDisconnection = 0;
 		client.setReadHandler(getterClient1);
 
-		client.setConnectHandler([&clientConnection]() {
+		client.setNewHandler([&clientConnection]() {
 			clientConnection++;
 		});
-		client.setDisconnectHandler([&clientDisconnection]() {
+		client.setCloseHandler([&clientDisconnection]() {
 			clientDisconnection++;
 		});
 		client.start();

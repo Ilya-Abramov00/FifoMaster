@@ -70,12 +70,12 @@ void Client::setReadHandler(ReadHandler h)
 	readHandler = std::move(h);
 };
 
-void Client::setConnectHandler(Ipc::Client::ConnChangeHandler h)
+void Client::setNewHandler(ConnChangeHandler h)
 {
 	newHandler = std::move(h);
 };
 
-void Client::setDisconnectHandler(Ipc::Client::ConnChangeHandler h)
+void Client::setCloseHandler(ConnChangeHandler h)
 {
 	closeHandler = std::move(h);
 };

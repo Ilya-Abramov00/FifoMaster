@@ -24,9 +24,9 @@ int main()
 
 	Client client2(k2, Ipc::Config::NQW, 8000);
 	client2.setReadHandler(e);
-	client2.setDisconnectHandler([]() {
+	client2.setCloseHandler([]() {
 	});
-	client2.setConnectHandler([]() {
+	client2.setNewHandler([]() {
 	});
 
 	client2.start();
