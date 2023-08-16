@@ -9,8 +9,7 @@ class Client {
 	using ReadHandler       = std::function<void(FifoRead::Data&&)>;
 
 public:
-	Client(FifoCfg name, Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
-	       std::optional<size_t> waitReconnectTimeMilliSeconds);
+	Client(FifoCfg name, Config config, std::optional<size_t> waitConnectTimeMilliSeconds);
 
 	void start();
 

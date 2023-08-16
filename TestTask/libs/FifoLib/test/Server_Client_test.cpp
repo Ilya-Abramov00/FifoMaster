@@ -12,7 +12,7 @@ public:
 	std::string FIFO1 = "fifo1";
 	void clients(FifoCfg name, Config config, size_t time, int nBates, int nWrite, int nBatesServer, std::mutex& mtx)
 	{
-		Client client(name, config, time, time);
+		Client client(name, config, time);
 		std::string dataClient = "";
 
 		auto getterClient1 = [&dataClient, &mtx](FifoRead::Data&& dataq) {

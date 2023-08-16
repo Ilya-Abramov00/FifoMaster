@@ -5,10 +5,8 @@
 
 namespace Ipc {
 
-Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> waitConnectTimeMilliSeconds,
-               std::optional<size_t> waitReconnectTimeMilliSeconds) :
-    client(WriterFactory::create(name.directFile, config, waitConnectTimeMilliSeconds.value()),
-           name.reverseFile)
+Client::Client(Ipc::FifoCfg name, Ipc::Config config, std::optional<size_t> waitConnectTimeMilliSeconds) :
+    client(WriterFactory::create(name.directFile, config, waitConnectTimeMilliSeconds.value()), name.reverseFile)
 {
 	client.setReadHandler([this](FifoRead::Data&& data) {
 		this->getter(std::move(data));

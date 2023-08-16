@@ -1,0 +1,26 @@
+@startuml
+
+participant "Client" as Client
+participant "Fifo" as Fifo
+participant "IFifoWrite" as IFifoWrite
+participant "FifoWriteQ" as QFifoWrite
+participant "queue" as queue
+participant "FifoWriteDirect" as NQFifoWrite
+
+Client->Fifo: void write( const void* data, size_t sizeInBytes)
+activate Fifo
+
+
+
+Fifo -> IFifoWrite: write(const void* data, size_t sizeInBytes)
+activate IFifoWrite
+
+IFifoWrite->QFifoWrite: write(const void* data, size_t sizeInBytes)
+QFifoWrite ->queue: write(const void* data, size_t sizeInBytes)
+queue->channel: data
+
+
+IFifoWrite->NQFifoWrite: write(const void* data, size_t sizeInBytes)
+NQFifoWrite->channel: data
+
+@enduml

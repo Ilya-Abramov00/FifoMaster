@@ -29,7 +29,7 @@ public:
 
 	void setDisconnectHandler(ConnChangeHandler h);
 
-	void write(size_t id, const void* data, size_t sizeInBytes);
+	void write(ConnectionId id, const void* data, size_t sizeInBytes);
 
 	void start();
 

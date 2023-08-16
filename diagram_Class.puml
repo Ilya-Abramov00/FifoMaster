@@ -10,10 +10,10 @@ interface IFifoWriter {
 
 
 
-class FifoWriteNQ
+class FifoWriteDirect
 class FifoWriteQ
 
-FifoWriteNQ --|> IFifoWriter
+FifoWriteDirect --|> IFifoWriter
 FifoWriteQ --|> IFifoWriter
 
 class FifoRead {
@@ -30,7 +30,7 @@ class Fifo {
 	+void stop()
 	+void closeRead()
 	+void closeWrite()
-
+    +void configReconnect()
 	-FifoRead fifoRead;
     -std::unique_ptr<IFifoWriter> fifoWrite;
 }
@@ -47,11 +47,11 @@ class Server {
 	+void setConnectHandler(EventHandler h)
 	+void setDisconnectHandler(EventHandler h)
 
-	+void writeId(size_t id, const void* data, size_t sizeInBytes)
+	+void write(ConnectionId id, const void* data, size_t sizeInBytes)
 	+void start()
 	+void stop()
-    +void startId(size_t id)
-    +void stopId(size_t id)
+    +void disconnect(ConnectionId id)
+
 
 	-std::map<size_t, FifoCfg> fifoCfgTable
 	-std::map<size_t, std::unique_ptr<Fifo>> connectionTable
