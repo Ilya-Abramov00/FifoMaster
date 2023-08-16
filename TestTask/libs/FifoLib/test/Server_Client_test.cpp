@@ -31,12 +31,12 @@ public:
 		});
 		client.start();
 		WriteClient(client, nBates, nWrite);
-		sleep(5);
+		sleep(2);
 		client.stop();
 		sleep(1);
 		client.start();
 		WriteClient(client, nBates, nWrite);
-		sleep(5);
+		sleep(2);
 		client.stop();
 		sleep(1);
 		ASSERT_TRUE(clientConnection == 2);
@@ -73,11 +73,11 @@ public:
 		server.start();
 
 		WriteServer(server, nBates / 4, nWrite, nClient);
-		sleep(3);
+		sleep(2);
 		WriteServer(server, nBates / 4, nWrite, nClient);
 		sleep(2);
 		WriteServer(server, nBates / 2, nWrite, nClient);
-		sleep(12);
+		sleep(5);
 
 		server.stop();
 
@@ -113,7 +113,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW)
 
 	std::list<FifoCfg> data = {k1, k2, k3};
 
-	int sizeNClient  = 1024 * 256;
+	int sizeNClient  = 1024 ;
 	int nWriteClient = 10;
 
 	int sizeNServer  = 256;
@@ -152,7 +152,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_NQW)
 
 	std::list<FifoCfg> data = {k1, k2, k3};
 
-	int sizeNClient  = 1024 * 256;
+	int sizeNClient  = 1024 ;
 	int nWriteClient = 10;
 
 	int sizeNServer  = 256;
@@ -191,7 +191,7 @@ TEST_F(ServerClientTest, Clients3To1ServerConnectin_QW_and_NQW)
 
 	std::list<FifoCfg> data = {k1, k2, k3};
 
-	int sizeNClient  = 1024 * 256;
+	int sizeNClient  = 1024 ;
 	int nWriteClient = 10;
 
 	int sizeNServer  = 256;

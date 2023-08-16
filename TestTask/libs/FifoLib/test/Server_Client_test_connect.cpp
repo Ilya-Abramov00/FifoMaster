@@ -65,7 +65,7 @@ public:
 		server.setDisconnectHandler([&serverDisconnection](size_t) {
 			serverDisconnection++;
 		});
-		size_t id = 4;
+		size_t id = 0;
 		server.setIdDistributionHandler([&id]() {
 			return id++;
 		});
@@ -102,7 +102,10 @@ public:
 		server.setDisconnectHandler([&serverDisconnection](size_t) {
 			serverDisconnection++;
 		});
-
+		size_t id = 100;
+		server.setIdDistributionHandler([&id]() {
+			return id++;
+		});
 		server.start();
 
 		WriteServer(server, nBates, nWrite, nClient);

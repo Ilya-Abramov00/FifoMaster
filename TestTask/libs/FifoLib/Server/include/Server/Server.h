@@ -48,7 +48,7 @@ private:
 	ConnectionsTable connectionTable;
 
 	enum class State { disconnect, connect };
-	std::vector<State> stateClient;
+	std::map<size_t,State> stateClient;
 
 	std::mutex mtxConnect;
 	std::mutex mtxDisconnect;

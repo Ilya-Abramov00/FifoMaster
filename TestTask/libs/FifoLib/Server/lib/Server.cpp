@@ -31,8 +31,7 @@ void Server::disconnectH(ConnectionId id, Fifo& object)
 	}
 };
 
-Server::Server(std::list<FifoCfg> const& nameChannelsFifo) :
-    nameChannelsFifo(nameChannelsFifo), stateClient(nameChannelsFifo.size(), State::disconnect)
+Server::Server(std::list<FifoCfg> const& nameChannelsFifo) : nameChannelsFifo(nameChannelsFifo)
 {}
 
 void Server::start()
@@ -50,6 +49,7 @@ void Server::start()
 		throw std::runtime_error("callback idDistributionHandler not set");
 	}
 	initialization();
+
 	for(const auto& Fifo: connectionTable) {
 		Fifo.second->start();
 	}
@@ -95,16 +95,18 @@ Server::~Server()
 
 void Server::disconnect(size_t id)
 {
-	connectionTable[id]->closeWrite();
-	connectionTable[id]->closeRead();
+	connectionTable.at(id)->closeWrite();
+	connectionTable.at(id)->closeRead();
 }
 
 void Server::initialization()
 {
 	size_t id = 0;
 	for(auto const& name: nameChannelsFifo) {
-		id        = idDistributionHandler();
-		auto fifo = std::make_unique<Fifo>(WriterFactory::create(name.reverseFile), name.directFile);
+		id              = idDistributionHandler();
+		stateClient.insert({id, State::disconnect});
+
+		auto fifo       = std::make_unique<Fifo>(WriterFactory::create(name.reverseFile), name.directFile);
 
 		fifo->configReconnect();
 
@@ -115,20 +117,20 @@ void Server::initialization()
 		connectionTable.insert({id, std::move(fifo)});
 
 		connectionTable[id]->setConnectionHandlerRead([this, id]() {
-			this->connectH(id, *connectionTable[id]);
+			this->connectH(id, *connectionTable.at(id));
 		});
 
 		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
-			this->connectH(id, *connectionTable[id]);
+			this->connectH(id, *connectionTable.at(id));
 		});
 
 		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
-			this->disconnectH(id, *connectionTable[id]);
+			this->disconnectH(id, *connectionTable.at(id));
 		});
 
 		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
 			connectionTable[id]->closeWrite();
-			this->disconnectH(id, *connectionTable[id]);
+			this->disconnectH(id, *connectionTable.at(id));
 		});
 	}
 }
