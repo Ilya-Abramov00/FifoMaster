@@ -44,6 +44,8 @@ Server::Server(std::list<FifoCfg> const& nameChannelsFifo, Config config,
 
 		connectionTable.insert({id, std::move(fifo)});
 
+		connectionTable[id]->recoonectTrue();
+
 		connectionTable[id]->setReadHandler([this, id](FifoRead::Data&& data) {
 			this->getter(id, std::move(data));
 		});
@@ -134,7 +136,7 @@ std::unique_ptr<IFifoWriter> Server::WriterFactory::create(std::string filename,
 {
 	switch(conf) {
 	case(Config::QW):
-		return std::make_unique<WriteQImpl>((filename));
+		return std::make_unique<WriteQImpl>(filename);
 	case(Config::NQW):
 		return std::make_unique<WriteDirectImpl>(filename, waitConnectTimeMilliSeconds, waitReconnectTimeMilliSeconds);
 	default:

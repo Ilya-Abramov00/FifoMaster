@@ -61,7 +61,7 @@ void Client::stop()
 	});
 
 	t.wait_for(
-	    std::chrono::seconds(3)); // обработка кейса, когда сервер упал(клиент в таком случае не мог бы отключиться)
+	    std::chrono::seconds(3)); // обработка кейса, когда сервер удалил каналы(вызвал деструтор)(клиент в таком случае не мог бы отключиться)
 
 	if(!flag) {
 		throw std::runtime_error("the server crashed");

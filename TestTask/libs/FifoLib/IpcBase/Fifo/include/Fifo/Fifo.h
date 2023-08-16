@@ -43,6 +43,16 @@ public:
 
 	void closeWrite();
 
+	void connectWrite(){
+		fifoWrite->connect();
+	}
+	void connectRead(){
+		fifoRead.connect();
+	}
+void recoonectTrue(){
+		fifoRead.recoonectTrue();
+		fifoWrite->recoonectTrue();
+}
 private:
 	std::unique_ptr<IFifoWriter> fifoWrite;
 	FifoRead fifoRead;

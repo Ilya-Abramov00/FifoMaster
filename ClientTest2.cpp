@@ -42,6 +42,8 @@ int main()
 	std::cout << "\nstop\n";
 	client2.stop();
 
+	sleep(7);
+
 	std::cout << "\nStart\n";
 	client2.start();
 

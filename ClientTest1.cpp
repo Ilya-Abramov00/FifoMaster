@@ -42,7 +42,7 @@ int main()
 
 	std::cout << "\nstop\n";
     client1.stop();
-	sleep(1);
+	sleep(5);
 
     client1.start();
 	std::cout << "\n2 start\n";

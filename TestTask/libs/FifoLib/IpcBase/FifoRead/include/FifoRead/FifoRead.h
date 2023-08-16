@@ -28,13 +28,16 @@ public:
 	bool const getWaitConnect() const;
 
 	long const& getFifoFd() const;
-
-private:
+	void recoonectTrue()
+	{
+		reconnect = true;
+	}
 	void connect();
 
+private:
 	void readFifo();
 
-
+	bool reconnect{false};
 	struct Params {
 		std::string addrRead;
 		ReadHandler msgHandler;

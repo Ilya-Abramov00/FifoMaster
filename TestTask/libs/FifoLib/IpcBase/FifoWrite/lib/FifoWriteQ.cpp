@@ -38,30 +38,6 @@ void WriteQImpl::startWrite()
 		writeFifo();
 	});
 }
-
-void WriteQImpl::writeFifo()
-{
-	while(runWrite) {
-		connect();
-		while(waitConnect && runWrite) {
-			{
-				std::lock_guard<std::mutex> mtx_0(mtx);
-				if(!queue.empty()) {
-					signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
-					auto flag = write(fifoFd, queue.front().data(), queue.front().size());
-					if(flag == -1) {
-						waitConnect = false;
-						params.disconnectHandler();
-
-						break;
-					}
-					queue.pop();
-				}
-			}
-		}
-	}
-}
-
 void WriteQImpl::connect()
 {
 	waitOpen = false;
@@ -73,6 +49,27 @@ void WriteQImpl::connect()
 		params.connectHandler();
 	};
 }
+
+void WriteQImpl::writeFifo()
+{
+	do {
+		connect();
+		while(waitConnect && runWrite) {
+			std::lock_guard<std::mutex> mtx_0(mtx);
+			if(!queue.empty()) {
+				signal(SIGPIPE, SIG_IGN); // отлавливает сигнал в случае закрытия канала на чтение
+				auto flag = write(fifoFd, queue.front().data(), queue.front().size());
+				if(flag == -1) {
+					waitConnect = false;
+					params.disconnectHandler();
+					break;
+				}
+				queue.pop();
+			}
+		}
+	} while(reconnect);
+}
+
 void WriteQImpl::pushData(const void* data, size_t sizeN)
 {
 	if(!data) {
@@ -89,8 +86,8 @@ void WriteQImpl::pushData(const void* data, size_t sizeN)
 
 void WriteQImpl::stopWrite()
 {
-	runWrite = false;
-
+	runWrite  = false;
+	reconnect = false;
 	params.disconnectHandler();
 	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'R');

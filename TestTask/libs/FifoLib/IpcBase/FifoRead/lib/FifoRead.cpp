@@ -31,14 +31,24 @@ void FifoRead::startRead()
 	});
 }
 
+void FifoRead::connect()
+{
+	waitOpen = false;
+	fifoFd   = openFifo(params.addrRead, 'R');
+	waitOpen = true;
+
+	if(runRead && (fifoFd != -1)) {
+		waitConnect = true;
+		params.connectHandler();
+	}
+}
 void FifoRead::readFifo()
 {
 	auto MAXLINE = 1024 * 64;
 	std::vector<uint8_t> buffer(MAXLINE);
 
-	while(runRead) {
+	do {
 		connect();
-
 		while(waitConnect && runRead) {
 			auto flag = read(fifoFd, buffer.data(), MAXLINE);
 
@@ -54,13 +64,13 @@ void FifoRead::readFifo()
 				params.msgHandler(std::vector<uint8_t>(buffer.data(), buffer.data() + flag));
 			}
 		}
-	}
+	} while(reconnect);
 }
 
 void FifoRead::stopRead()
 {
-	runRead = false;
-
+	runRead   = false;
+	reconnect = false;
 	if(!waitOpen) {
 		auto fd = openFifo(params.addrRead.c_str(), 'W');
 
@@ -69,7 +79,7 @@ void FifoRead::stopRead()
 	close(fifoFd);
 
 	threadReadFifo->join();
-    waitConnect = false;
+	waitConnect = false;
 }
 
 void FifoRead::setConnectionHandler(ConnectionHandler handler)
@@ -95,16 +105,5 @@ bool const FifoRead::getWaitConnect() const
 long const& FifoRead::getFifoFd() const
 {
 	return fifoFd;
-}
-void FifoRead::connect()
-{
-	waitOpen = false;
-	fifoFd   = openFifo(params.addrRead, 'R');
-	waitOpen = true;
-
-	if(runRead && (fifoFd != -1)) {
-		waitConnect = true;
-		params.connectHandler();
-	}
 }
 } // namespace Ipc

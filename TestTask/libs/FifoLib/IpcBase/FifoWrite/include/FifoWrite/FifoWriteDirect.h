@@ -23,9 +23,10 @@ public:
 
 	long const& getFifoFd() const override;
 
-private:
-	void waitConnectFifo(size_t time);
+	void connect() override;
+	void recoonectTrue() override{};
 
+private:
 	struct Params {
 		std::string addrRead;
 		ConnectionHandler connectHandler;

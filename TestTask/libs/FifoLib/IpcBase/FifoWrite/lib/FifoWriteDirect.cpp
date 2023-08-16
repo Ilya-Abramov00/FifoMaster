@@ -42,10 +42,10 @@ void WriteDirectImpl::startWrite()
 	if(!params.disconnectHandler) {
 		throw std::runtime_error("callback Write closeHandler not set");
 	}
-	waitConnectFifo(params.waitConnnectTimeMilliSeconds);
+	connect();
 }
 
-void WriteDirectImpl::waitConnectFifo(size_t time)
+void WriteDirectImpl::connect()
 {
 	std::future f = std::async([this]() {
 		waitOpen = false;
@@ -53,7 +53,7 @@ void WriteDirectImpl::waitConnectFifo(size_t time)
 		waitOpen = true;
 	});
 
-	f.wait_for(std::chrono::milliseconds(time));
+	f.wait_for(std::chrono::milliseconds(params.waitConnnectTimeMilliSeconds));
 
 	if(waitOpen && fifoFd != -1) {
 		waitConnect = true;
@@ -76,7 +76,6 @@ void WriteDirectImpl::pushData(const void* data, size_t sizeN)
 	if(flag == -1) {
 		waitConnect = false;
 		params.disconnectHandler();
-		waitConnectFifo(params.waitReconnectTimeMilliSeconds);
 	}
 }
 

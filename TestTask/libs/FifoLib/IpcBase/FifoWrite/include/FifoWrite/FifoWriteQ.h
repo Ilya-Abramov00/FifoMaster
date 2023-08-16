@@ -18,13 +18,19 @@ public:
 
 	void pushData(const void* data, size_t sizeN) override;
 
-	bool  getWaitConnect() const override;
+	bool getWaitConnect() const override;
 
 	long const& getFifoFd() const override;
 
-private:
-	void connect();
+	void connect() override;
 
+	void recoonectTrue() override
+	{
+		reconnect = true;
+	}
+
+private:
+	bool reconnect{false};
 	void writeFifo();
 
 	struct Params {
@@ -36,7 +42,7 @@ private:
 	bool runWrite{false};
 	bool waitOpen{false};
 
-bool waitConnect{false};
+	bool waitConnect{false};
 	long fifoFd = -1;
 	std::queue<std::vector<uint8_t>> queue;
 	std::mutex mtx;

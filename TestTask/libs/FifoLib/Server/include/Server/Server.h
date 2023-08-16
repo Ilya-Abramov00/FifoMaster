@@ -41,6 +41,7 @@ public:
 	~Server();
 
 private:
+
 	FifoCfgTable fifoCfgTable;
 	ConnectionsTable connectionTable;
 
