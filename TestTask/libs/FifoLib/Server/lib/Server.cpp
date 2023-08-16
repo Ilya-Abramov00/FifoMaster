@@ -33,7 +33,6 @@ void Server::disconnectH(ConnectionId id, Fifo& object)
 
 Server::Server(std::list<FifoCfg> const& nameChannelsFifo) : nameChannelsFifo(nameChannelsFifo)
 {}
-
 void Server::start()
 {
 	if(!readHandler) {
@@ -83,7 +82,7 @@ void Server::setIdDistributionHandler(Server::IdDistributionHandler h)
 
 void Server::write(size_t id, const void* data, size_t sizeInBytes)
 {
-	connectionTable[id]->write(data, sizeInBytes);
+	connectionTable.at(id)->write(data, sizeInBytes);
 }
 Server::~Server()
 {
@@ -101,12 +100,13 @@ void Server::disconnect(size_t id)
 
 void Server::initialization()
 {
-	size_t id = 0;
-	for(auto const& name: nameChannelsFifo) {
-		id              = idDistributionHandler();
+	for(auto name: nameChannelsFifo) {
+		size_t id = idDistributionHandler();
 		stateClient.insert({id, State::disconnect});
 
-		auto fifo       = std::make_unique<Fifo>(WriterFactory::create(name.reverseFile), name.directFile);
+		auto writer = WriterFactory::create(name.reverseFile);
+
+		auto fifo = std::make_unique<Fifo>(std::move(writer), name.directFile);
 
 		fifo->configReconnect();
 
@@ -116,20 +116,20 @@ void Server::initialization()
 
 		connectionTable.insert({id, std::move(fifo)});
 
-		connectionTable[id]->setConnectionHandlerRead([this, id]() {
+		connectionTable.at(id)->setConnectionHandlerRead([this, id]() {
 			this->connectH(id, *connectionTable.at(id));
 		});
 
-		connectionTable[id]->setConnectionHandlerWrite([this, id]() {
+		connectionTable.at(id)->setConnectionHandlerWrite([this, id]() {
 			this->connectH(id, *connectionTable.at(id));
 		});
 
-		connectionTable[id]->setDisconnectionHandlerWrite([this, id]() {
+		connectionTable.at(id)->setDisconnectionHandlerWrite([this, id]() {
 			this->disconnectH(id, *connectionTable.at(id));
 		});
 
-		connectionTable[id]->setDisconnectionHandlerRead([this, id]() {
-			connectionTable[id]->closeWrite();
+		connectionTable.at(id)->setDisconnectionHandlerRead([this, id]() {
+			connectionTable.at(id)->closeWrite();
 			this->disconnectH(id, *connectionTable.at(id));
 		});
 	}

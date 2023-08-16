@@ -21,7 +21,7 @@ public:
 
 	using ConnectionsTable = std::map<size_t, std::unique_ptr<Fifo>>;
 
-	Server(std::list<FifoCfg> const& nameChannelsFifo);
+	Server(std::list<FifoCfg> const &  nameChannelsFifo);
 
 	void setReadHandler(ReadHandler h);
 
@@ -43,7 +43,7 @@ public:
 private:
 	void initialization();
 
-	std::list<FifoCfg> const& nameChannelsFifo;
+	std::list<FifoCfg> const &   nameChannelsFifo;
 
 	ConnectionsTable connectionTable;
 

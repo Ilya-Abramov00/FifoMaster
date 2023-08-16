@@ -79,7 +79,7 @@ public:
 		ASSERT_TRUE(serverConnection == nClient * 1);
 		ASSERT_TRUE(serverDisconnection == nClient * 1);
 		ASSERT_TRUE(dataServer.size() == nClient * nBatesClient);
-		sleep(4);
+		sleep(3);
 	}
 	void serversDisconnect(std::list<FifoCfg> fifoCfg, int nBates, int nWrite, size_t nClient, int nBatesClient,
 	                       std::mutex& mtx0, size_t waitDisconnectTime)
@@ -102,7 +102,7 @@ public:
 		server.setDisconnectHandler([&serverDisconnection](size_t) {
 			serverDisconnection++;
 		});
-		size_t id = 100;
+		size_t id = 0;
 		server.setIdDistributionHandler([&id]() {
 			return id++;
 		});
@@ -112,8 +112,8 @@ public:
 		sleep(waitDisconnectTime);
 		server.disconnect(0);
 		server.disconnect(2);
+		sleep(5);
 		server.stop();
-
 		ASSERT_TRUE(serverConnection == nClient * 1);
 		ASSERT_TRUE(serverDisconnection == nClient * 1);
 		ASSERT_TRUE(dataServer.size() == nClient * nBatesClient);

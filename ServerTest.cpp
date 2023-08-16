@@ -37,7 +37,7 @@ int main()
 	});
 	server.setDisconnectHandler([](size_t) {
 	});
-	size_t id = 0;
+	size_t id = 2;
 	server.setIdDistributionHandler([&id]() {
 		return id++;
 	});
@@ -48,8 +48,8 @@ int main()
 	auto x = 1;
 	std::string data0(x, 'a');
 	for(int i = 0; i != 15; i++) {
-		server.write(0, (void*)data0.data(), x);
-		server.write(1, (void*)data0.data(), x);
+		server.write(2, (void*)data0.data(), x);
+		server.write(3, (void*)data0.data(), x);
 		if(i % 3) {
 			sleep(1);
 		}
@@ -57,10 +57,10 @@ int main()
 
 
 	sleep(6);
-	server.disconnect(0);
+	server.disconnect(3);
 	for(int i = 0; i != 15; i++) {
-		server.write(0, (void*)data0.data(), x);
-		server.write(1, (void*)data0.data(), x);
+		server.write(2, (void*)data0.data(), x);
+		server.write(3, (void*)data0.data(), x);
 		if(i % 3) {
 			sleep(1);
 		}
